@@ -27,9 +27,11 @@
         .metrics-info {
             margin-bottom: 30px;
         }
-        #histogram {
-            width: 100%;
-            height: 400px;
+        .graph-container {
+            margin-bottom: 30px;
+        }
+        .graph-container h3 {
+            text-align: center;
         }
     </style>
 </head>
@@ -44,13 +46,34 @@
                 <li>Total de Stay Points: {{ stay_points.count }}</li>
             </ul>
         </div>
+
         <div>
-            <h3>Histograma de TTrvT:</h3>
-            <div id="histogram"></div>
+            <h3>Histograma de Tempo de Viagem (TTrvT):</h3>
+            <div id="time"></div>
         </div>
+
+        <div>
+            <h3>Histograma de Distância de Viagem (TTrvD):</h3>
+            <div id="distance"></div>
+        </div>
+
+        <div>
+            <h3>Histograma de Velocidade Média de Viagem (TTrvAS):</h3>
+            <div id="speed"></div>
+        </div>
+
+        <div>
+            <h3>Histograma de Raio:</h3>
+            <div id="radius"></div>
+        </div>
+
+        <div>
+            <h3>Densidade</h3>
+            <div id="density"></div>
+        </div>
+        
     </div>
 
-    <!-- Carregando o Plotly.js no final do body -->
     <script>
         // Obtenha os dados de TTrvT da variável metrics, convertendo para JSON válido
         const metricsData = JSON.parse('{{ metrics|escapejs }}');
@@ -59,36 +82,48 @@
         console.log(metricsData); // Remover ou comentar depois de testar
 
         // Extrair os valores de TTrvT da resposta da API
-        const ttrvtValues = metricsData.map(item => item.fields.TTrvT);
+        const travel_time = metricsData.map(item => item.fields.TTrvT);
+        const travel_distance = metricsData.map(item => item.fields.TTrvD);
+        const travel_speed = metricsData.map(item => item.fields.TTrvAS);
+        const radius = metricsData.map(item => item.fields.radius);
 
         // Configuração do histograma usando Plotly.js
-        const trace = {
-            x: ttrvtValues,
-            type: 'histogram',
-            marker: {
-                color: 'rgba(54, 162, 235, 0.7)',
-                line: {
-                    color: 'rgba(54, 162, 235, 1)',
-                    width: 1
+
+        function genereteHistogram(value, id){
+            const trace = {
+                x: value,
+                type: 'histogram',
+                marker: {
+                    color: 'rgba(54, 162, 235, 0.7)',
+                    line: {
+                        color: 'rgba(54, 162, 235, 1)',
+                        width: 1
+                    }
                 }
-            }
-        };
+            };
 
-        const layout = {
-            title: 'Distribuição de TTrvT',
-            xaxis: {
-                title: 'Valor de TTrvT'
-            },
-            yaxis: {
-                title: 'Frequência'
-            },
-            bargap: 0.2,
-            width: 900,
-            height: 400
-        };
+            const layout = {
+                title: 'Distribuição',
+                xaxis: {
+                    title: 'Valor'
+                },
+                yaxis: {
+                    title: 'Frequência'
+                },
+                bargap: 0.2,
+                width: 900,
+                height: 400
+            };
 
-        // Criando o gráfico
-        Plotly.newPlot('histogram', [trace], layout);
+            // Criando o gráfico
+            Plotly.newPlot(id, [trace], layout);
+        }
+
+        genereteHistogram(travel_time, 'time')
+        genereteHistogram(travel_distance, 'distance')
+        genereteHistogram(travel_speed, 'speed')
+        genereteHistogram(
+            radius, 'radius')
     </script>
 </body>
 </html>

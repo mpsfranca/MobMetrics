@@ -1,63 +1,26 @@
-import logging
-from ..utils.abs_metric import AbsMetric
 from ..utils.utils import distance
+from ..utils.abs_metric import AbsMetric
 
 class TravelDistance(AbsMetric):
-    """
-    A class to calculate travel distances between consecutive points in the trace,
-    excluding stay points.
-
-    Attributes:
-        trace (pd.DataFrame): A DataFrame containing the trace with the points.
-        travels (pd.DataFrame): A DataFrame to store the calculated travel distances.
-    """
-
-    def __init__(self, trace, travels):
+    def __init__(self, traces):
         """
-        Initialize the TravelDistance instance.
-
-        Args:
-            trace (pd.DataFrame): A DataFrame containing the trace with coordinates and stay points.
-            travels (pd.DataFrame): A DataFrame to store the calculated travel distances.
+        Inicializa com os rastros da viagem.
         """
-        self.trace = trace
-        self.travels = travels
+        self.traces = traces
 
     def extract(self):
         """
-        Calculate the travel distance by summing the distances between consecutive
-        points, excluding stay points.
-
-        Returns:
-            pd.DataFrame: The DataFrame with the calculated travel distances.
+        Calcula a distância total percorrida entre os pontos de rastro.
         """
-        logging.info("Calculating Total Distance")
+        distancia_total = 0
+        previous_trace = self.traces.first()  # O primeiro ponto é o ponto de partida
+        
+        for trace in self.traces[1:]:  # Percorrer os rastros após o primeiro ponto
+            # Converter os pontos para o formato de dicionário esperado pela função `distance`
+            first_point = {'x': previous_trace.x, 'y': previous_trace.y, 'z': previous_trace.z}
+            second_point = {'x': trace.x, 'y': trace.y, 'z': trace.z}
 
-        # Initialize the travel_distance column
-        self.travels['travel_distance'] = 0.0
-
-        # Variables for calculating distance
-        travel = 0
-        buffer = 0
-        block = False
-
-        # Iterate through the trace to calculate the travel distance
-        for n in range(len(self.trace) - 1):
-            # Check if the current point is not a stay point (stay_point_id == 0)
-            if self.trace.iloc[n]['spId'] == 0:
-                travel += distance(self.trace.iloc[n], self.trace.iloc[n + 1])
-                block = True
-            else:
-                # When a stay point is encountered, save the total distance for the previous segment
-                if block:
-                    self.travels.loc[buffer, 'travel_distance'] = round(travel, 5)
-                    buffer += 1
-                    travel = 0
-                    block = False
-
-        # If the last segment wasn't followed by a stay point, we store the travel distance
-        if block:
-            self.travels.loc[buffer, 'travel_distance'] = round(travel, 5)
-
-        logging.info("Travel Distance Calculated Successfully")
-        return self.travels
+            distancia_total += distance(first_point, second_point)
+            previous_trace = trace
+        
+        return distancia_total

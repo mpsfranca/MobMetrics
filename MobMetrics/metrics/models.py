@@ -11,14 +11,13 @@ class MetricsModel(models.Model):
     radius  = models.FloatField()
 
 class StayPointModel(models.Model):
-    entityId    = models.IntegerField()
     spId        = models.IntegerField()
     x           = models.FloatField()
     y           = models.FloatField()
     z           = models.FloatField()
-    arvT        = models.FloatField()
-    levT        = models.FloatField()
-    visitTime   = models.FloatField()
+    numVisits   = models.IntegerField()
+    entropy = models.FloatField(null=True, blank=True)
+
 
 class TraceModel(models.Model):
     entityId= models.IntegerField()
@@ -36,3 +35,10 @@ class TravelsModel(models.Model):
     TrvD    = models.FloatField()
     TrvT    = models.FloatField()
     TrvAS   = models.FloatField()
+
+class VisitModel(models.Model):
+    entityId= models.IntegerField()
+    spId    = models.IntegerField()
+    arvT    = models.IntegerField()
+    levT    = models.IntegerField()
+    visitT  = models.FloatField()

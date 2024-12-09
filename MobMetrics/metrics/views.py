@@ -14,7 +14,7 @@ def upload_view(request):
             time_threshold = form.cleaned_data['time_threshold']
             distance_threshold = form.cleaned_data['distance_threshold']
 
-            parameters = (time_threshold, distance_threshold)
+            parameters = (distance_threshold, distance_threshold, time_threshold)
 
             main(trace_file, parameters)
 
