@@ -1,73 +1,79 @@
 import pandas as pd
-from django.db import transaction
 
 from ..models import StayPointModel, VisitModel, MetricsModel, TraceModel, TravelsModel
 
+#from utils
 from ..metrics.utils.stay_point import StayPoints
 
+#from temporal
 from ..metrics.temporal.travel_time import TravelTime
 from ..metrics.temporal.total_travel_time import TotalTravelTime
 
+#from social
 from ..metrics.social.entropy import Entropy
 
+#from spatial
 from ..metrics.spatial.travel_distance import TravelDistance
 from ..metrics.spatial.total_travel_distance import TotalTravelDistance
 from ..metrics.spatial.center_of_mass import CenterOfMass
 from ..metrics.spatial.radios_of_gyration import RadiusOfGyration
 
+#from kinematic
 from ..metrics.kinematic.travel_avarage_speed import TravelAverageSpeed
 from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
 
-# Disable chained assignment warnings
-pd.options.mode.chained_assignment = None  # default='warn'
-
 
 class Factory:
-    def __init__(self):
-        pass
+    def __init__(self, trace_file, parameters, name):
+        self.name = name
+        self.trace_file = trace_file
+        self.parameters = parameters
+        self.total_visits = 0
 
-    def extract(self, trace, parameters, entity_id):
-        """Extract metrics and stay points for a given trace."""
-        self.metrics(trace, entity_id)
-        self.stay_points(trace, parameters, entity_id)
+    def extract(self):
 
-    def reextract(self):
-        Entropy().extract()
+        ids = self.trace_file['id'].unique()
 
-    def metrics(self, trace_file, entity_id):
-        """Calculate and save metrics for the given trace file."""
-        if trace_file.empty:
-            return
 
-        total_travel_time = TotalTravelTime(trace_file).extract()
-        total_travel_distance = TotalTravelDistance(trace_file).extract()
+        for id in ids:
+            filtred_trace = self.trace_file[self.trace_file['id'] == id]
+
+            self.metrics(id, filtred_trace)
+            self.stayPoint(filtred_trace, id)
+
+        self.travels()
+        Entropy(self.name, self.total_visits).extract()
+    
+    def metrics(self, id, filtred_trace):
+
+        total_travel_time = TotalTravelTime(filtred_trace).extract()
+        total_travel_distance = TotalTravelDistance(filtred_trace).extract()
         total_travel_average_speed = TotalTravelAverageSpeed(total_travel_time, total_travel_distance).extract()
-        center_of_mass = CenterOfMass(trace_file).extract()
-        radius_of_gyration = RadiusOfGyration(trace_file, center_of_mass).extract()
+        center_of_mass = CenterOfMass(filtred_trace).extract()
+        radius_of_gyration = RadiusOfGyration(filtred_trace, center_of_mass).extract()
 
         MetricsModel.objects.create(
-            entityId=entity_id,
+            fileName = self.name,
+            entityId=id,
             TTrvT=total_travel_time,
             TTrvD=total_travel_distance,
             TTrvAS=total_travel_average_speed,
-            x=center_of_mass[0],
-            y=center_of_mass[1],
-            z=center_of_mass[2],
+            x_center=center_of_mass[0],
+            y_center=center_of_mass[1],
+            z_center=center_of_mass[2],
             radius=radius_of_gyration
         )
+  
+    def stayPoint(self, filtred_trace, id):
+        trace, visits = StayPoints(filtred_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
 
-    def stay_points(self, trace_file, parameters, entity_id):
-        """Extract and save stay points from trace file."""
-        if not parameters or len(parameters) < 2:
-            raise ValueError("Insufficient parameters for StayPoints.")
-        
-        trace = StayPoints(trace_file, parameters[0], parameters[1], entity_id).extract()
+        self.total_visits += visits
         self.trace(trace)
-
+    
     def trace(self, trace):
-        """Save trace data to the TraceModel."""
         TraceModel.objects.bulk_create([
             TraceModel(
+                fileName =self.name,
                 entityId=row['id'],
                 x=row['x'],
                 y=row['y'],
@@ -77,16 +83,18 @@ class Factory:
             )
             for _, row in trace.iterrows()
         ])
-
+    
     def travels(self):
-        """Calculate and save travel metrics for all visits."""
-        # Retrieve all visits from VisitModel
-        visits = VisitModel.objects.all()
+        """
+        Calculate and save travel metrics for all visits associated with the given file.
+        """
+        # Retrieve all visits for the specified file name
+        visits = VisitModel.objects.filter(fileName=self.name)
 
         for visit in visits:
-            # Get departure and arrival traces for the entity
+            # Get departure and arrival traces for the entity, filtered by file name
             traces = TraceModel.objects.filter(
-                entityId=visit.entityId, spId=visit.spId
+                entityId=visit.entityId, spId=visit.spId, fileName=self.name
             ).order_by('time')
 
             # Ensure there are at least two traces (departure and arrival)
@@ -96,7 +104,7 @@ class Factory:
                 trace_arrival = traces.filter(time=visit.arvT).first()
 
                 if trace_departure and trace_arrival:
-                    # Create instances of metrics
+                    # Calculate travel metrics
                     distance_metric = TravelDistance(
                         traces.filter(time__gt=trace_departure.time, time__lt=trace_arrival.time)
                     )
@@ -117,5 +125,6 @@ class Factory:
                         levId=trace_departure.spId,  # Departure ID inferred from trace
                         TrvD=total_distance,  # Total distance
                         TrvT=travel_time,  # Travel time
-                        TrvAS=average_speed  # Average speed
+                        TrvAS=average_speed,  # Average speed
+                        fileName=self.name  # Save the file name
                     )

@@ -1,10 +1,13 @@
 from django.shortcuts import render
 from django.core.serializers import serialize
 
-from .forms import UploadForm
-from .models import MetricsModel, TraceModel, TravelsModel, StayPointModel
+import pandas as pd
 
-from .process.main import main
+from .models import MetricsModel, TraceModel, TravelsModel, StayPointModel
+from .forms import UploadForm
+
+from .process.factory import Factory
+from .process.format import Format
 
 def upload_view(request):
     if request.method == 'POST':
@@ -13,15 +16,24 @@ def upload_view(request):
             trace_file = form.cleaned_data['trace']
             time_threshold = form.cleaned_data['time_threshold']
             distance_threshold = form.cleaned_data['distance_threshold']
+            radius_threshold = form.cleaned_data['radius_threshold']
 
-            parameters = (distance_threshold, distance_threshold, time_threshold)
+            name = form.cleaned_data['name']
 
-            main(trace_file, parameters)
+            parameters = (distance_threshold, time_threshold, radius_threshold)
+
+            trace_file = pd.read_csv(trace_file)
+            trace_file = Format(trace_file).extract()
+
+            
+
+            Factory(trace_file, parameters, name).extract()
+            
 
             metrics = serialize('json', MetricsModel.objects.all())
-            traces = TraceModel.objects.all()
-            travels = TravelsModel.objects.all()
-            stay_points = StayPointModel.objects.all()
+            traces = serialize('json', TraceModel.objects.all())
+            travels = serialize('json', MetricsModel.objects.all())
+            stay_points = serialize('json', StayPointModel.objects.all())
 
             return render(request, 'upload/success.html', {
                 'metrics': metrics,
