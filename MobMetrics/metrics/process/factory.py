@@ -11,6 +11,7 @@ from ..metrics.temporal.total_travel_time import TotalTravelTime
 
 #from social
 from ..metrics.social.entropy import Entropy
+from ..metrics.social.detect_contact import DetectContact
 
 #from spatial
 from ..metrics.spatial.travel_distance import TravelDistance
@@ -43,6 +44,7 @@ class Factory:
 
         self.travels()
         Entropy(self.name, self.total_visits).extract()
+        DetectContact(self.parameters, self.name).extract()
     
     def metrics(self, id, filtred_trace):
 

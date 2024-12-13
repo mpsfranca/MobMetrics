@@ -38,6 +38,15 @@
 <body>
     <div class="container">
         <h1>Upload Concluído com Sucesso!</h1>
+
+        <form method="post" action="{% url 'success' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <button type="submit">Limpar Historico</button>
+        </form>
+        <form action="{% url 'upload' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <button type="submit">Enivar outro arquivo</button>
+        </form>
         <div class="metrics-info">
             <h3>Métricas Calculadas:</h3>
             <ul>

@@ -35,6 +35,8 @@ class StayPoints:
         self.trace['spId'] = 0  # Initialize a new column for stay point IDs
         stay_point_id = 1  # Start with the first stay point ID
         m = 0  # Start processing trajectory data
+        total_visits = 0
+        
 
         while m < len(self.trace):
             # Skip points that already have an assigned spId
@@ -66,13 +68,14 @@ class StayPoints:
                 y = round(lgnt_sum / buffer, 5)
                 z = round(alt_sum / buffer, 5)
 
-                exists = True  # Flag to check if the stay point already exists
+                exists = False# Flag to check if the stay point already exists
                 # Check if a similar stay point already exists in the database
                 for aux in StayPointModel.objects.filter(fileName=self.name):  # Filter by the associated file name
                     if distance({'x': aux.x, 'y': aux.y, 'z': aux.z}, {'x': x, 'y': y, 'z': z}) <= self.distance_threshold:
                         # If a similar point exists, update the spId for trajectory points
                         self.trace.iloc[m:i, self.trace.columns.get_loc('spId')] = aux.spId
                         aux.numVisits += 1  # Increment the number of visits
+                        total_visits += 1
                         aux.save()  # Save the updated stay point
 
                         # Create a visit for the stay point
@@ -84,12 +87,12 @@ class StayPoints:
                             levT=levT,
                             visitT=levT - arvT  # Duration of the visit
                         )
-                        exists = False  # Stay point already exists
+                        exists = True  # Stay point already exists
                         break
 
-                if exists:
+                if not exists:
                     # If no similar stay point exists, create a new stay point
-                    new_stay_point = StayPointModel.objects.create(
+                    StayPointModel.objects.create(
                         spId=stay_point_id,
                         x=x,
                         y=y,
@@ -115,4 +118,4 @@ class StayPoints:
             m = i  # Move to the next point in the trajectory
 
         logging.info("Stay Points Calculated Successfully")  # Log the end of stay point calculation
-        return self.trace  # Return the updated DataFrame with assigned stay point IDs
+        return self.trace, total_visits  # Return the updated DataFrame with assigned stay point IDs

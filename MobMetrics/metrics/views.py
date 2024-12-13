@@ -3,7 +3,7 @@ from django.core.serializers import serialize
 
 import pandas as pd
 
-from .models import MetricsModel, TraceModel, TravelsModel, StayPointModel
+from .models import MetricsModel, TraceModel, TravelsModel, StayPointModel, VisitModel, ContactModel
 from .forms import UploadForm
 
 from .process.factory import Factory
@@ -35,7 +35,7 @@ def upload_view(request):
             travels = serialize('json', MetricsModel.objects.all())
             stay_points = serialize('json', StayPointModel.objects.all())
 
-            return render(request, 'upload/success.html', {
+            return render(request, 'success/success.html', {
                 'metrics': metrics,
                 'traces': traces,
                 'travels': travels,
@@ -45,3 +45,14 @@ def upload_view(request):
         form = UploadForm()
 
     return render(request, 'upload/form.html', {'form': form})
+
+def success_view(request):
+    MetricsModel.objects.all().delete()
+    TraceModel.objects.all().delete()
+    TravelsModel.objects.all().delete()
+    StayPointModel.objects.all().delete()
+    VisitModel.objects.all().delete()
+    ContactModel.objects.all().delete()
+
+    form = UploadForm
+    return render(request, 'upload/form.html', {'form':form})
