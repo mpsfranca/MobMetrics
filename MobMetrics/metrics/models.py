@@ -1,5 +1,13 @@
 from django.db import models
 
+class ConfigModel(models.Model):
+    fileName          = models.TextField()
+    label             = models.TextField()
+
+    distanceThreshold = models.FloatField()
+    timeThreshold     = models.FloatField()
+    radiusThreshold   = models.FloatField()
+
 class MetricsModel(models.Model):
     fileName= models.TextField()
     
@@ -76,12 +84,4 @@ class ContactModel(models.Model):
     end_z_id_1 = models.FloatField()
     end_z_id_2 = models.FloatField()
 
-class RelationModel(models.Model):
-    fileName = models.TextField()
 
-    id1 = models.IntegerField()
-    id2 = models.IntegerField()
-
-    relação = models.BooleanFieldField()
-    numberContacts = models.IntegerField()
-    timeContact = models.IntegerField()

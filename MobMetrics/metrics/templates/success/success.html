@@ -47,55 +47,6 @@
             {% csrf_token %}
             <button type="submit">Enivar outro arquivo</button>
         </form>
-        <div class="metrics-info">
-            <h3>Métricas Calculadas:</h3>
-            <ul>
-                <li>Total de Traces: {{ traces.count }}</li>
-                <li>Total de Travels: {{ travels.count }}</li>
-                <li>Total de Stay Points: {{ stay_points.count }}</li>
-            </ul>
-        </div>
-
-        <div>
-            <h3>Histograma de Tempo de Viagem (TTrvT):</h3>
-            <div id="time"></div>
-        </div>
     </div>
-
-    <script>
-        const metricsData = JSON.parse('{{ metrics|escapejs }}');
-        const travel_time = metricsData.map(item => item.fields.TTrvT);
-
-        function genereteHistogram(value, id){
-            const trace = {
-                x: value,
-                type: 'histogram',
-                marker: {
-                    color: 'rgba(54, 162, 235, 0.7)',
-                    line: {
-                        color: 'rgba(54, 162, 235, 1)',
-                        width: 1
-                    }
-                }
-            };
-
-            const layout = {
-                title: 'Distribuição',
-                xaxis: {
-                    title: 'Valor'
-                },
-                yaxis: {
-                    title: 'Frequência'
-                },
-                bargap: 0.2,
-                width: 900,
-                height: 400
-            };
-
-            Plotly.newPlot(id, [trace], layout);
-        }
-
-        genereteHistogram(travel_time, 'time');
-    </script>
 </body>
 </html>
