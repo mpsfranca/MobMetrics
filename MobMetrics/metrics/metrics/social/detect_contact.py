@@ -1,3 +1,5 @@
+import tqdm
+
 from ..utils.utils import distance
 from ...models import TraceModel, ContactModel
 
@@ -13,7 +15,7 @@ class DetectContact:
         # A dictionary to track ongoing contacts
         ongoing_contacts = {}
 
-        for aux in trace:
+        for aux in tqdm.tqdm(trace, desc="Detect Contact Metrics"):
             for aux_2 in trace:
                 if aux.time == aux_2.time and aux.entityId != aux_2.entityId:
                     dist = distance(

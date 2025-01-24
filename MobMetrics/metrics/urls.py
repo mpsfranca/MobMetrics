@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import upload_view, success_view
+from . import views
 
 urlpatterns = [
-    path('upload/', upload_view, name='upload'),
-    path('success/', success_view, name='success')
+    path('upload/', views.upload_view, name='upload'),
+    path('success/', views.success_view, name='success'),
 ]
