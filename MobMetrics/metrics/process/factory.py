@@ -1,6 +1,7 @@
 import pandas as pd
 pd.options.mode.chained_assignment = None
-import tqdm
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm # type: ignore
 from ..models import MetricsModel, TraceModel
 
 # from utils
@@ -34,22 +35,35 @@ class Factory:
     def extract(self):
         ids = self.trace_file['id'].unique()
 
-        for id in tqdm.tqdm(ids, desc="Individual Metrics"):
+        for id in tqdm(ids, desc="Individual Metrics"):
+            filtered_trace = self.trace_file[self.trace_file['id'] == id]
 
+            with ThreadPoolExecutor() as executor:
+                executor.submit(self.metrics_parallel, id, filtered_trace)
+                executor.submit(self.stayPoint, filtered_trace, id)
 
-            filtred_trace = self.trace_file[self.trace_file['id'] == id]
-            self.metrics(id, filtred_trace)
-            self.stayPoint(filtred_trace, id)
+        with ThreadPoolExecutor() as executor:
+            executor.submit(Entropy(self.name, self.total_visits).extract)
+            executor.submit(DetectContact(self.parameters, self.name).extract)
 
-        Entropy(self.name, self.total_visits).extract()
-        DetectContact(self.parameters, self.name).extract()
+    def metrics_parallel(self, id, filtered_trace):
+        def compute_temporal():
+            total_travel_time = TotalTravelTime(filtered_trace).extract()
+            total_travel_distance = TotalTravelDistance(filtered_trace).extract()
+            total_travel_average_speed = TotalTravelAverageSpeed(total_travel_time, total_travel_distance).extract()
+            return total_travel_time, total_travel_distance, total_travel_average_speed
 
-    def metrics(self, id, filtred_trace):
-        total_travel_time = TotalTravelTime(filtred_trace).extract()
-        total_travel_distance = TotalTravelDistance(filtred_trace).extract()
-        total_travel_average_speed = TotalTravelAverageSpeed(total_travel_time, total_travel_distance).extract()
-        center_of_mass = CenterOfMass(filtred_trace).extract()
-        radius_of_gyration = RadiusOfGyration(filtred_trace, center_of_mass).extract()
+        def compute_spatial():
+            center_of_mass = CenterOfMass(filtered_trace).extract()
+            radius_of_gyration = RadiusOfGyration(filtered_trace, center_of_mass).extract()
+            return center_of_mass, radius_of_gyration
+
+        with ThreadPoolExecutor() as executor:
+            temporal_future = executor.submit(compute_temporal)
+            spatial_future = executor.submit(compute_spatial)
+
+            total_travel_time, total_travel_distance, total_travel_average_speed = temporal_future.result()
+            center_of_mass, radius_of_gyration = spatial_future.result()
 
         MetricsModel.objects.create(
             fileName=self.name,
@@ -63,8 +77,8 @@ class Factory:
             radius=radius_of_gyration
         )
 
-    def stayPoint(self, filtred_trace, id):
-        trace, visits = StayPoints(filtred_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
+    def stayPoint(self, filtered_trace, id):
+        trace, visits = StayPoints(filtered_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
 
         self.total_visits += visits
         self.trace(trace)

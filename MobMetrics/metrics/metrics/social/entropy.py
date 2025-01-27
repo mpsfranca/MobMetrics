@@ -1,5 +1,5 @@
 import math
-import tqdm
+import tqdm  # type: ignore
 
 from ...models import StayPointModel
 from ..utils.abs_metric import AbsMetric
@@ -16,8 +16,10 @@ class Entropy(AbsMetric):
         """
         if self.total_visits == 0:  # Avoid division by zero
             return
+        
+        stay_points = StayPointModel.objects.filter(fileName=self.name)
 
-        for sp in tqdm.tqdm(StayPointModel.objects.filter(fileName=self.name), desc="Entropy Metrics"):
+        for sp in tqdm.tqdm(stay_points, desc="Entropy Metrics"):
             probability = sp.numVisits / self.total_visits
             if probability > 0:  # To avoid log(0), which is undefined
                 entropy = -probability * math.log2(probability)

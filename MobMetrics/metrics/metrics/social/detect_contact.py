@@ -1,4 +1,4 @@
-import tqdm
+import tqdm # type: ignore
 
 from ..utils.utils import distance
 from ...models import TraceModel, ContactModel
