@@ -31,17 +31,6 @@ class StayPointModel(models.Model):
     entropy = models.FloatField(null=True, blank=True)
 
 
-class TraceModel(models.Model):
-    fileName= models.TextField()
-
-    entityId= models.IntegerField()
-    x       = models.FloatField()
-    y       = models.FloatField()
-    z       = models.FloatField()
-    time    = models.FloatField()
-    spId    = models.IntegerField()
-
-
 class TravelsModel(models.Model):
     fileName = models.TextField()
 

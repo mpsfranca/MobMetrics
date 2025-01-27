@@ -1,5 +1,5 @@
 from .utils import distance  # Function to calculate the distance between two points
-from ...models import StayPointModel, VisitModel, TraceModel, TravelsModel
+from ...models import StayPointModel, VisitModel, TravelsModel
 from ..spatial.travel_distance import TravelDistance
 from ..temporal.travel_time import TravelTime
 from ..kinematic.travel_avarage_speed import TravelAverageSpeed

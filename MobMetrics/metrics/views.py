@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.serializers import serialize
 import pandas as pd
 
-from .models import ConfigModel, MetricsModel, TraceModel, TravelsModel, StayPointModel, VisitModel, ContactModel
+from .models import ConfigModel, MetricsModel, TravelsModel, StayPointModel, VisitModel, ContactModel
 from .forms import UploadForm
 from .process.factory import Factory
 from .process.format import Format
@@ -46,7 +46,6 @@ def create_config_model(name, label, parameters):
 def success_view(request):
     ConfigModel.objects.all().delete()
     MetricsModel.objects.all().delete()
-    TraceModel.objects.all().delete()
     TravelsModel.objects.all().delete()
     StayPointModel.objects.all().delete()
     VisitModel.objects.all().delete()

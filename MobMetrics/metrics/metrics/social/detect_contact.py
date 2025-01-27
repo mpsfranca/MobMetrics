@@ -1,28 +1,29 @@
-import tqdm # type: ignore
-
+import tqdm  # type: ignore
+import pandas as pd
 from ..utils.utils import distance
-from ...models import TraceModel, ContactModel
+from ...models import ContactModel
 
 class DetectContact:
-    def __init__(self, parameters, name):
+    def __init__(self, parameters, name, trace):
         self.parameters = parameters
         self.name = name
+        self.trace = trace  # trace is now a pandas DataFrame
 
     def extract(self):
-        trace = TraceModel.objects.filter(fileName=self.name).order_by('time')
         contacts = []
 
         # A dictionary to track ongoing contacts
         ongoing_contacts = {}
 
-        for aux in tqdm.tqdm(trace, desc="Detect Contact Metrics"):
-            for aux_2 in trace:
+        # Iterating over the trace DataFrame
+        for _, aux in tqdm.tqdm(self.trace.iterrows(), desc="Detect Contact Metrics"):
+            for _, aux_2 in self.trace.iterrows():
                 if aux.time == aux_2.time and aux.entityId != aux_2.entityId:
                     dist = distance(
                         {'x': aux.x, 'y': aux.y, 'z': aux.z},
                         {'x': aux_2.x, 'y': aux_2.y, 'z': aux_2.z}
                     )
-                    
+
                     # Unique contact identifier
                     contact_key = (aux.entityId, aux_2.entityId)
 

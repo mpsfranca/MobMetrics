@@ -2,7 +2,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm # type: ignore
-from ..models import MetricsModel, TraceModel
+from ..models import MetricsModel
 
 # from utils
 from ..metrics.utils.stay_point import StayPoints
@@ -44,7 +44,7 @@ class Factory:
 
         with ThreadPoolExecutor() as executor:
             executor.submit(Entropy(self.name, self.total_visits).extract)
-            executor.submit(DetectContact(self.parameters, self.name).extract)
+            executor.submit(DetectContact(self.parameters, self.name, self.trace_file).extract)
 
     def metrics_parallel(self, id, filtered_trace):
         def compute_temporal():
@@ -80,19 +80,5 @@ class Factory:
     def stayPoint(self, filtered_trace, id):
         trace, visits = StayPoints(filtered_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
 
+        self.trace_file = trace
         self.total_visits += visits
-        self.trace(trace)
-
-    def trace(self, trace):
-        TraceModel.objects.bulk_create([
-            TraceModel(
-                fileName=self.name,
-                entityId=row['id'],
-                x=row['x'],
-                y=row['y'],
-                z=row['z'],
-                time=row['time'],
-                spId=row['spId']
-            )
-            for _, row in trace.iterrows()
-        ])
