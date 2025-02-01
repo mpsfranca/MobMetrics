@@ -27,14 +27,8 @@ class TotalTravelDistance(AbsMetric):
         Returns:
             float: The total travel distance, rounded to 5 decimal places.
         """
-        logging.info("Calculating Total Travel Distance")
 
         total_travel_distance = 0
-
-        # Ensure the trace is not empty
-        if self.trace.empty:
-            logging.warning("Trace is empty. Total travel distance is 0.")
-            return 0
 
         # Calculate the distance between consecutive points
         for prev_row, curr_row in zip(self.trace.iloc[:-1].iterrows(), self.trace.iloc[1:].iterrows()):
@@ -42,5 +36,4 @@ class TotalTravelDistance(AbsMetric):
             _, curr_row = curr_row
             total_travel_distance += distance(prev_row, curr_row)
 
-        logging.info("Total Travel Distance Calculated Successfully")
         return round(total_travel_distance, 5)

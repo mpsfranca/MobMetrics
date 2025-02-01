@@ -26,11 +26,6 @@ class CenterOfMass(AbsMetric):
         Returns:
             tuple: A tuple containing the calculated center of mass coordinates (x_center, y_center, z_center), rounded to 5 decimal places.
         """
-        logging.info("Calculating Center of Mass")
-
-        if self.trace.empty:
-            logging.warning("Trace is empty. Center of Mass is (0, 0, 0).")
-            return 0, 0, 0
 
         # Initialize sums for the coordinates
         x, y, z = 0, 0, 0
@@ -46,8 +41,6 @@ class CenterOfMass(AbsMetric):
         x_center = x / num_points
         y_center = y / num_points
         z_center = z / num_points
-
-        logging.info("Center of Mass Calculated Successfully")
 
         # Return the coordinates rounded to 5 decimal places
         return round(x_center, 5), round(y_center, 5), round(z_center, 5)

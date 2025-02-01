@@ -7,6 +7,9 @@ from ..kinematic.travel_avarage_speed import TravelAverageSpeed
 class StayPoints:
     """
     Class to calculate and save stay points, associated visits, and travels.
+
+    This class processes a trajectory (trace) to detect stay points based on distance and time thresholds.
+    It then calculates and stores metrics related to the travels between these points.
     """
 
     def __init__(self, trace, distance_threshold, time_threshold, entity_id, name):
@@ -14,7 +17,7 @@ class StayPoints:
         Initializes the StayPoints class with the provided parameters.
 
         :param trace: DataFrame containing the dataset with the trajectory.
-        :param distance_threshold: Distance threshold to consider nearby points.
+        :param distance_threshold: Distance threshold to consider nearby points as part of the same stay.
         :param time_threshold: Time threshold to consider points as part of the same stay.
         :param entity_id: Unique identifier for the entity (user, vehicle, etc.).
         :param name: Name or identifier of the file associated with the trajectory.
@@ -32,15 +35,13 @@ class StayPoints:
         Returns the updated DataFrame with the assigned spId for each point and the total number of visits.
         """
         self.trace['spId'] = 0  # Initialize a new column for stay point IDs
-        stay_point_id = 1  # Start with the first stay point ID
+        # Fetch the last stay point ID from the database and start incrementing from there
+        last_sp = StayPointModel.objects.filter(fileName=self.name).order_by('spId').last()
+        stay_point_id = last_sp.spId + 1 if last_sp else 1  # Start with the next available ID
         m = 0  # Start processing trajectory data
-        total_visits = 0
+        visit_count = 0  # Count the number of visits
 
         while m < len(self.trace):
-            # Skip points that already have an assigned spId
-            if self.trace.iloc[m]['spId'] != 0:
-                m += 1
-                continue
 
             # Variables to calculate the stay point
             arvT = self.trace.iloc[m]['time']  # Arrival time
@@ -70,11 +71,13 @@ class StayPoints:
                 # Check if a similar stay point already exists in the database
                 for aux in StayPointModel.objects.filter(fileName=self.name):
                     if distance({'x': aux.x, 'y': aux.y, 'z': aux.z}, {'x': x, 'y': y, 'z': z}) <= self.distance_threshold:
+                        # If a similar stay point exists, assign the spId to the trajectory points
                         self.trace.iloc[m:i, self.trace.columns.get_loc('spId')] = aux.spId
                         aux.numVisits += 1
-                        total_visits += 1
+                        visit_count += 1
                         aux.save()
 
+                        # Log the visit in VisitModel
                         VisitModel.objects.create(
                             entityId=self.entity_id,
                             spId=aux.spId,
@@ -87,6 +90,8 @@ class StayPoints:
                         break
 
                 if not exists:
+                    visit_count += 1
+                    # If the stay point does not exist, create a new one
                     StayPointModel.objects.create(
                         spId=stay_point_id,
                         x=x,
@@ -95,8 +100,10 @@ class StayPoints:
                         numVisits=1,
                         fileName=self.name
                     )
+                    # Assign the new spId to the trajectory points
                     self.trace.iloc[m:i, self.trace.columns.get_loc('spId')] = stay_point_id
 
+                    # Log the visit in VisitModel
                     VisitModel.objects.create(
                         entityId=self.entity_id,
                         spId=stay_point_id,
@@ -106,14 +113,14 @@ class StayPoints:
                         visitT=levT - arvT
                     )
 
-                    stay_point_id += 1
+                    stay_point_id += 1  # Increment the stay point ID for the next one
 
             m = i  # Move to the next point in the trajectory
 
         # Process travels after calculating stay points
         self.process_travels()
 
-        return self.trace, total_visits
+        return  visit_count
 
     def process_travels(self):
         """
@@ -122,27 +129,38 @@ class StayPoints:
         visits = VisitModel.objects.filter(fileName=self.name)
 
         for visit in visits:
-            traces = TraceModel.objects.filter(
-                entityId=visit.entityId, spId=visit.spId, fileName=self.name
-            ).order_by('time')
+            # Get traces corresponding to the stay point ID
+            traces = self.trace[self.trace['spId'] == visit.spId]
 
             if len(traces) >= 2:
-                trace_departure = traces.filter(time=visit.levT).first()
-                trace_arrival = traces.filter(time=visit.arvT).first()
+                # Find the trace corresponding to the departure time
+                trace_departure = traces[traces['time'] == visit.levT]
+                # Find the trace corresponding to the arrival time
+                trace_arrival = traces[traces['time'] == visit.arvT]
 
-                if trace_departure and trace_arrival:
-                    distance_metric = TravelDistance(
-                        traces.filter(time__gt=trace_departure.time, time__lt=trace_arrival.time)
-                    )
-                    time_metric = TravelTime(visit.visitT, trace_departure.time)
+                if not trace_departure.empty and not trace_arrival.empty:
+                    # Use the first matching row for departure and arrival
+                    trace_departure = trace_departure.iloc[0]
+                    trace_arrival = trace_arrival.iloc[0]
+
+                    # Filter traces between departure and arrival times
+                    intermediate_traces = traces[
+                        (traces['time'] > trace_departure['time']) & 
+                        (traces['time'] < trace_arrival['time'])
+                    ]
+
+                    # Calculate travel metrics
+                    distance_metric = TravelDistance(intermediate_traces)
+                    time_metric = TravelTime(visit.visitT, trace_departure['time'])
                     speed_metric = TravelAverageSpeed(
                         distance_metric.extract(), time_metric.extract()
                     )
 
+                    # Save travel data
                     TravelsModel.objects.create(
                         entityId=visit.entityId,
-                        arvId=trace_arrival.spId,
-                        levId=trace_departure.spId,
+                        arvId=trace_arrival['spId'],
+                        levId=trace_departure['spId'],
                         TrvD=distance_metric.extract(),
                         TrvT=time_metric.extract(),
                         TrvAS=speed_metric.extract(),

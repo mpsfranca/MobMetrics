@@ -20,6 +20,17 @@ class MetricsModel(models.Model):
     z_center= models.FloatField()
     radius  = models.FloatField()
 
+    """
+    num_stay_points_visits = models.IntegerField()  # Number of Stay Points Visits
+    avg_entropy = models.FloatField()  # Average Entropy
+    avg_time_of_visit = models.FloatField()  # Average Time of Visit
+    num_travels = models.IntegerField()  # Number of Travels
+    avg_travel_time = models.FloatField()  # Average Travel Time
+    avg_travel_distance = models.FloatField()  # Average Travel Distance
+    avg_travel_speed = models.FloatField()  # Average Travel Speed
+    num_contacts = models.IntegerField()  # Number of Contacts
+    avg_contact_time = models.FloatField()  # Average Contact Time
+    """
 class StayPointModel(models.Model):
     fileName    = models.TextField()
 

@@ -5,6 +5,9 @@ class Format:
         self.trace = trace
 
     def extract(self):
+        if self.trace.empty:
+            print("Trace Empty")
+
         self.creat_id()
         if type(self.trace.iloc[0]['time']) == str:
             self.to_date_time()

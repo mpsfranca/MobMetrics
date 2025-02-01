@@ -10,12 +10,6 @@ class Entropy(AbsMetric):
         self.total_visits = total_visits  # Total number of visits across all stay points for this file
 
     def extract(self):
-        """
-        Calculate entropy for all stay points associated with the specified file.
-        Updates the `entropy` field in the StayPointModel.
-        """
-        if self.total_visits == 0:  # Avoid division by zero
-            return
         
         stay_points = StayPointModel.objects.filter(fileName=self.name)
 

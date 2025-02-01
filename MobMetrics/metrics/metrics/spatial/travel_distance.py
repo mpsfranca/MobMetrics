@@ -4,23 +4,37 @@ from ..utils.abs_metric import AbsMetric
 class TravelDistance(AbsMetric):
     def __init__(self, traces):
         """
-        Inicializa com os rastros da viagem.
+        Initializes with the traces of the trip.
+        :param traces: Iterable containing the travel points, each with 'x', 'y', and 'z' attributes.
         """
         self.traces = traces
 
     def extract(self):
         """
-        Calcula a distância total percorrida entre os pontos de rastro.
+        Calculates the total distance traveled between trace points.
+        :return: Total distance traveled as a float.
         """
         distancia_total = 0
-        previous_trace = self.traces.first()  # O primeiro ponto é o ponto de partida
-        
-        for trace in self.traces[1:]:  # Percorrer os rastros após o primeiro ponto
-            # Converter os pontos para o formato de dicionário esperado pela função `distance`
-            first_point = {'x': previous_trace.x, 'y': previous_trace.y, 'z': previous_trace.z}
-            second_point = {'x': trace.x, 'y': trace.y, 'z': trace.z}
 
+        # Ensure traces are iterable and have at least two points
+        if len(self.traces) < 2:
+            return distancia_total
+
+        # Initialize the previous trace as the first point
+        previous_trace = self.traces.iloc[0]  # For DataFrame, use .iloc for row access
+
+        # Iterate over the traces starting from the second point
+        for i in range(1, len(self.traces)):
+            current_trace = self.traces.iloc[i]  # Access current trace
+
+            # Convert points to dictionary format expected by the `distance` function
+            first_point = {'x': previous_trace['x'], 'y': previous_trace['y'], 'z': previous_trace['z']}
+            second_point = {'x': current_trace['x'], 'y': current_trace['y'], 'z': current_trace['z']}
+
+            # Add the distance between the two points
             distancia_total += distance(first_point, second_point)
-            previous_trace = trace
-        
+
+            # Update the previous trace
+            previous_trace = current_trace
+
         return distancia_total

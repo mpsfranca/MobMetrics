@@ -38,13 +38,12 @@ class Factory:
         for id in tqdm(ids, desc="Individual Metrics"):
             filtered_trace = self.trace_file[self.trace_file['id'] == id]
 
-            with ThreadPoolExecutor() as executor:
-                executor.submit(self.metrics_parallel, id, filtered_trace)
-                executor.submit(self.stayPoint, filtered_trace, id)
 
-        with ThreadPoolExecutor() as executor:
-            executor.submit(Entropy(self.name, self.total_visits).extract)
-            executor.submit(DetectContact(self.parameters, self.name, self.trace_file).extract)
+            self.metrics_parallel(id, filtered_trace)
+            self.stayPoint(filtered_trace, id)
+
+        Entropy(self.name, self.total_visits).extract()
+        # DetectContact(self.parameters, self.name, self.trace_file).extract()
 
     def metrics_parallel(self, id, filtered_trace):
         def compute_temporal():
@@ -78,7 +77,8 @@ class Factory:
         )
 
     def stayPoint(self, filtered_trace, id):
-        trace, visits = StayPoints(filtered_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
+        visits = StayPoints(filtered_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
 
-        self.trace_file = trace
+        print(visits)
+
         self.total_visits += visits

@@ -32,15 +32,8 @@ class TotalTravelAverageSpeed(AbsMetric):
         Raises:
             ValueError: If time is zero or negative, which is invalid for calculating speed.
         """
-        logging.info("Calculating Total Travel Average Speed")
-
-        # Check for invalid time
-        if self.time <= 0:
-            logging.error("Time is zero or negative, which is invalid for speed calculation.")
-            raise ValueError("Time must be greater than zero.")
-
+        
         # Calculate average speed
         average_speed = self.distance / self.time
-        logging.info("Total Travel Average Speed Calculated Successfully")
 
         return round(average_speed, 5)

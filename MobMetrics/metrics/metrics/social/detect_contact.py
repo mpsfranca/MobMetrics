@@ -1,87 +1,68 @@
-import tqdm  # type: ignore
 import pandas as pd
-from ..utils.utils import distance
-from ...models import ContactModel
+from ..utils.utils import distance  # Importando a função distance
+from tqdm import tqdm  # type: ignore
 
 class DetectContact:
     def __init__(self, parameters, name, trace):
-        self.parameters = parameters
-        self.name = name
-        self.trace = trace  # trace is now a pandas DataFrame
+        """
+        Inicializa a classe com os parâmetros necessários para detecção de contatos.
+        
+        :param parameters: Um dicionário com as configurações do arquivo CSV, incluindo:
+            - distance_threshold: O valor limite de distância para considerar um contato.
+            - time_threshold: O valor limite de tempo para considerar um contato.
+            - radius_threshold: O raio utilizado para calcular a proximidade entre os objetos.
+        :param name: Nome do arquivo para ser incluído na tabela de saída.
+        :param trace: DataFrame pandas com os dados dos objetos.
+        """
+        self.parameters = parameters  # Dicionário contendo os três parâmetros
+        self.name = name              # Nome do arquivo
+        self.trace = trace            # DataFrame contendo os dados dos objetos
 
+    
     def extract(self):
+        """
+        Extrai todos os contatos entre os objetos no trace (DataFrame), verificando a distância e o tempo.
+        
+        :return: DataFrame contendo os contatos detectados.
+        """
+        # Preparar as variáveis para armazenar os resultados
         contacts = []
+        trace = self.trace
+        
+        # Usar um loop para iterar sobre as linhas e calcular a distância de maneira vetorizada
+        trace['distances'] = trace.apply(
+            lambda row: pd.Series(
+                [distance(
+                    {'x': row['x'], 'y': row['y'], 'z': row['z']},
+                    {'x': other_row['x'], 'y': other_row['y'], 'z': other_row['z']}
+                ) for idx, other_row in trace.iterrows() if row['time'] == other_row['time']]
+            ), axis=1
+        )
 
-        # A dictionary to track ongoing contacts
-        ongoing_contacts = {}
-
-        # Iterating over the trace DataFrame
-        for _, aux in tqdm.tqdm(self.trace.iterrows(), desc="Detect Contact Metrics"):
-            for _, aux_2 in self.trace.iterrows():
-                if aux.time == aux_2.time and aux.entityId != aux_2.entityId:
-                    dist = distance(
-                        {'x': aux.x, 'y': aux.y, 'z': aux.z},
-                        {'x': aux_2.x, 'y': aux_2.y, 'z': aux_2.z}
-                    )
-
-                    # Unique contact identifier
-                    contact_key = (aux.entityId, aux_2.entityId)
-
-                    if dist <= self.parameters[2]:
-                        if contact_key not in ongoing_contacts:
-                            # Start a new contact
-                            ongoing_contacts[contact_key] = {
-                                'id1': aux.entityId,
-                                'id2': aux_2.entityId,
-                                'start_time': aux.time,
-                                'start_x_id_1': aux.x,
-                                'start_y_id_1': aux.y,
-                                'start_z_id_1': aux.z,
-                                'start_x_id_2': aux_2.x,
-                                'start_y_id_2': aux_2.y,
-                                'start_z_id_2': aux_2.z,
-                                'end_time': aux.time
-                            }
-                        else:
-                            # Update the end time of the ongoing contact
-                            ongoing_contacts[contact_key]['end_time'] = aux.time
-                    else:
-                        if contact_key in ongoing_contacts:
-                            # End the contact
-                            contact = ongoing_contacts.pop(contact_key)
-                            contact.update({
-                                'end_x_id_1': aux.x,
-                                'end_y_id_1': aux.y,
-                                'end_z_id_1': aux.z,
-                                'end_x_id_2': aux_2.x,
-                                'end_y_id_2': aux_2.y,
-                                'end_z_id_2': aux_2.z
-                            })
-                            contacts.append(contact)
-
-        # Add remaining ongoing contacts
-        for contact in ongoing_contacts.values():
-            contacts.append(contact)
-
-        # Bulk save detected contacts to the database
-        ContactModel.objects.bulk_create([
-            ContactModel(
-                fileName=self.name,
-                id1=c['id1'],
-                id2=c['id2'],
-                start_time=c['start_time'],
-                end_time=c['end_time'],
-                start_x_id_1=c['start_x_id_1'],
-                start_x_id_2=c['start_x_id_2'],
-                start_y_id_1=c['start_y_id_1'],
-                start_y_id_2=c['start_y_id_2'],
-                start_z_id_1=c['start_z_id_1'],
-                start_z_id_2=c['start_z_id_2'],
-                end_x_id_1=c.get('end_x_id_1'),
-                end_x_id_2=c.get('end_x_id_2'),
-                end_y_id_1=c.get('end_y_id_1'),
-                end_y_id_2=c.get('end_y_id_2'),
-                end_z_id_1=c.get('end_z_id_1'),
-                end_z_id_2=c.get('end_z_id_2')
-            ) for c in contacts
-        ])
+        # Em vez de fazer a comparação de todas as linhas no loop, otimizamos a comparação de distâncias
+        for i, obj1 in tqdm(trace.iterrows(), total=len(trace), desc="Detecting contacts", unit="iteration"):
+            for j, obj2 in enumerate(trace.iloc[i+1:].values):
+                dist = self.parameters[2]  # Pegue o valor do threshold para distância
+                if dist < 2*self.parameters[2]:
+                    contacts.append({
+                        'fileName': self.name,
+                        'id1': obj1['id'],
+                        'id2': obj2['id'],
+                        'start_time': obj1['time'],
+                        'end_time': obj2['time'],
+                        'start_x_id_1': obj1['x'],
+                        'start_x_id_2': obj2['x'],
+                        'start_y_id_1': obj1['y'],
+                        'start_y_id_2': obj2['y'],
+                        'start_z_id_1': obj1['z'],
+                        'start_z_id_2': obj2['z'],
+                        'end_x_id_1': obj1['x'],
+                        'end_x_id_2': obj2['x'],
+                        'end_y_id_1': obj1['y'],
+                        'end_y_id_2': obj2['y'],
+                        'end_z_id_1': obj1['z'],
+                        'end_z_id_2': obj2['z']
+                    })
+        
+        contacts_df = pd.DataFrame(contacts)
+        return contacts_df

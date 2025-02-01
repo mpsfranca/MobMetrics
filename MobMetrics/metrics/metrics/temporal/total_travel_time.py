@@ -26,17 +26,10 @@ class TotalTravelTime(AbsMetric):
         Returns:
             float: The total travel time in the same units as the 'time' column.
         """
-        logging.info("Calculating Total Travel Time")
-
-        # Ensure the trace is not empty
-        if self.trace.empty:
-            logging.warning("Trace is empty. Total travel time is 0.")
-            return 0
 
         start_time = self.trace.iloc[0]['time']
         end_time = self.trace.iloc[-1]['time']
 
         total_travel_time = end_time - start_time
-
-        logging.info("Total Travel Time Calculated Successfully")
+        
         return total_travel_time
