@@ -27,6 +27,7 @@
     </style>
 </head>
 <body>
+    
     <div class="container">
         <h1>Formulário de Upload</h1>
         <form method="post" action="{% url 'upload' %}" enctype="multipart/form-data">
@@ -34,6 +35,12 @@
             {{ form.as_p }}
             <button type="submit">Enviar</button>
         </form>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
     </div>
 </body>
 </html>

@@ -7,6 +7,8 @@ from .forms import UploadForm
 from .process.factory import Factory
 from .process.format import Format
 
+from django.contrib import messages
+
 def upload_view(request):
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
@@ -18,6 +20,11 @@ def upload_view(request):
 
             name = form.cleaned_data['name']
             label = form.cleaned_data['label']
+
+            # Check if a file with the same name already exists
+            if ConfigModel.objects.filter(fileName=name).exists():
+                messages.warning(request, "A file with the same name already exists.")
+                return render(request, 'upload/form.html', {'form': form})
 
             parameters = (distance_threshold, time_threshold, radius_threshold)
 
@@ -33,6 +40,8 @@ def upload_view(request):
         form = UploadForm()
 
     return render(request, 'upload/form.html', {'form': form})
+
+
 
 def create_config_model(name, label, parameters):
     ConfigModel.objects.create(
