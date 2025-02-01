@@ -40,6 +40,7 @@ class StayPoints:
         stay_point_id = last_sp.spId + 1 if last_sp else 1  # Start with the next available ID
         m = 0  # Start processing trajectory data
         visit_count = 0  # Count the number of visits
+        time_visit_count = 0
 
         while m < len(self.trace):
 
@@ -78,6 +79,7 @@ class StayPoints:
                         aux.save()
 
                         # Log the visit in VisitModel
+                        time_visit_count += levT - arvT
                         VisitModel.objects.create(
                             entityId=self.entity_id,
                             spId=aux.spId,
@@ -104,6 +106,7 @@ class StayPoints:
                     self.trace.iloc[m:i, self.trace.columns.get_loc('spId')] = stay_point_id
 
                     # Log the visit in VisitModel
+                    time_visit_count += levT - arvT
                     VisitModel.objects.create(
                         entityId=self.entity_id,
                         spId=stay_point_id,
@@ -118,15 +121,21 @@ class StayPoints:
             m = i  # Move to the next point in the trajectory
 
         # Process travels after calculating stay points
-        self.process_travels()
+        num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed = self.process_travels()
 
-        return  visit_count
+        return visit_count, time_visit_count, num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed
 
     def process_travels(self):
         """
         Processes and saves travel metrics based on visits and traces.
+        Also calculates average travel time, distance, and speed.
         """
         visits = VisitModel.objects.filter(fileName=self.name)
+
+        num_travels = 0
+        total_travel_time = 0
+        total_travel_distance = 0
+        total_travel_avg_speed = 0
 
         for visit in visits:
             # Get traces corresponding to the stay point ID
@@ -166,3 +175,20 @@ class StayPoints:
                         TrvAS=speed_metric.extract(),
                         fileName=self.name
                     )
+
+                    # Accumulate total values for averages
+                    num_travels += 1
+                    total_travel_time += time_metric.extract()
+                    total_travel_distance += distance_metric.extract()
+                    total_travel_avg_speed += speed_metric.extract()
+
+        # Calculate averages if there were any travels
+        if num_travels > 0:
+            avg_travel_time = total_travel_time / num_travels
+            avg_travel_distance = total_travel_distance / num_travels
+            avg_travel_avg_speed = total_travel_avg_speed / num_travels
+        else:
+            avg_travel_time = avg_travel_distance = avg_travel_avg_speed = 0
+
+        return num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed
+

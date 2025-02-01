@@ -77,8 +77,15 @@ class Factory:
         )
 
     def stayPoint(self, filtered_trace, id):
-        visits = StayPoints(filtered_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
+        visit_count, time_visit_count, num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed = StayPoints(filtered_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
 
-        print(visits)
+        metric = MetricsModel.objects.get(name=self.name, id=id)
+        
+        metric.numStayPointsVisits = visit_count
+        metric.avgTimeVisit = time_visit_count
+        metric.num_travels = num_travels
+        metric.avg_travel_time = avg_travel_time
+        metric.avg_travel_distance = avg_travel_distance
+        metric.avg_travel_avg_speed = avg_travel_avg_speed
 
-        self.total_visits += visits
+        self.total_visits += visit_count

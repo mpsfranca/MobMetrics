@@ -9,28 +9,24 @@ class ConfigModel(models.Model):
     radiusThreshold   = models.FloatField()
 
 class MetricsModel(models.Model):
-    fileName= models.TextField()
-    
-    entityId= models.IntegerField()
-    TTrvT   = models.FloatField()
-    TTrvD   = models.FloatField()
-    TTrvAS  = models.FloatField()
-    x_center= models.FloatField()
-    y_center= models.FloatField()
-    z_center= models.FloatField()
-    radius  = models.FloatField()
+    fileName               = models.TextField()
+    entityId               = models.IntegerField()
+    TTrvT                  = models.FloatField()
+    TTrvD                  = models.FloatField()
+    TTrvAS                 = models.FloatField()
+    x_center               = models.FloatField()
+    y_center               = models.FloatField()
+    z_center               = models.FloatField()
+    radius                 = models.FloatField()
 
-    """
-    num_stay_points_visits = models.IntegerField()  # Number of Stay Points Visits
-    avg_entropy = models.FloatField()  # Average Entropy
-    avg_time_of_visit = models.FloatField()  # Average Time of Visit
-    num_travels = models.IntegerField()  # Number of Travels
-    avg_travel_time = models.FloatField()  # Average Travel Time
-    avg_travel_distance = models.FloatField()  # Average Travel Distance
-    avg_travel_speed = models.FloatField()  # Average Travel Speed
-    num_contacts = models.IntegerField()  # Number of Contacts
-    avg_contact_time = models.FloatField()  # Average Contact Time
-    """
+    numStayPointsVisits  = models.IntegerField(null=True, blank=True)  # Number of Stay Points Visits
+    avgTimeVisit     = models.FloatField(null=True, blank=True)    # Average Time of Visit
+
+    num_travels           = models.IntegerField(null=True, blank=True)  # Number of Travels
+    avg_travel_time       = models.FloatField(null=True, blank=True)    # Average Travel Time
+    avg_travel_distance   = models.FloatField(null=True, blank=True)    # Average Travel Distance
+    avg_travel_avg_speed  = models.FloatField(null=True, blank=True)    # Average Travel Average Speed
+
 class StayPointModel(models.Model):
     fileName    = models.TextField()
 
