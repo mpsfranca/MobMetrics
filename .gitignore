@@ -1,1 +1,3 @@
-*.sqlite3
+# Ignorar o banco de dados SQLite
+db.sqlite3
+MobMetrics/db.sqlite3
