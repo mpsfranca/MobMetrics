@@ -1,10 +1,10 @@
 from django import forms
 
 LABEL_CHOICES = [
-    ("walk", "Walk"),  
-    ("car", "Car"),
-    ("bus", "Bus"),
-    ("bike", "Bike"),
+    (1, "Walk"),  
+    (2, "Car"),
+    (3, "Bus"),
+    (4, "Bike"),
 ]
 
 class UploadForm(forms.Form):
@@ -16,3 +16,6 @@ class UploadForm(forms.Form):
     
     name = forms.CharField(label='Name')
     label = forms.ChoiceField(label='Trace Label', choices = LABEL_CHOICES)
+
+class FileNameForm(forms.Form):
+    file_name = forms.CharField(label='File Name', max_length=255, required=True)

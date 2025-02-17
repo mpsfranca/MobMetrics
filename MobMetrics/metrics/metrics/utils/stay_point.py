@@ -154,33 +154,32 @@ class StayPoints:
 
                     # Filter traces between departure and arrival times
                     intermediate_traces = traces[
-                        (traces['time'] > trace_departure['time']) & 
-                        (traces['time'] < trace_arrival['time'])
+                        (traces['time'] < trace_departure['time']) & 
+                        (traces['time'] > trace_arrival['time'])
                     ]
 
-                    # Calculate travel metrics
-                    distance_metric = TravelDistance(intermediate_traces)
-                    time_metric = TravelTime(visit.visitT, trace_departure['time'])
-                    speed_metric = TravelAverageSpeed(
-                        distance_metric.extract(), time_metric.extract()
-                    )
+                    if not intermediate_traces.empty:
+                        # Calculate travel metrics
+                        distance_metric = TravelDistance(intermediate_traces).extract()
+                        time_metric = visit.levT - visit.arvT
+                        speed_metric = distance_metric / time_metric
 
-                    # Save travel data
-                    TravelsModel.objects.create(
-                        entityId=visit.entityId,
-                        arvId=trace_arrival['spId'],
-                        levId=trace_departure['spId'],
-                        TrvD=distance_metric.extract(),
-                        TrvT=time_metric.extract(),
-                        TrvAS=speed_metric.extract(),
-                        fileName=self.name
-                    )
+                        # Save travel data
+                        TravelsModel.objects.create(
+                            entityId=visit.entityId,
+                            arvId=trace_arrival['spId'],
+                            levId=trace_departure['spId'],
+                            TrvD= distance_metric,
+                            TrvT= time_metric,
+                            TrvAS= speed_metric,
+                            fileName=self.name
+                        )
 
-                    # Accumulate total values for averages
-                    num_travels += 1
-                    total_travel_time += time_metric.extract()
-                    total_travel_distance += distance_metric.extract()
-                    total_travel_avg_speed += speed_metric.extract()
+                        # Accumulate total values for averages
+                        num_travels += 1
+                        total_travel_time += distance_metric
+                        total_travel_distance += time_metric
+                        total_travel_avg_speed += speed_metric
 
         # Calculate averages if there were any travels
         if num_travels > 0:
@@ -191,4 +190,3 @@ class StayPoints:
             avg_travel_time = avg_travel_distance = avg_travel_avg_speed = 0
 
         return num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed
-

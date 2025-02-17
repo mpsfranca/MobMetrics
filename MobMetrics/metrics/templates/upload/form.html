@@ -23,24 +23,56 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .alert {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #ffcc00;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     
     <div class="container">
-        <h1>Formulário de Upload</h1>
+        <h1>Upload Form</h1>
         <form method="post" action="{% url 'upload' %}" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Enviar</button>
+            <button type="submit">Upload</button>
         </form>
+        
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-warning">{{ message }}</div>
+                <div class="alert">{{ message }}</div>
             {% endfor %}
         {% endif %}
-
+        
+        <div class="button-container">
+            <form method="post" action="{% url 'pca' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <button type="submit">Generate PCA Plot</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

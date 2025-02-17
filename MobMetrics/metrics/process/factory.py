@@ -26,15 +26,16 @@ from ..metrics.kinematic.travel_avarage_speed import TravelAverageSpeed
 from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
 
 class Factory:
-    def __init__(self, trace_file, parameters, name):
+    def __init__(self, trace_file, parameters, name, label):
         self.name = name
+        self.label = label
         self.trace_file = trace_file
         self.parameters = parameters
         self.total_visits = 0
 
     def extract(self):
         ids = self.trace_file['id'].unique()
-
+        
         for id in tqdm(ids, desc="Individual Metrics"):
             filtered_trace = self.trace_file[self.trace_file['id'] == id]
 
@@ -43,7 +44,7 @@ class Factory:
             self.stayPoint(filtered_trace, id)
 
         Entropy(self.name, self.total_visits).extract()
-        # DetectContact(self.parameters, self.name, self.trace_file).extract()
+        DetectContact(self.parameters, self.name, self.trace_file).extract()
 
     def metrics_parallel(self, id, filtered_trace):
         def compute_temporal():
@@ -66,6 +67,8 @@ class Factory:
 
         MetricsModel.objects.create(
             fileName=self.name,
+
+            label=self.label,
             entityId=id,
             TTrvT=total_travel_time,
             TTrvD=total_travel_distance,
@@ -79,7 +82,7 @@ class Factory:
     def stayPoint(self, filtered_trace, id):
         visit_count, time_visit_count, num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed = StayPoints(filtered_trace, self.parameters[0], self.parameters[1], id, self.name).extract()
 
-        metric = MetricsModel.objects.get(name=self.name, id=id)
+        metric = MetricsModel.objects.get(fileName=self.name, entityId=id)
         
         metric.numStayPointsVisits = visit_count
         metric.avgTimeVisit = time_visit_count
@@ -87,5 +90,7 @@ class Factory:
         metric.avg_travel_time = avg_travel_time
         metric.avg_travel_distance = avg_travel_distance
         metric.avg_travel_avg_speed = avg_travel_avg_speed
+
+        metric.save()
 
         self.total_visits += visit_count

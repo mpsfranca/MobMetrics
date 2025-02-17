@@ -10,6 +10,8 @@ class ConfigModel(models.Model):
 
 class MetricsModel(models.Model):
     fileName               = models.TextField()
+
+    label                  = models.IntegerField()
     entityId               = models.IntegerField()
     TTrvT                  = models.FloatField()
     TTrvD                  = models.FloatField()
@@ -63,8 +65,7 @@ class ContactModel(models.Model):
     id1 = models.IntegerField()
     id2 = models.IntegerField()
 
-    start_time = models.FloatField()
-    end_time = models.FloatField()
+    contact_timestamp = models.FloatField()
 
     start_x_id_1 = models.FloatField()
     start_x_id_2 = models.FloatField()
