@@ -35,15 +35,15 @@ class Factory:
 
     def extract(self):
         ids = self.trace_file['id'].unique()
-        
+
         for id in tqdm(ids, desc="Individual Metrics"):
             filtered_trace = self.trace_file[self.trace_file['id'] == id]
 
 
             self.metrics_parallel(id, filtered_trace)
             self.stayPoint(filtered_trace, id)
-
-        Entropy(self.name, self.total_visits).extract()
+            
+        Entropy(self.name, self.total_visits, self.parameters, self.trace_file).extract()
         DetectContact(self.parameters, self.name, self.trace_file).extract()
 
     def metrics_parallel(self, id, filtered_trace):

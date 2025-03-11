@@ -7,6 +7,7 @@ class ConfigModel(models.Model):
     distanceThreshold = models.FloatField()
     timeThreshold     = models.FloatField()
     radiusThreshold   = models.FloatField()
+    quadrantSize      = models.FloatField()
 
 class MetricsModel(models.Model):
     fileName               = models.TextField()
@@ -80,5 +81,13 @@ class ContactModel(models.Model):
     end_y_id_2 = models.FloatField()
     end_z_id_1 = models.FloatField()
     end_z_id_2 = models.FloatField()
+
+class QuadrantEntropyModel(models.Model):
+    fileName = models.TextField()
+
+    x        = models.IntegerField()
+    y        = models.IntegerField()
+    z        = models.IntegerField()
+    entropy  = models.IntegerField()
 
 

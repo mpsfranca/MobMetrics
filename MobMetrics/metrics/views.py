@@ -18,6 +18,7 @@ def upload_view(request):
             time_threshold = form.cleaned_data['time_threshold']
             distance_threshold = form.cleaned_data['distance_threshold']
             radius_threshold = form.cleaned_data['radius_threshold']
+            quadrant_size = form.cleaned_data['quadrant_size']
 
             name = form.cleaned_data['name']
             label = form.cleaned_data['label']
@@ -27,7 +28,7 @@ def upload_view(request):
                 messages.warning(request, "A file with the same name already exists.")
                 return render(request, 'upload/form.html', {'form': form})
 
-            parameters = (distance_threshold, time_threshold, radius_threshold)
+            parameters = (distance_threshold, time_threshold, radius_threshold, quadrant_size)
 
             trace_file = pd.read_csv(trace_file)
             trace_file = Format(trace_file).extract()
@@ -49,6 +50,7 @@ def create_config_model(name, label, parameters):
         distanceThreshold=parameters[0],
         timeThreshold=parameters[1],
         radiusThreshold=parameters[2],
+        quadrantSize=parameters[3],
     )
 
 def success_view(request):

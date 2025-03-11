@@ -13,6 +13,7 @@ class UploadForm(forms.Form):
     time_threshold = forms.FloatField(label='Time Threshold')
     distance_threshold = forms.FloatField(label='Distance Threshold')
     radius_threshold = forms.FloatField(label='Radius Threshold')
+    quadrant_size = forms.FloatField(label='Quadrant Size')
     
     name = forms.CharField(label='Name')
     label = forms.ChoiceField(label='Trace Label', choices = LABEL_CHOICES)
