@@ -87,7 +87,6 @@ class QuadrantEntropyModel(models.Model):
 
     x        = models.IntegerField()
     y        = models.IntegerField()
-    z        = models.IntegerField()
-    entropy  = models.IntegerField()
+    entropy  = models.FloatField()
 
 

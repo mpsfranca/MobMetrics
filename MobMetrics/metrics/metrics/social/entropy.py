@@ -37,12 +37,10 @@ class Entropy(AbsMetric):
         # Determine min and max values for x, y, and z
         min_x, max_x = self.trace['x'].min(), self.trace['x'].max()
         min_y, max_y = self.trace['y'].min(), self.trace['y'].max()
-        min_z, max_z = self.trace['z'].min(), self.trace['z'].max()
 
         # Compute quadrant size based on given multiplier, avoiding division by zero
         delta_x = (max_x - min_x) * self.quadrant_size if max_x > min_x else 1
         delta_y = (max_y - min_y) * self.quadrant_size if max_y > min_y else 1
-        delta_z = (max_z - min_z) * self.quadrant_size if max_z > min_z else 1
 
         # Dictionary to store quadrant visit counts
         quadrant_visits = {}
@@ -51,8 +49,7 @@ class Entropy(AbsMetric):
         for _, row in self.trace.iterrows():
             qx = int((row['x'] - min_x) / delta_x)
             qy = int((row['y'] - min_y) / delta_y)
-            qz = int((row['z'] - min_z) / delta_z)
-            quadrant_index = (qx, qy, qz)
+            quadrant_index = (qx, qy)
 
             if quadrant_index in quadrant_visits:
                 quadrant_visits[quadrant_index] += 1
@@ -65,13 +62,15 @@ class Entropy(AbsMetric):
         # Save quadrant entropy values to the database
         for quadrant_index, visit_count in quadrant_visits.items():
             probability = visit_count / total_visits
-            entropy = -probability * math.log2(probability) if probability > 0 else 0
+            entropy = -probability * math.log2(probability) if probability > 0 else 100
+
+            print(quadrant_index)
+            print(entropy)
             
             # Save to database
             QuadrantEntropyModel.objects.create(
                 fileName=self.name,
                 x=quadrant_index[0],
                 y=quadrant_index[1],
-                z=quadrant_index[2],
                 entropy=entropy
             )

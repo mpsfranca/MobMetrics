@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.serializers import serialize
 import pandas as pd
 
-from .models import ConfigModel, MetricsModel, TravelsModel, StayPointModel, VisitModel, ContactModel
+from .models import ConfigModel, MetricsModel, TravelsModel, StayPointModel, VisitModel, ContactModel, QuadrantEntropyModel
 from .forms import UploadForm, FileNameForm
 from .process.factory import Factory
 from .process.format import Format
@@ -60,7 +60,7 @@ def success_view(request):
             file_name = form.cleaned_data['file_name']
             
             # Deleta todas as instâncias dos modelos onde fileName = 'name'
-            models = [ConfigModel, MetricsModel, TravelsModel, StayPointModel, VisitModel, ContactModel]
+            models = [ConfigModel, MetricsModel, TravelsModel, StayPointModel, VisitModel, ContactModel, QuadrantEntropyModel]
             for model in models:
                 model.objects.filter(fileName=file_name).delete()
             
@@ -89,8 +89,17 @@ def pca_view(request):
     # Atribuindo a cor para cada ponto baseado no label
     pca_data['colors'] = [colors[label] for label in pca_data['labels']]
 
+    # Recuperar dados de entropia do banco de dados
+    entropy_records = QuadrantEntropyModel.objects.all()
+    entropy_data = {
+        'x': [record.x for record in entropy_records],
+        'y': [record.y for record in entropy_records],
+        'entropy': [record.entropy for record in entropy_records]
+    }
+
     return render(request, 'success/success.html', {
         'pca_data': pca_data,  # Passando os dados para o template
+        'entropy_data': entropy_data,  # Passando os dados de entropia
         'explained_variance': explained_variance,  # Passando a variância explicada
         'form': FileNameForm()
     })

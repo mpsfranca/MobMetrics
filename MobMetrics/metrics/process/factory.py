@@ -42,7 +42,7 @@ class Factory:
 
             self.metrics_parallel(id, filtered_trace)
             self.stayPoint(filtered_trace, id)
-            
+  
         Entropy(self.name, self.total_visits, self.parameters, self.trace_file).extract()
         DetectContact(self.parameters, self.name, self.trace_file).extract()
 
