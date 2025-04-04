@@ -11,9 +11,9 @@ class ConfigModel(models.Model):
 
 class MetricsModel(models.Model):
     fileName               = models.TextField()
-
-    label                  = models.IntegerField()
+    label                  = models.TextField()
     entityId               = models.IntegerField()
+
     TTrvT                  = models.FloatField()
     TTrvD                  = models.FloatField()
     TTrvAS                 = models.FloatField()
@@ -22,13 +22,39 @@ class MetricsModel(models.Model):
     z_center               = models.FloatField()
     radius                 = models.FloatField()
 
-    numStayPointsVisits  = models.IntegerField(null=True, blank=True)  # Number of Stay Points Visits
-    avgTimeVisit     = models.FloatField(null=True, blank=True)    # Average Time of Visit
+    numStayPointsVisits  = models.IntegerField(null=True, blank=True)
+    avgTimeVisit     = models.FloatField(null=True, blank=True)
 
-    num_travels           = models.IntegerField(null=True, blank=True)  # Number of Travels
-    avg_travel_time       = models.FloatField(null=True, blank=True)    # Average Travel Time
-    avg_travel_distance   = models.FloatField(null=True, blank=True)    # Average Travel Distance
-    avg_travel_avg_speed  = models.FloatField(null=True, blank=True)    # Average Travel Average Speed
+    num_travels           = models.IntegerField(null=True, blank=True)
+    avg_travel_time       = models.FloatField(null=True, blank=True)
+    avg_travel_distance   = models.FloatField(null=True, blank=True)
+    avg_travel_avg_speed  = models.FloatField(null=True, blank=True)
+
+class GlobalMetricsModel(models.Model):
+    fileName               = models.TextField()
+    label                  = models.TextField()
+
+    avgTTrvT                  = models.FloatField()
+    avgTTrvD                  = models.FloatField()
+    avgTTrvAS                 = models.FloatField()
+    avgX_center               = models.FloatField()
+    avgY_center               = models.FloatField()
+    avgZ_center               = models.FloatField()
+    avgRadius                 = models.FloatField()
+
+    numStayPoints = models.IntegerField()
+    avgNumStayPointsVisitsPerEtity  = models.FloatField()
+    NumStayPointsVisits = models.IntegerField()
+    avgStayPointEntropy = models.FloatField()
+    
+    avgQuadrantEntropy = models.FloatField()
+
+    numContacts = models.IntegerField()
+
+    num_travels           = models.IntegerField()
+    avg_travel_time       = models.FloatField()
+    avg_travel_distance   = models.FloatField()
+    avg_travel_avg_speed  = models.FloatField()
 
 class StayPointModel(models.Model):
     fileName    = models.TextField()
@@ -88,5 +114,3 @@ class QuadrantEntropyModel(models.Model):
     x        = models.IntegerField()
     y        = models.IntegerField()
     entropy  = models.FloatField()
-
-

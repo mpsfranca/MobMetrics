@@ -6,6 +6,7 @@ from ..models import MetricsModel
 
 # from utils
 from ..metrics.utils.stay_point import StayPoints
+from ..metrics.utils.utils import global_metrics
 
 # from temporal
 from ..metrics.temporal.travel_time import TravelTime
@@ -26,9 +27,9 @@ from ..metrics.kinematic.travel_avarage_speed import TravelAverageSpeed
 from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
 
 class Factory:
-    def __init__(self, trace_file, parameters, name, label):
-        self.name = name
-        self.label = label
+    def __init__(self, trace_file, parameters):
+        self.name = parameters[4]
+        self.label = parameters[5]
         self.trace_file = trace_file
         self.parameters = parameters
         self.total_visits = 0
@@ -45,6 +46,8 @@ class Factory:
   
         Entropy(self.name, self.total_visits, self.parameters, self.trace_file).extract()
         DetectContact(self.parameters, self.name, self.trace_file).extract()
+
+        global_metrics(self.name)
 
     def metrics_parallel(self, id, filtered_trace):
         def compute_temporal():

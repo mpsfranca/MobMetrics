@@ -58,7 +58,7 @@
         <form method="post" action="{% url 'upload' %}" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Upload</button>
+            <button type="submit">Upload Trace</button>
         </form>
         
         {% if messages %}
@@ -68,7 +68,7 @@
         {% endif %}
         
         <div class="button-container">
-            <form method="post" action="{% url 'pca' %}" enctype="multipart/form-data">
+            <form method="post" action="{% url 'DataAnalytics' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <button type="submit">Generate PCA Plot</button>
             </form>

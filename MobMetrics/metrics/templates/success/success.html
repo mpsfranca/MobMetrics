@@ -57,16 +57,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>PCA - Data Projection</h1>
-
-        <form method="post" action="{% url 'success' %}" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Clear</button>
-        </form>
+        <h1>Data Analytics</h1>
 
         <div class="button-container">
-            <form method="post" action="{% url 'pca' %}" enctype="multipart/form-data">
+            <form method="post" action="{% url 'DataAnalytics' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <button type="submit">Generate PCA Plot</button>
             </form>
@@ -77,59 +71,14 @@
             </form>
         </div>
 
-        <div class="graph-container">
-            <h3>PCA - Data Projection</h3>
-            <div id="pca-graph"></div>
-        </div>
+        <h2>Clear Data</h2>
 
-        <div class="graph-container">
-            <h3>Entropy Heatmap</h3>
-            <div id="entropy-heatmap"></div>
-        </div>
+        <form method="post" action="{% url 'delete' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Clear</button>
+        </form>
 
-        <script>
-            // PCA Data from Django
-            const pcaData = {{ pca_data|safe }};
-            const entropyData = {{ entropy_data|safe }};
-            
-            // Preparing data for the PCA plot
-            const pcaTrace = {
-                x: pcaData.PC1,
-                y: pcaData.PC2,
-                mode: 'markers',
-                type: 'scatter',
-                text: pcaData.labels,
-                marker: {
-                    size: 10,
-                    color: pcaData.colors
-                }
-            };
-
-            const pcaLayout = {
-                title: 'PCA - Data Projection',
-                xaxis: { title: 'Principal Component 1' },
-                yaxis: { title: 'Principal Component 2' }
-            };
-
-            Plotly.newPlot('pca-graph', [pcaTrace], pcaLayout);
-
-            // Preparing data for the entropy heatmap
-            const heatmapTrace = {
-                x: entropyData.x,
-                y: entropyData.y,
-                z: entropyData.entropy,
-                type: 'heatmap',
-                colorscale: 'Viridis'
-            };
-
-            const heatmapLayout = {
-                title: 'Entropy Heatmap',
-                xaxis: { title: 'X' },
-                yaxis: { title: 'Y' }
-            };
-
-            Plotly.newPlot('entropy-heatmap', [heatmapTrace], heatmapLayout);
-        </script>
     </div>
 </body>
 </html>
