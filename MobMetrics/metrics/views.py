@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.core.serializers import serialize
+from django.shortcuts import render
+
 from django.contrib import messages
 
 import pandas as pd

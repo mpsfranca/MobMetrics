@@ -82,8 +82,8 @@ class VisitModel(models.Model):
 
     entityId= models.IntegerField()
     spId    = models.IntegerField()
-    arvT    = models.IntegerField()
-    levT    = models.IntegerField()
+    arvT    = models.FloatField()
+    levT    = models.FloatField()
     visitT  = models.FloatField()
 
 class ContactModel(models.Model):
@@ -94,23 +94,18 @@ class ContactModel(models.Model):
 
     contact_timestamp = models.FloatField()
 
-    start_x_id_1 = models.FloatField()
-    start_x_id_2 = models.FloatField()
-    start_y_id_1 = models.FloatField()
-    start_y_id_2 = models.FloatField()
-    start_z_id_1 = models.FloatField()
-    start_z_id_2 = models.FloatField()
+    x_id_1 = models.FloatField()
+    x_id_2 = models.FloatField()
+    y_id_1 = models.FloatField()
+    y_id_2 = models.FloatField()
+    z_id_1 = models.FloatField()
+    z_id_2 = models.FloatField()
 
-    end_x_id_1 = models.FloatField()
-    end_x_id_2 = models.FloatField()
-    end_y_id_1 = models.FloatField()
-    end_y_id_2 = models.FloatField()
-    end_z_id_1 = models.FloatField()
-    end_z_id_2 = models.FloatField()
 
 class QuadrantEntropyModel(models.Model):
     fileName = models.TextField()
 
     x        = models.IntegerField()
     y        = models.IntegerField()
+    visit_count = models.IntegerField()
     entropy  = models.FloatField()
