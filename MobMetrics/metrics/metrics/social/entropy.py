@@ -1,5 +1,5 @@
 import math
-import tqdm  # type: ignore
+import tqdm
 
 from ...models import StayPointModel, QuadrantEntropyModel
 from ..utils.abs_metric import AbsMetric

@@ -78,7 +78,90 @@
             {{ form.as_p }}
             <button type="submit">Clear</button>
         </form>
-
     </div>
+
+    <div class="container">
+        <div class="graph-container">
+            <h3>PCA - MetricsModel</h3>
+            <div id="pcaMetricsPlot"></div>
+        </div>
+
+        <div class="graph-container">
+            <h3>PCA - GlobalMetricsModel</h3>
+            <div id="pcaGlobalPlot"></div>
+        </div>
+
+        <div class="graph-container">
+            <h3>t-SNE - MetricsModel</h3>
+            <div id="tsneMetricsPlot"></div>
+        </div>
+
+        <div class="graph-container">
+            <h3>t-SNE - GlobalMetricsModel</h3>
+            <div id="tsneGlobalPlot"></div>
+        </div>
+    </div>
+
+    <script>
+        // Função que agrupa os pontos por label
+        function prepareDataByLabel(data, xKey, yKey) {
+            const grouped = {};
+
+            data.forEach(item => {
+                const label = item.label || 'undefined';
+                if (!grouped[label]) grouped[label] = { x: [], y: [], name: label };
+                grouped[label].x.push(item[xKey]);
+                grouped[label].y.push(item[yKey]);
+            });
+
+            return Object.values(grouped).map(group => ({
+                x: group.x,
+                y: group.y,
+                mode: 'markers',
+                type: 'scatter',
+                name: group.name
+            }));
+        }
+
+        // ==================== PCA MetricsModel ====================
+        const pcaMetrics = JSON.parse('{{ pca_metrics|escapejs }}');
+        const metricsTraces = prepareDataByLabel(pcaMetrics, 'PC1', 'PC2');
+
+        Plotly.newPlot('pcaMetricsPlot', metricsTraces, {
+            title: 'PCA - MetricsModel',
+            xaxis: { title: 'PC1' },
+            yaxis: { title: 'PC2' }
+        });
+
+        // ==================== PCA GlobalMetricsModel ====================
+        const pcaGlobal = JSON.parse('{{ pca_global|escapejs }}');
+        const globalTraces = prepareDataByLabel(pcaGlobal, 'PC1', 'PC2');
+
+        Plotly.newPlot('pcaGlobalPlot', globalTraces, {
+            title: 'PCA - GlobalMetricsModel',
+            xaxis: { title: 'PC1' },
+            yaxis: { title: 'PC2' }
+        });
+
+        // ==================== t-SNE MetricsModel ====================
+        const tsneMetrics = JSON.parse('{{ tsne_metrics|escapejs }}');
+        const tsneMetricsTraces = prepareDataByLabel(tsneMetrics, 'TSNE1', 'TSNE2');
+
+        Plotly.newPlot('tsneMetricsPlot', tsneMetricsTraces, {
+            title: 't-SNE - MetricsModel',
+            xaxis: { title: 'TSNE1' },
+            yaxis: { title: 'TSNE2' }
+        });
+
+        // ==================== t-SNE GlobalMetricsModel ====================
+        const tsneGlobal = JSON.parse('{{ tsne_global|escapejs }}');
+        const tsneGlobalTraces = prepareDataByLabel(tsneGlobal, 'TSNE1', 'TSNE2');
+
+        Plotly.newPlot('tsneGlobalPlot', tsneGlobalTraces, {
+            title: 't-SNE - GlobalMetricsModel',
+            xaxis: { title: 'TSNE1' },
+            yaxis: { title: 'TSNE2' }
+        });
+    </script>
 </body>
 </html>

@@ -1,9 +1,10 @@
-from ..utils.utils import distance
 from ..utils.abs_metric import AbsMetric
+from ..utils.utils import distance
 
 class TravelDistance(AbsMetric):
-    def __init__(self, traces):
+    def __init__(self, traces, parameters):
         self.traces = traces
+        self.is_geographical_coordinates = parameters[6]
 
     def extract(self):
         distancia_total = 0
@@ -19,7 +20,7 @@ class TravelDistance(AbsMetric):
             first_point = {'x': previous_trace['x'], 'y': previous_trace['y'], 'z': previous_trace['z']}
             second_point = {'x': current_trace['x'], 'y': current_trace['y'], 'z': current_trace['z']}
 
-            distancia_total += distance(first_point, second_point)
+            distancia_total += distance(first_point, second_point, self.is_geographical_coordinates)
 
             previous_trace = current_trace
 

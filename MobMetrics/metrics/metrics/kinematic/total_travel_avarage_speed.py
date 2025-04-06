@@ -1,4 +1,3 @@
-import logging
 from ..utils.abs_metric import AbsMetric
 
 

@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt,radians, sin, cos, sqrt, atan2
 from django.db.models import Avg, Sum
 from ...models import (
     GlobalMetricsModel,
@@ -8,12 +8,33 @@ from ...models import (
     ContactModel
 )
 
-def distance(first_point, second_point):
-    return sqrt(
-        (second_point['x'] - first_point['x']) ** 2 +
-        (second_point['y'] - first_point['y']) ** 2 +
-        (second_point['z'] - first_point['z']) ** 2
-    )
+def distance(first_point, second_point, is_geographical_coordinates):
+
+    if is_geographical_coordinates:
+        R = 6371000
+
+        lat1 = radians(first_point['y'])
+        lon1 = radians(first_point['x'])
+        lat2 = radians(second_point['y'])
+        lon2 = radians(second_point['x'])
+
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+
+        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        horizontal_distance = R * c
+
+        dz = second_point['z'] - first_point['z']
+
+        return sqrt(horizontal_distance**2 + dz**2)
+    
+    else:
+        return sqrt(
+            (second_point['x'] - first_point['x']) ** 2 +
+            (second_point['y'] - first_point['y']) ** 2 +
+            (second_point['z'] - first_point['z']) ** 2
+        )
 
 def globalMetrics(file_name):
     metrics_qs = MetricsModel.objects.filter(fileName=file_name)

@@ -4,8 +4,9 @@ from ..utils.utils import distance
 
 class TotalTravelDistance(AbsMetric):
 
-    def __init__(self, trace):
+    def __init__(self, trace, parameters):
         self.trace = trace
+        self.is_geographical_coordinates = parameters[6]
 
     def extract(self):
         total_travel_distance = 0
@@ -13,6 +14,7 @@ class TotalTravelDistance(AbsMetric):
         for prev_row, curr_row in zip(self.trace.iloc[:-1].iterrows(), self.trace.iloc[1:].iterrows()):
             _, prev_row = prev_row
             _, curr_row = curr_row
-            total_travel_distance += distance(prev_row, curr_row)
+            
+            total_travel_distance += distance(prev_row, curr_row, self.is_geographical_coordinates)
 
         return round(total_travel_distance, 5)

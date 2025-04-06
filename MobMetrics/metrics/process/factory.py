@@ -46,7 +46,7 @@ class Factory:
     def metrics(self, id, filtered_trace):
 
         total_travel_time = TotalTravelTime(filtered_trace).extract()
-        total_travel_distance = TotalTravelDistance(filtered_trace).extract()
+        total_travel_distance = TotalTravelDistance(filtered_trace, self.parameters).extract()
         total_travel_average_speed = TotalTravelAverageSpeed(total_travel_time, total_travel_distance).extract()
         center_of_mass = CenterOfMass(filtered_trace).extract()
         radius_of_gyration = RadiusOfGyration(filtered_trace, center_of_mass).extract()

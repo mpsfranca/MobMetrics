@@ -9,9 +9,11 @@ class StayPoints:
     def __init__(self, trace, entity_id, parameters):
         self.trace = trace
         self.entity_id = entity_id
+        self.parameters = parameters
         self.distance_threshold = parameters[0]
         self.time_threshold = parameters[1]
         self.file_name = parameters[4]
+        self.is_geographical_coordinates = parameters[6]
 
     def extract(self):
         self.trace['spId'] = 0
@@ -46,7 +48,7 @@ class StayPoints:
         point_count = 1
 
         end_idx = start_idx + 1
-        while end_idx < len(self.trace) and distance(self.trace.iloc[start_idx], self.trace.iloc[end_idx]) <= self.distance_threshold:
+        while end_idx < len(self.trace) and distance(self.trace.iloc[start_idx], self.trace.iloc[end_idx], self.is_geographical_coordinates) <= self.distance_threshold:
             x_total += self.trace.iloc[end_idx]['x']
             y_total += self.trace.iloc[end_idx]['y']
             z_total += self.trace.iloc[end_idx]['z']
@@ -62,7 +64,7 @@ class StayPoints:
             z_avg = round(z_total / point_count, 5)
 
             for existing_sp in StayPointModel.objects.filter(fileName=self.file_name):
-                if distance({'x': existing_sp.x, 'y': existing_sp.y, 'z': existing_sp.z}, {'x': x_avg, 'y': y_avg, 'z': z_avg}) <= self.distance_threshold:
+                if distance({'x': existing_sp.x, 'y': existing_sp.y, 'z': existing_sp.z}, {'x': x_avg, 'y': y_avg, 'z': z_avg}, self.is_geographical_coordinates) <= self.distance_threshold:
                     existing_sp.numVisits += 1
                     existing_sp.save()
 
@@ -161,7 +163,7 @@ class StayPoints:
 
 
     def _create_travel(self, traces, entity_id):
-        travel_distance = TravelDistance(traces).extract()
+        travel_distance = TravelDistance(traces, self.parameters).extract()
         
         travel_time = TravelTime( traces.iloc[-1]['time'], traces.iloc[0]['time']).extract()
         travel_speed = TravelAverageSpeed(travel_distance, travel_time).extract()

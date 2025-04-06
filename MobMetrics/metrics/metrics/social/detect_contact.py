@@ -1,6 +1,7 @@
 from tqdm import tqdm
 
 from ..utils.utils import distance  
+
 from ...models import ContactModel 
 
 class DetectContact:
@@ -23,7 +24,7 @@ class DetectContact:
                 for j in range(i + 1, len(objects)):
                     obj1, obj2 = objects[i], objects[j]
                     
-                    dist = distance(obj1, obj2)
+                    dist = distance(obj1, obj2, self.parameters[6])
                     
                     if dist < self.parameters[2]:
                         contact = ContactModel(
