@@ -129,6 +129,7 @@ def create_config_model(parameters):
     ConfigModel.objects.create(
         fileName=parameters[4],
         label=parameters[5],
+        isGeographicalCoordinates = parameters[6],
         distanceThreshold=parameters[0],
         timeThreshold=parameters[1],
         radiusThreshold=parameters[2],

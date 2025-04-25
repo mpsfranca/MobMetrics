@@ -12,6 +12,7 @@ from ..metrics.utils.utils import globalMetrics
 from ..metrics.temporal.total_travel_time import TotalTravelTime
 
 # from social
+from ..metrics.social.quadrant_entropy import QuadrantEntropy
 from ..metrics.social.entropy import Entropy
 from ..metrics.social.detect_contact import DetectContact
 
@@ -39,6 +40,7 @@ class Factory:
             self.stayPoint(filtered_trace, id)
   
         Entropy(self.total_visits, self.parameters, self.trace_file).extract()
+        QuadrantEntropy(self.trace_file, self.parameters)
         DetectContact(self.parameters, self.trace_file).extract()
 
         globalMetrics(self.parameters[4])
