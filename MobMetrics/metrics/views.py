@@ -135,3 +135,56 @@ def create_config_model(parameters):
         radiusThreshold=parameters[2],
         quadrantSize=parameters[3],
     )
+
+import zipfile
+import os
+from io import BytesIO
+from django.http import HttpResponse
+from django.shortcuts import render
+from .models import ConfigModel, MetricsModel, TravelsModel, StayPointModel, VisitModel, ContactModel, QuadrantEntropyModel, GlobalMetricsModel
+from .forms import FileNameForm
+import pandas as pd
+
+def download_zip_view(request):
+    if request.method == 'POST':
+        form = FileNameForm(request.POST)
+        if form.is_valid():
+            file_name = form.cleaned_data['file_name']
+
+            # Filtrando os modelos pela fileName
+            models = {
+                'ConfigModel': ConfigModel.objects.filter(fileName=file_name),
+                'MetricsModel': MetricsModel.objects.filter(fileName=file_name),
+                'TravelsModel': TravelsModel.objects.filter(fileName=file_name),
+                'StayPointModel': StayPointModel.objects.filter(fileName=file_name),
+                'VisitModel': VisitModel.objects.filter(fileName=file_name),
+                'ContactModel': ContactModel.objects.filter(fileName=file_name),
+                'QuadrantEntropyModel': QuadrantEntropyModel.objects.filter(fileName=file_name),
+                'GlobalMetricsModel': GlobalMetricsModel.objects.filter(fileName=file_name),
+            }
+
+            # Criando um arquivo zip em memória
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for model_name, queryset in models.items():
+                    if queryset.exists():
+                        # Convertendo queryset para DataFrame e depois para CSV
+                        df = pd.DataFrame.from_records(queryset.values())
+                        csv_buffer = BytesIO()
+                        df.to_csv(csv_buffer, index=False)
+                        csv_buffer.seek(0)
+
+                        # Adicionando o arquivo CSV ao ZIP
+                        zip_file.writestr(f'{model_name}.csv', csv_buffer.read())
+
+            # Preparando a resposta HTTP com o arquivo ZIP
+            zip_buffer.seek(0)
+            response = HttpResponse(zip_buffer, content_type='application/zip')
+            response['Content-Disposition'] = f'attachment; filename={file_name}.zip'
+
+            return response
+
+    else:
+        form = FileNameForm()
+
+    return render(request, 'success/success.html', {'form': form})

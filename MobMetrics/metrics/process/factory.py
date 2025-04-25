@@ -39,11 +39,11 @@ class Factory:
             self.metrics(id, filtered_trace)
             self.stayPoint(filtered_trace, id)
   
-        Entropy(self.total_visits, self.parameters, self.trace_file).extract()
-        QuadrantEntropy(self.trace_file, self.parameters)
-        DetectContact(self.parameters, self.trace_file).extract()
+        #Entropy(self.total_visits, self.parameters, self.trace_file).extract()
+        QuadrantEntropy(self.trace_file, self.parameters).extract()
+        #DetectContact(self.parameters, self.trace_file).extract()
 
-        globalMetrics(self.parameters[4])
+        #globalMetrics(self.parameters[4])
 
     def metrics(self, id, filtered_trace):
 
