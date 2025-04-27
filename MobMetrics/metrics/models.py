@@ -8,6 +8,7 @@ class ConfigModel(models.Model):
     timeThreshold     = models.FloatField()
     radiusThreshold   = models.FloatField()
     quadrantSize      = models.FloatField()
+    isGeographicalCoordinates = models.BooleanField()
 
 class MetricsModel(models.Model):
     fileName               = models.TextField()
@@ -29,6 +30,8 @@ class MetricsModel(models.Model):
     avg_travel_time       = models.FloatField(null=True, blank=True)
     avg_travel_distance   = models.FloatField(null=True, blank=True)
     avg_travel_avg_speed  = models.FloatField(null=True, blank=True)
+
+    occupied_quadrants    = models.IntegerField(null=True, blank=True)
 
 class GlobalMetricsModel(models.Model):
     fileName               = models.TextField()
@@ -55,6 +58,8 @@ class GlobalMetricsModel(models.Model):
     avg_travel_time       = models.FloatField()
     avg_travel_distance   = models.FloatField()
     avg_travel_avg_speed  = models.FloatField()
+
+    occupied_quadrants    = models.IntegerField(null=True, blank=True)
 
 class StayPointModel(models.Model):
     fileName    = models.TextField()
@@ -104,8 +109,10 @@ class ContactModel(models.Model):
 
 class QuadrantEntropyModel(models.Model):
     fileName = models.TextField()
+    entity_id = models.IntegerField(null=True, blank=True)
 
     x        = models.IntegerField()
     y        = models.IntegerField()
     visit_count = models.IntegerField()
     entropy  = models.FloatField()
+    occupied_quadrants = models.IntegerField(null=True)
