@@ -40,7 +40,7 @@ class Factory:
             self.stayPoint(filtered_trace, id)
   
         #Entropy(self.total_visits, self.parameters, self.trace_file).extract()
-        QuadrantEntropy(self.trace_file, self.parameters).extract()
+        # QuadrantEntropy(self.trace_file, self.parameters).extract()
         #DetectContact(self.parameters, self.trace_file).extract()
 
         #globalMetrics(self.parameters[4])
