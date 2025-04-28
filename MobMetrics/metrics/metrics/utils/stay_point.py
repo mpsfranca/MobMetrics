@@ -4,6 +4,22 @@ from ...models import StayPointModel
 
 class StayPoints:
     def __init__(self, trace, entity_id, parameters):
+        """
+        Class that represents the module that detects Stay Points from a mobility trace and
+        configuration parameters, in addition to calling the modules responsible for visits
+        and travels.
+
+        Attributes:
+            `trace` (DataFrame): trace data with coordinates, timestamp and identifier
+            `entity_id` (int): entity identifier
+            `parameters` (list): configuration parameters for processing (listed below)
+            `distance_threshold` (float): distance threshold for a stay point
+            `time_threshold` (float): stay time threshold for a stay point
+            `file_name` (str): file name
+            `is_geographical_coordinates` (bool): flag to indicate if the coordinates are geographical
+            `visit_processor` (visits.Visit): instance of the visits processor module
+            `travel_processor` (travels.Travel): instance of the travels processor module
+        """
         self.trace = trace
         self.entity_id = entity_id
         self.parameters = parameters
@@ -16,6 +32,19 @@ class StayPoints:
         self.travel_processor = Travel(self.trace, self.entity_id, self.parameters)
 
     def extract(self):
+        """
+        Function responsible for extracting the stay points related to this class, given the trace
+        and the initial parameters.
+
+        Returns:
+            `visit_count` (int): number of registered visits
+            `time_visit_count` (float): total visit time
+            `num_travels` (float): total number of travels
+            `avg_travel_time` (float): average time per travel
+            `avg_travel_distance` (float): average distance per travel
+            `avg_travel_avg_speed` (float): average speed per travel
+        """
+
         self.trace['spId'] = 0
         last_sp = StayPointModel.objects.filter(fileName=self.file_name).order_by('spId').last()
         stay_point_id = last_sp.spId + 1 if last_sp else 1
