@@ -90,5 +90,49 @@ def globalMetrics(file_name):
             'avgStayPointEntropy': sp_agg['avgStayPointEntropy'] or 0.0,
             'avgQuadrantEntropy': quadrants_agg['avgQuadrantEntropy'] or 0.0,
             'numContacts': num_contacts,
+            'mobility_profile': find_mobility_profile(metrics_qs, metrics_agg)
         }
     )
+
+def find_mobility_profile(metrics_qs, metrics_agg):
+    epsilon = 1e-5
+
+    metric_names = [
+        'TTrvT',
+        'TTrvD',
+        'TTrvAS',
+        'x_center',
+        'y_center',
+        'z_center',
+        'radius',
+        'num_travels',
+        'avg_travel_time',
+        'avg_travel_distance',
+        'avg_travel_avg_speed',
+        'numStayPointsVisits',
+    ]
+
+    total_mobility_profile = 0
+    num_entities = 0
+
+    for entity in metrics_qs:
+        total_rel_diff = 0
+
+        for metric in metric_names:
+            entity_value = getattr(entity, metric, None)
+            mean_value = metrics_agg.get(f'avg{metric}', None)
+
+            if entity_value is not None and mean_value is not None:
+                rel_diff = abs(entity_value - mean_value) / (mean_value + epsilon)
+                total_rel_diff += rel_diff
+
+        mobility_profile = 1 / (1 + total_rel_diff)
+
+        total_mobility_profile += mobility_profile
+        num_entities += 1
+
+    if num_entities > 0:
+        average_mobility_profile = total_mobility_profile / num_entities
+        return average_mobility_profile
+    else:
+        return 0.0

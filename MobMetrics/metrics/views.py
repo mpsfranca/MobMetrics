@@ -72,7 +72,8 @@ def data_analytics_view(request):
 
         columns_global = [
             'avgTTrvT', 'avgTTrvD', 'avgTTrvAS', 'numStayPoints', 'avgNumStayPointsVisitsPerEtity', 'NumStayPointsVisits',
-            'avgStayPointEntropy', 'avgQuadrantEntropy', 'numContacts', 'num_travels', 'avg_travel_time', 'avg_travel_distance', 'avg_travel_avg_speed'
+            'avgStayPointEntropy', 'avgQuadrantEntropy', 'numContacts', 'num_travels', 'avg_travel_time', 'avg_travel_distance',
+            'avg_travel_avg_speed', 'mobility_profile'
         ]
 
         # PCA

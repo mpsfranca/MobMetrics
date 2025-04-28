@@ -60,6 +60,7 @@ class GlobalMetricsModel(models.Model):
     avg_travel_avg_speed  = models.FloatField()
 
     occupied_quadrants    = models.IntegerField(null=True, blank=True)
+    mobility_profile      = models.FloatField(null=True, blank=True)
 
 class StayPointModel(models.Model):
     fileName    = models.TextField()
