@@ -78,6 +78,14 @@
             {{ form.as_p }}
             <button type="submit">Clear</button>
         </form>
+        
+        <h2>Download Data</h2>
+
+        <form method="post" action="{% url 'download' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Download</button>
+        </form>
     </div>
 
     <div class="container">

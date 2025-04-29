@@ -3,7 +3,7 @@ from django import forms
 class UploadForm(forms.Form):
     trace = forms.FileField(label='Trace')
 
-    is_geographical_coordinates = forms.BooleanField(label='Is Geographical Coordinates?')
+    is_geographical_coordinates = forms.BooleanField(label='Is Geographical Coordinates?', required=False)
     distance_threshold = forms.FloatField(label='Distance Threshold')
     radius_threshold = forms.FloatField(label='Radius Threshold')
     time_threshold = forms.FloatField(label='Time Threshold')
