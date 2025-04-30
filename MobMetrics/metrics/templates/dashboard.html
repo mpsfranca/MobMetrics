@@ -1,0 +1,146 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard de Análise</title>
+  
+  <!-- Carregar o CSS -->
+  <link rel="stylesheet" href="{% static 'metrics/css/style.css' %}">
+  
+  <!-- Carregar o Plotly -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('upload')">Upload & Processar</div>
+    <div class="tab" onclick="switchTab('resultados')">Resultados</div>
+    <div class="tab" onclick="switchTab('gerenciar')">Gerenciar Arquivos</div>
+  </div>
+
+  <!-- Upload & Processamento -->
+  <div class="content" id="upload">
+    <h2>Upload de Arquivo</h2>
+    <form method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <!-- Campo de upload com tooltip -->
+      <div class="form-group">
+        <label for="id_upload_field">Trace file:</label>
+        {{ upload_form.trace }}
+        <span class="tooltip" data-tooltip="Here you can choose the trace file to be uploaded. Only .csv files are accepted for trace data.">?</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_upload_field">Geographical Coordinates:</label>
+        {{ upload_form.is_geographical_coordinates }}
+        <span class="tooltip" data-tooltip="Mark this if the trace is in Latitude and Longitude.">?</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_upload_field">Distance Threshold:</label>
+        {{ upload_form.distance_threshold }}
+        <span class="tooltip" data-tooltip="This is the maximum distance a point must be from another to be considered part of the same stay point.">?</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_upload_field">Radius Threshold:</label>
+        {{ upload_form.radius_threshold }}
+        <span class="tooltip" data-tooltip="This radius is used as the contact radius for each entity.">?</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_upload_field">Time Threshold File:</label>
+        {{ upload_form.time_threshold }}
+        <span class="tooltip" data-tooltip="This is the minimum time an entity must stay at a point to be considered part of the stay point.">?</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_upload_field">Quadrant Parts:</label>
+        {{ upload_form.quadrant_size }}
+        <span class="tooltip" data-tooltip="This represents how many quadrants the trace should be divided into. The total number of quadrants will be quadrant_size².">?</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_upload_field">Name:</label>
+        {{ upload_form.name }}
+        <span class="tooltip" data-tooltip="This is the name of the file.">?</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_upload_field">Label:</label>
+        {{ upload_form.label }}
+        <span class="tooltip" data-tooltip="The label represents what this trace refers to, such as a car, a person, etc.">?</span>
+    </div>
+      
+  
+      <!-- Tooltip ao passar o mouse -->
+      <button class="button" type="submit" name="upload">Upload</button>
+    </form>
+  
+    {% if messages %}
+      {% for message in messages %}
+        <p style="color: orange; text-align: center;">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+  
+    <form method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data" style="text-align: center;">
+      {% csrf_token %}
+      <button class="button" type="submit" name="generate_graphs">Gerar Gráficos</button>
+    </form>
+  </div>
+  
+
+  <!-- Resultados -->
+  <div class="content hidden" id="resultados">
+    <h2>Resultados - Gráficos</h2>
+    <div class="graph-container">
+      <h3>PCA - MetricsModel</h3>
+      <div id="pcaMetricsPlot"></div>
+    </div>
+    <div class="graph-container">
+      <h3>PCA - GlobalMetricsModel</h3>
+      <div id="pcaGlobalPlot"></div>
+    </div>
+    <div class="graph-container">
+      <h3>t-SNE - MetricsModel</h3>
+      <div id="tsneMetricsPlot"></div>
+    </div>
+    <div class="graph-container">
+      <h3>t-SNE - GlobalMetricsModel</h3>
+      <div id="tsneGlobalPlot"></div>
+    </div>
+  </div>
+
+  <!-- Gerenciar Arquivos -->
+  <div class="content hidden" id="gerenciar">
+    <h2>Gerenciar Arquivos</h2>
+    {% if file_names %}
+      {% for name in file_names %}
+        <div class="file-item">
+          <span>{{ name }}</span>
+
+          <form method="post" action="{% url 'dashboard' %}" class="inline-form">
+            {% csrf_token %}
+            <input type="hidden" name="fileName" value="{{ name }}">
+            <button class="button danger" type="submit" name="delete">Excluir</button>
+          </form>
+
+          <form method="post" action="{% url 'dashboard' %}" class="inline-form">
+            {% csrf_token %}
+            <input type="hidden" name="fileName" value="{{ name }}">
+            <button class="button success" type="submit" name="download">Download</button>
+          </form>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p style="text-align: center; color: #888;">Nenhum arquivo encontrado.</p>
+    {% endif %}
+  </div>
+
+  <!-- Carregar o JS -->
+  <script src="{% static 'metrics/js/script.js' %}"></script>
+
+</body>
+</html>

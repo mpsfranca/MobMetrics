@@ -1,30 +1,53 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // A função será executada apenas depois que o DOM estiver completamente carregado
-    function createHistogram() {
-        const metricsData = JSON.parse('{{ metrics|escapejs }}');
-        const tTrvTValues = metricsData.map(metric => metric.fields.TTrvT);
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
+  document.querySelector(`.tab[onclick="switchTab('${id}')"]`).classList.add('active');
+  document.getElementById(id).classList.remove('hidden');
+}
 
-        const trace = {
-            x: tTrvTValues,
-            type: 'histogram',
-            opacity: 0.75,
-            marker: {
-                color: 'rgb(58, 71, 80)',
-                line: { color: 'rgb(0,0,0)', width: 1 }
-            }
-        };
+// ==================== Plotly Gráficos ====================
+const pcaMetrics = JSON.parse('{{ pca_metrics|escapejs }}');
+const pcaGlobal = JSON.parse('{{ pca_global|escapejs }}');
+const tsneMetrics = JSON.parse('{{ tsne_metrics|escapejs }}');
+const tsneGlobal = JSON.parse('{{ tsne_global|escapejs }}');
 
-        const layout = {
-            title: 'Histograma de TTrvT',
-            xaxis: { title: 'TTrvT' },
-            yaxis: { title: 'Contagem' },
-            bargap: 0.05
-        };
+function prepareDataByLabel(data, xKey, yKey) {
+  const grouped = {};
+  data.forEach(item => {
+    const label = item.label || 'undefined';
+    if (!grouped[label]) grouped[label] = { x: [], y: [], name: label };
+    grouped[label].x.push(item[xKey]);
+    grouped[label].y.push(item[yKey]);
+  });
+  return Object.values(grouped).map(group => ({
+    x: group.x,
+    y: group.y,
+    mode: 'markers',
+    type: 'scatter',
+    name: group.name
+  }));
+}
 
-        Plotly.newPlot('metricsHistogram', [trace], layout);
-    }
+Plotly.newPlot('pcaMetricsPlot', prepareDataByLabel(pcaMetrics, 'PC1', 'PC2'), {
+  title: 'PCA - MetricsModel',
+  xaxis: { title: 'PC1' },
+  yaxis: { title: 'PC2' }
+});
 
-    createHistogram()
-    // Aqui você pode chamar a função assim que o DOM estiver pronto
-    // createHistogram();
+Plotly.newPlot('pcaGlobalPlot', prepareDataByLabel(pcaGlobal, 'PC1', 'PC2'), {
+  title: 'PCA - GlobalMetricsModel',
+  xaxis: { title: 'PC1' },
+  yaxis: { title: 'PC2' }
+});
+
+Plotly.newPlot('tsneMetricsPlot', prepareDataByLabel(tsneMetrics, 'TSNE1', 'TSNE2'), {
+  title: 't-SNE - MetricsModel',
+  xaxis: { title: 'TSNE1' },
+  yaxis: { title: 'TSNE2' }
+});
+
+Plotly.newPlot('tsneGlobalPlot', prepareDataByLabel(tsneGlobal, 'TSNE1', 'TSNE2'), {
+  title: 't-SNE - GlobalMetricsModel',
+  xaxis: { title: 'TSNE1' },
+  yaxis: { title: 'TSNE2' }
 });
