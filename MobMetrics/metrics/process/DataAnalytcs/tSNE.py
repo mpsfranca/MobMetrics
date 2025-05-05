@@ -5,7 +5,7 @@ from ...utils.abs_data import AbsData
 
 
 class tSNE(AbsData):
-    def __init__(self, data, columns, n_components=2, perplexity=30):
+    def __init__(self, data, columns, n_components, perplexity):
         self.data = data
         self.columns = columns
         self.n_components = n_components
