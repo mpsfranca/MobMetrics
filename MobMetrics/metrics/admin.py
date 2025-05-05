@@ -30,7 +30,7 @@ class QuadrantEntropyModelAdmin(admin.ModelAdmin):
     actions = ['delete_all_quadrant_entropy']
 
     @admin.action(description="Delete all quadrant entropy logs")
-    def delete_all_visits(self, request, queryset):
+    def delete_all_quadrant_entropy(self, request, queryset):
         total = QuadrantEntropyModel.objects.count()
         QuadrantEntropyModel.objects.all().delete()
         self.message_user(request, f"All {total} records were deleted successfully.")
