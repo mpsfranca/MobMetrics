@@ -6,12 +6,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard de Análise</title>
-  
-  <!-- Carregar o CSS -->
+
+  <!-- Carregar CSS -->
   <link rel="stylesheet" href="{% static 'metrics/css/style.css' %}">
-  
-  <!-- Carregar o Plotly -->
+
+  <!-- Plotly -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+ 
 </head>
 <body>
   <div class="tabs">
@@ -20,80 +22,96 @@
     <div class="tab" onclick="switchTab('gerenciar')">Gerenciar Arquivos</div>
   </div>
 
-  <!-- Upload & Processamento -->
   <div class="content" id="upload">
     <h2>Upload de Arquivo</h2>
     <form method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data">
       {% csrf_token %}
-      <!-- Campo de upload com tooltip -->
       <div class="form-group">
-        <label for="id_upload_field">Trace file:</label>
+        <label>Trace file:</label>
         {{ upload_form.trace }}
         <span class="tooltip" data-tooltip="Here you can choose the trace file to be uploaded. Only .csv files are accepted for trace data.">?</span>
-    </div>
-    
-    <div class="form-group">
-        <label for="id_upload_field">Geographical Coordinates:</label>
+      </div>
+
+      <div class="form-group">
+        <label>Geographical Coordinates:</label>
         {{ upload_form.is_geographical_coordinates }}
         <span class="tooltip" data-tooltip="Mark this if the trace is in Latitude and Longitude.">?</span>
-    </div>
-    
-    <div class="form-group">
-        <label for="id_upload_field">Distance Threshold:</label>
+      </div>
+
+      <div class="form-group">
+        <label>Distance Threshold:</label>
         {{ upload_form.distance_threshold }}
         <span class="tooltip" data-tooltip="This is the maximum distance a point must be from another to be considered part of the same stay point.">?</span>
-    </div>
-    
-    <div class="form-group">
-        <label for="id_upload_field">Radius Threshold:</label>
+      </div>
+
+      <div class="form-group">
+        <label>Radius Threshold:</label>
         {{ upload_form.radius_threshold }}
         <span class="tooltip" data-tooltip="This radius is used as the contact radius for each entity.">?</span>
-    </div>
-    
-    <div class="form-group">
-        <label for="id_upload_field">Time Threshold File:</label>
+      </div>
+
+      <div class="form-group">
+        <label>Time Threshold:</label>
         {{ upload_form.time_threshold }}
         <span class="tooltip" data-tooltip="This is the minimum time an entity must stay at a point to be considered part of the stay point.">?</span>
-    </div>
-    
-    <div class="form-group">
-        <label for="id_upload_field">Quadrant Parts:</label>
+      </div>
+
+      <div class="form-group">
+        <label>Quadrant Parts:</label>
         {{ upload_form.quadrant_size }}
         <span class="tooltip" data-tooltip="This represents how many quadrants the trace should be divided into. The total number of quadrants will be quadrant_size².">?</span>
-    </div>
-    
-    <div class="form-group">
-        <label for="id_upload_field">Name:</label>
+      </div>
+
+      <div class="form-group">
+        <label>Name:</label>
         {{ upload_form.name }}
         <span class="tooltip" data-tooltip="This is the name of the file.">?</span>
-    </div>
-    
-    <div class="form-group">
-        <label for="id_upload_field">Label:</label>
+      </div>
+
+      <div class="form-group">
+        <label>Label:</label>
         {{ upload_form.label }}
         <span class="tooltip" data-tooltip="The label represents what this trace refers to, such as a car, a person, etc.">?</span>
-    </div>
-      
-  
-      <!-- Tooltip ao passar o mouse -->
+      </div>
+
       <button class="button" type="submit" name="upload">Upload</button>
     </form>
-  
+
     {% if messages %}
       {% for message in messages %}
         <p style="color: orange; text-align: center;">{{ message }}</p>
       {% endfor %}
     {% endif %}
-  
-    <form method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data" style="text-align: center;">
-      {% csrf_token %}
-      <button class="button" type="submit" name="generate_graphs">Gerar Gráficos</button>
-    </form>
   </div>
-  
 
-  <!-- Resultados -->
   <div class="content hidden" id="resultados">
+    <div class="config-section">
+      <button type="button" class="button" onclick="toggleConfig()">⚙️ Configuração</button>
+      
+      <div id="configForm" class="hidden" style="margin-top: 1rem;">
+        <form method="post" action="{% url 'dashboard' %}">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label for="id_PCA_n_components">PCA N Components:</label>
+            {{ analytcs_form.PCA_n_components }}
+          </div>
+          
+          <div class="form-group">
+            <label for="id_tSNE_n_components">t-SNE N Components:</label>
+            {{ analytcs_form.tSNE_n_components }}
+          </div>
+          
+          <div class="form-group">
+            <label for="id_tSNE_perplexity">t-SNE Perplexity:</label>
+            {{ analytcs_form.tSNE_perplexity }}
+          </div>    
+    
+          <button class="button" type="submit" name="generate_graphs">Gerar Gráficos</button>
+        </form>
+      </div>
+    </div>
+    
     <h2>Resultados - Gráficos</h2>
     <div class="graph-container">
       <h3>PCA - MetricsModel</h3>
@@ -113,7 +131,6 @@
     </div>
   </div>
 
-  <!-- Gerenciar Arquivos -->
   <div class="content hidden" id="gerenciar">
     <h2>Gerenciar Arquivos</h2>
     {% if file_names %}
@@ -139,8 +156,67 @@
     {% endif %}
   </div>
 
-  <!-- Carregar o JS -->
-  <script src="{% static 'metrics/js/script.js' %}"></script>
+  <!-- Script JS -->
+  <script>
 
+    function toggleConfig() {
+      const configDiv = document.getElementById('configForm');
+      configDiv.classList.toggle('hidden');
+    }
+
+
+    function switchTab(id) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
+      document.querySelector(`.tab[onclick="switchTab('${id}')"]`).classList.add('active');
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    const pcaMetrics = JSON.parse('{{ pca_metrics|escapejs }}');
+    const pcaGlobal = JSON.parse('{{ pca_global|escapejs }}');
+    const tsneMetrics = JSON.parse('{{ tsne_metrics|escapejs }}');
+    const tsneGlobal = JSON.parse('{{ tsne_global|escapejs }}');
+
+    function prepareDataByLabel(data, xKey, yKey) {
+      const grouped = {};
+      data.forEach(item => {
+        const label = item.label || 'undefined';
+        if (!grouped[label]) grouped[label] = { x: [], y: [], name: label };
+        grouped[label].x.push(item[xKey]);
+        grouped[label].y.push(item[yKey]);
+      });
+      return Object.values(grouped).map(group => ({
+        x: group.x,
+        y: group.y,
+        mode: 'markers',
+        type: 'scatter',
+        name: group.name
+      }));
+    }
+
+    Plotly.newPlot('pcaMetricsPlot', prepareDataByLabel(pcaMetrics, 'PC1', 'PC2'), {
+      title: 'PCA - MetricsModel',
+      xaxis: { title: 'PC1' },
+      yaxis: { title: 'PC2' }
+    });
+
+    Plotly.newPlot('pcaGlobalPlot', prepareDataByLabel(pcaGlobal, 'PC1', 'PC2'), {
+      title: 'PCA - GlobalMetricsModel',
+      xaxis: { title: 'PC1' },
+      yaxis: { title: 'PC2' }
+    });
+
+    Plotly.newPlot('tsneMetricsPlot', prepareDataByLabel(tsneMetrics, 'TSNE1', 'TSNE2'), {
+      title: 't-SNE - MetricsModel',
+      xaxis: { title: 'TSNE1' },
+      yaxis: { title: 'TSNE2' }
+    });
+
+    Plotly.newPlot('tsneGlobalPlot', prepareDataByLabel(tsneGlobal, 'TSNE1', 'TSNE2'), {
+      title: 't-SNE - GlobalMetricsModel',
+      xaxis: { title: 'TSNE1' },
+      yaxis: { title: 'TSNE2' }
+    });
+  </script>
 </body>
 </html>
