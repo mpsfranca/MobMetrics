@@ -1,6 +1,7 @@
 from .visits import Visit
 from .travels import Travel
 from ...models import StayPointModel
+from .utils import distance
 
 class StayPoints:
     def __init__(self, trace, entity_id, parameters):
@@ -70,8 +71,6 @@ class StayPoints:
         return visit_count, time_visit_count, num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed
 
     def _detect_stay_point(self, start_idx, stay_point_id):
-        from .utils import distance
-
         arrival_time = self.trace.iloc[start_idx]['time']
         x_total = self.trace.iloc[start_idx]['x']
         y_total = self.trace.iloc[start_idx]['y']
