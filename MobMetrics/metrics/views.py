@@ -133,14 +133,16 @@ def handle_generate_graphs(request, analytics_form):
             return None, None, None, None, [], []
 
         # Colunas que queremos excluir
-        exclude_columns_metrics = ['fileName', 'label', 'entityId', 'x_center', 'x_center', 'y_center']
-        exclude_columns_global = ['fileName', 'label', 'entityId', 'avgx_center', 'avgx_center', 'avgy_center']
+        exclude_columns_metrics = ['id', 'fileName', 'label', 'entityId', 'x_center', 'y_center', 'z_center']
+        exclude_columns_global = ['id', 'fileName', 'label', 'entityId', 'avgX_center', 'avgY_center', 'avgZ_center']
 
         # Detecta colunas interessantes dinamicamente
         columns_metrics = [col for col in metrics_df.columns if col not in exclude_columns_metrics]
         columns_global = [col for col in global_metrics_df.columns if col not in exclude_columns_global]
 
-        # PCA
+        PCA_n_components = min(PCA_n_components, len(columns_metrics), len(metrics_df))
+        tSNE_n_components = min(tSNE_n_components, len(columns_metrics), len(metrics_df))
+
         if PCA_n_components > 0:
             result_metrics = PCA(metrics_df, columns_metrics, PCA_n_components).extract()
             result_global = PCA(global_metrics_df, columns_global, PCA_n_components).extract()
