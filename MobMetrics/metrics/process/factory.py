@@ -41,7 +41,9 @@ class Factory:
   
         Entropy(self.total_visits, self.parameters, self.trace_file).extract()
         DetectContact(self.parameters, self.trace_file).extract()
+
         globalMetrics(self.parameters[4])
+        
         QuadrantEntropy(self.trace_file, self.parameters).extract()
 
     def metrics(self, id, filtered_trace):
