@@ -16,3 +16,18 @@ class UploadForm(forms.Form):
 
 class FileNameForm(forms.Form):
     file_name = forms.CharField(label='File Name', max_length=255, required=True)
+
+
+class DataAnalytcsParamsForm(forms.Form):
+    PCA_n_components = forms.IntegerField(
+        label='PCA N Components',
+        initial=2  # valor padrão
+    )
+    tSNE_n_components = forms.IntegerField(
+        label='tSNE N Components',
+        initial=2  # valor padrão
+    )
+    tSNE_perplexity = forms.IntegerField(
+        label='Perplexity N Components',
+        initial=30  # valor padrão
+    )
