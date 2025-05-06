@@ -13,7 +13,7 @@ Mais informações sobre os selos podem ser encontrados no [link](https://doc-ar
 
 ---
 
-# 📑 Estrutura Readme
+# Estrutura Readme
 
 - [MobMetrics](#mobmetrics-a-tool-for-processing-and-analyzing-mobility-trace-metrics)
 - [Selos Considerados](#selos-considerados)
@@ -21,7 +21,6 @@ Mais informações sobre os selos podem ser encontrados no [link](https://doc-ar
   - [2. Artefatos Funcionais (Selo F)](#2-artefatos-funcionais-selo-f)
   - [3. Artefatos Sustentáveis (Selo S)](#3-artefatos-sustentáveis-selo-s)
   - [4. Experimentos Reprodutíveis (Selo R)](#4-experimentos-reprodutíveis-selo-r)
-- [Estrutura do README.md](#estrutura-do-readmemd)
 - [Instalação](#instalação)
   - [Dependências](#dependencias)
 - [Executando](#executando)
@@ -121,6 +120,65 @@ A aplicação é organizada em quatro abas principais: `Home`, `Upload & Process
 
 
 ## Teste Mínimo
+
+Para colocar em prática as funcionalidades do **MobMetrics**, utilizaremos os datasets disponíveis na pasta [experiments/Anglova](./experiments/Anglova/). Esses datasets foram coletados do site [Anglova](https://anglova.net/).
+
+O dataset original é o arquivo [anglova.csv](./experiments/Anglova/anglova.csv), que foi particionado em 4 rastros diferentes. Cada um representa um tipo de entidade:
+
+- **Tanks**
+- **Staff and Mortar**
+- **Mechanized Infantry**
+- **Logistics**
+
+Cada rastro está em um arquivo `.csv` separado.
+
+### Passo a Passo
+
+#### 1. Instalar e executar a aplicação
+
+Certifique-se de que a aplicação está instalada e em execução. As instruções para isso foram fornecidas anteriormente.
+
+#### 2. Upload e configuração dos arquivos
+
+Acesse a aba `Upload & Process` e envie os arquivos `.csv` da pasta [experiments/Anglova](./experiments/Anglova/), **um por vez**.
+
+Para cada arquivo, preencha os seguintes campos:
+
+- **Trace File:** Selecione o arquivo correspondente.  
+  > ⚠️ O arquivo `anglova.csv` **não será utilizado** nesta etapa (mas pode ser usado, se necessário).
+- **Name:** Um nome descritivo para o arquivo (ex: `Anglova Tanks`)
+- **Label:** O tipo da entidade (ex: `Tanks`)
+- **Geographical Coordinates:** Marcar como **ativo**
+- **Distance Threshold:** `60`
+- **Time Threshold:** `20`
+- **Radius Threshold:** `10`
+- **Quadrant Divisions:** `10`
+
+##### Tempo de execução estimado para cada arquivo:
+
+- **Anglova Tanks:** ~[inserir tempo]
+- **Anglova Mechanized Infantry:** ~[inserir tempo]
+- **Anglova Logistics:** ~[inserir tempo]
+- **Anglova Staff and Mortar:** ~[inserir tempo]
+
+#### 3. Visualizar resultados
+
+Após o envio e processamento dos quatro arquivos, vá para a aba `Results`. Nela, configure os seguintes parâmetros:
+
+- **PCA N Components:** `[inserir valor]`
+- **t-SNE N Components:** `[inserir valor]`
+- **t-SNE Perplexity:** `[inserir valor]`
+
+Depois disso, gere os gráficos para visualizar os resultados.
+
+#### 4. Gerenciar arquivos
+
+Na aba `Manage Files`, é possível:
+
+- Excluir rastros enviados anteriormente
+- Baixar os arquivos processados para análise individual
+
+
 
 ---
 
