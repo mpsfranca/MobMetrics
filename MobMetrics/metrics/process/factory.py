@@ -43,11 +43,10 @@ class Factory:
         DetectContact(self.parameters, self.trace_file).extract()
 
         globalMetrics(self.parameters[4])
-        
+
         QuadrantEntropy(self.trace_file, self.parameters).extract()
 
     def metrics(self, id, filtered_trace):
-
         total_travel_time = TotalTravelTime(filtered_trace).extract()
         total_travel_distance = TotalTravelDistance(filtered_trace, self.parameters).extract()
         total_travel_average_speed = TotalTravelAverageSpeed(total_travel_time, total_travel_distance).extract()
