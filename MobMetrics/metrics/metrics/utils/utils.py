@@ -1,3 +1,5 @@
+import numpy as np
+
 from math import sqrt,radians, sin, cos, sqrt, atan2
 from django.db.models import Avg, Sum
 from ...models import (
@@ -90,49 +92,48 @@ def globalMetrics(file_name):
             'avgStayPointEntropy': sp_agg['avgStayPointEntropy'] or 0.0,
             'avgQuadrantEntropy': quadrants_agg['avgQuadrantEntropy'] or 0.0,
             'numContacts': num_contacts,
-            'mobility_profile': find_mobility_profile(metrics_qs, metrics_agg)
+            'mobility_profile': find_mobility_profile(metrics_qs)
         }
     )
 
-def find_mobility_profile(metrics_qs, metrics_agg):
-    epsilon = 1e-5
+def find_mobility_profile(metrics_qs):
+    """
+    Computes a normalized mobility profile score for a dataset of individual mobility traces.
 
-    metric_names = [
-        'TTrvT',
-        'TTrvD',
-        'TTrvAS',
-        'x_center',
-        'y_center',
-        'z_center',
-        'radius',
-        'num_travels',
-        'avg_travel_time',
-        'avg_travel_distance',
-        'avg_travel_avg_speed',
-        'numStayPointsVisits',
-    ]
+    Parameters:
+        `metrics_qs` (QuerySet): A Django QuerySet containing MetricsModel instances for a given dataset.
 
-    total_mobility_profile = 0
-    num_entities = 0
+    Returns:
+        `mobility_profile_score` (float): A scalar value representing the normalized average mobility profile
+                                          of the dataset.
+    """
+    vectors = []
 
-    for entity in metrics_qs:
-        total_rel_diff = 0
+    for metrics in metrics_qs:
+        values = [
+            getattr(metrics, 'TTrvT', 0) or 0.0,
+            getattr(metrics, 'TTrvD', 0) or 0.0,
+            getattr(metrics, 'TTrvAS', 0) or 0.0,
+            getattr(metrics, 'num_travels', 0) or 0.0,
+            getattr(metrics, 'avg_travel_time', 0) or 0.0,
+            getattr(metrics, 'avg_travel_distance', 0) or 0.0,
+            getattr(metrics, 'avg_travel_avg_speed', 0) or 0.0,
+            getattr(metrics, 'numStayPointsVisits', 0) or 0.0,
+        ]
 
-        for metric in metric_names:
-            entity_value = getattr(entity, metric, None)
-            mean_value = metrics_agg.get(f'avg{metric}', None)
+        min_val = min(values)
+        max_val = max(values)
+        if max_val - min_val == 0:
+            norm_values = [0.0 for _ in values]
+        else:
+            norm_values = [(v - min_val) / (max_val - min_val) for v in values]
 
-            if entity_value is not None and mean_value is not None:
-                rel_diff = abs(entity_value - mean_value) / (mean_value + epsilon)
-                total_rel_diff += rel_diff
+        vectors.append(norm_values)
 
-        mobility_profile = 1 / (1 + total_rel_diff)
-
-        total_mobility_profile += mobility_profile
-        num_entities += 1
-
-    if num_entities > 0:
-        average_mobility_profile = total_mobility_profile / num_entities
-        return average_mobility_profile
-    else:
+    if not vectors:
         return 0.0
+
+    avg_vector = np.mean(vectors, axis=0)
+    mobility_profile_score = float(np.mean(avg_vector))
+
+    return round(mobility_profile_score, 4)
