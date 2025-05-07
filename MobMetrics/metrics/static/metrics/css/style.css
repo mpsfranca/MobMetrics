@@ -53,6 +53,17 @@ body {
   background-color: #4B5563;
 }
 
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
 .danger {
   background-color: #EF4444;
 }
@@ -72,7 +83,6 @@ body {
 .inline-form {
   display: inline-block;
 }
-
 .inline-form button {
   margin-left: 10px;
 }
