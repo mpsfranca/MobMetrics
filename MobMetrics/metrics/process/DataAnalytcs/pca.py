@@ -10,7 +10,7 @@ class PCA(AbsData):
     on selected columns of a dataset.
     """
 
-    def __init__(self, data, columns, n_components):
+    def __init__(self, n_components, data, columns):
         """
         Initialize the PCA extractor.
 
@@ -24,6 +24,31 @@ class PCA(AbsData):
         self.n_components = n_components
 
     def extract(self):
+        self.n_components = min(self.n_components, len(self.columns))  # Ensures the number of components does not exceed the number of columns
+
+        if self.n_components > 0:
+            # Perform PCA
+            pca_result = self.pca()
+
+            explained_variance = pca_result['explained_variance'].tolist()
+        else:
+            pca_result = explained_variance = None
+        
+        # Label the PCA results (presumably adds the components to the data frame)
+        pca_result = self.label_dataframe(pca_result)
+
+        # Convert the components and loadings to JSON
+        pca_json = pca_result['components'].to_json(orient='records') if pca_result else None
+        loadings_pca_json = pca_result['loadings'].to_json(orient='records') if pca_result else None
+
+        return {
+            'explained_variance': explained_variance, 
+            'pca_json': pca_json, 
+            'loadings_pca_json': loadings_pca_json
+            }
+    
+
+    def pca(self):
         """
         Performs PCA on the selected columns of the dataset.
 
@@ -32,6 +57,8 @@ class PCA(AbsData):
             - 'components': DataFrame with principal components.
             - 'explained_variance': Array of explained variance ratio.
             - 'pca_model': The fitted PCA model object.
+            - 'loadings': DataFrame where each row corresponds to an original feature and each column to a principal component,
+                        representing the contribution (weight) of each original feature to each component.
         """
         # Select only the specified columns
         selected_data = self.data[self.columns]
@@ -44,12 +71,33 @@ class PCA(AbsData):
         pca = SKPCA(n_components=self.n_components)
         principal_components = pca.fit_transform(scaled_data)
 
-        # Create a DataFrame for the principal components
-        component_names = [f'PC{i+1}' for i in range(principal_components.shape[1])]
+        # Get the PCA components (loadings) as a DataFrame
+        loadings = pd.DataFrame(
+            pca.components_.T,
+            index=self.columns,
+            columns=[f'PC{i+1}' for i in range(self.n_components)]
+        )
+
+
+        component_names = [f'PC{i+1}' for i in range(self.n_components)]
+
+        # Criar DataFrame com os componentes principais renomeados
         components_df = pd.DataFrame(principal_components, columns=component_names)
 
         return {
             'components': components_df,
             'explained_variance': pca.explained_variance_ratio_,
-            'pca_model': pca
+            'pca_model': pca,
+            'loadings': loadings
         }
+
+    
+    def label_dataframe(self, result):
+        """
+        Function to add labels on the results from data frame analysis
+        """
+
+        if 'label' in self.data.columns:
+            if result: result['components']['label'] = self.data['label'].reset_index(drop=True)
+
+        return result
