@@ -1,87 +1,87 @@
+# Related third party imports.
 import pandas as pd
 from sklearn.decomposition import PCA as SKPCA
 from sklearn.preprocessing import StandardScaler
-from ...utils.abs_data import AbsData
 
+# Local application/library specific imports.
+from ...utils.abs_data import AbsData
 
 class PCA(AbsData):
     """
-    PCA wrapper class to apply Principal Component Analysis
-    on selected columns of a dataset.
+    Wrapper class for performing Principal Component Analysis (PCA)
+    on a specified subset of a DataFrame.
     """
 
     def __init__(self, n_components, data, columns):
         """
-        Initialize the PCA extractor.
+        Initializes the PCA extractor.
 
-        Parameters:
-        - data (pd.DataFrame): The input DataFrame.
-        - columns (list): List of column names to apply PCA on.
-        - n_components (int): Number of principal components to retain.
+        Args:
+            n_components (int): Number of principal components to retain.
+            data (pd.DataFrame): Input dataset.
+            columns (list): List of column names to apply PCA on.
         """
         self.data = data
         self.columns = columns
         self.n_components = n_components
 
     def extract(self):
-        self.n_components = min(self.n_components, len(self.columns))  # Ensures the number of components does not exceed the number of columns
+        """
+        Executes the PCA process and returns the results.
+
+        Returns:
+            dict: A dictionary containing:
+                - 'explained_variance': List of explained variance ratios.
+                - 'pca_json': JSON representation of principal components.
+                - 'loadings_pca_json': JSON representation of loadings.
+        """
+        self.n_components = min(self.n_components, len(self.columns))
 
         if self.n_components > 0:
-            # Perform PCA
-            pca_result = self.pca()
-
+            pca_result = self._pca()
             explained_variance = pca_result['explained_variance'].tolist()
         else:
-            pca_result = explained_variance = None
-        
-        # Label the PCA results (presumably adds the components to the data frame)
-        pca_result = self.label_dataframe(pca_result)
+            pca_result = None
+            explained_variance = None
 
-        # Convert the components and loadings to JSON
+        # Optionally label the PCA components with original labels
+        pca_result = self._label_dataframe(pca_result)
+
+        # Convert to JSON format
         pca_json = pca_result['components'].to_json(orient='records') if pca_result else None
         loadings_pca_json = pca_result['loadings'].to_json(orient='records') if pca_result else None
 
         return {
-            'explained_variance': explained_variance, 
-            'pca_json': pca_json, 
+            'explained_variance': explained_variance,
+            'pca_json': pca_json,
             'loadings_pca_json': loadings_pca_json
-            }
-    
+        }
 
-    def pca(self):
+    def _pca(self):
         """
-        Performs PCA on the selected columns of the dataset.
+        Applies PCA on standardized selected columns.
 
         Returns:
-        dict: A dictionary containing:
-            - 'components': DataFrame with principal components.
-            - 'explained_variance': Array of explained variance ratio.
-            - 'pca_model': The fitted PCA model object.
-            - 'loadings': DataFrame where each row corresponds to an original feature and each column to a principal component,
-                        representing the contribution (weight) of each original feature to each component.
+            dict: Contains the PCA components, explained variance,
+                  fitted model, and feature loadings.
         """
-        # Select only the specified columns
+        # Select and standardize the data
         selected_data = self.data[self.columns]
-
-        # Standardize the data before applying PCA
         scaler = StandardScaler()
         scaled_data = scaler.fit_transform(selected_data)
 
-        # Apply PCA
+        # Fit PCA
         pca = SKPCA(n_components=self.n_components)
         principal_components = pca.fit_transform(scaled_data)
 
-        # Get the PCA components (loadings) as a DataFrame
+        # Loadings: contribution of each feature to each PC
         loadings = pd.DataFrame(
             pca.components_.T,
             index=self.columns,
             columns=[f'PC{i+1}' for i in range(self.n_components)]
         )
 
-
         component_names = [f'PC{i+1}' for i in range(self.n_components)]
-
-        # Criar DataFrame com os componentes principais renomeados
         components_df = pd.DataFrame(principal_components, columns=component_names)
 
         return {
@@ -91,13 +91,17 @@ class PCA(AbsData):
             'loadings': loadings
         }
 
-    
-    def label_dataframe(self, result):
+    def _label_dataframe(self, result):
         """
-        Function to add labels on the results from data frame analysis
-        """
+        Adds original labels to the PCA components if present.
 
-        if 'label' in self.data.columns:
-            if result: result['components']['label'] = self.data['label'].reset_index(drop=True)
+        Args:
+            result (dict): Dictionary containing PCA result DataFrames.
+
+        Returns:
+            dict: Updated dictionary with labels added to 'components', if available.
+        """
+        if result and 'label' in self.data.columns:
+            result['components']['label'] = self.data['label'].reset_index(drop=True)
 
         return result
