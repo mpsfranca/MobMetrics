@@ -16,16 +16,17 @@ from .process.format import Format
 from .process.DataAnalytcs.pca import PCA
 from .process.DataAnalytcs.tSNE import tSNE
 
-
 def dashboard_view(request):
     upload_form = UploadForm()
     file_form = FileNameForm()
     analytcs_form = DataAnalytcsParamsForm()
     file_names = ConfigModel.objects.values_list('fileName', flat=True).distinct()
 
-    pca_metrics_json, pca_global_json = None, None
-    tsne_metrics_json, tsne_global_json = None, None
-    explained_metrics, explained_global = [], []
+    pca_metrics = {'pca_json': None, 'explained_variance': None}
+    pca_global_metrics = {'pca_json': None, 'explained_variance': None}
+    tsne_metrics = {'components': None}
+    tsne_global_metrics = {'components': None}
+
 
     if request.method == 'POST':
         if 'upload' in request.POST:
@@ -35,19 +36,23 @@ def dashboard_view(request):
         elif 'download' in request.POST:
             return handle_download(request)
         elif 'generate_graphs' in request.POST:
-            pca_metrics_json, pca_global_json, tsne_metrics_json, tsne_global_json, explained_metrics, explained_global = handle_generate_graphs(request, analytcs_form)
+            pca_metrics, pca_global_metrics, tsne_metrics, tsne_global_metrics = handle_generate_graphs(request, analytcs_form)
 
     return render(request, 'dashboard.html', {
         'upload_form': upload_form,
         'file_form': file_form,
         'analytcs_form': analytcs_form,
         'file_names': file_names,
-        'pca_metrics': pca_metrics_json,
-        'pca_global': pca_global_json,
-        'explained_metrics': json.dumps(explained_metrics),
-        'explained_global': json.dumps(explained_global),
-        'tsne_metrics': tsne_metrics_json,
-        'tsne_global': tsne_global_json,
+
+        'pca_metrics': pca_metrics['pca_json'],
+        'pca_explained_metrics': json.dumps(pca_metrics['explained_variance']),
+
+        'pca_global': pca_global_metrics['pca_json'],
+        'pca_explained_global': json.dumps(pca_global_metrics['explained_variance']),
+
+        'tsne_metrics': tsne_metrics,
+
+        'tsne_global': tsne_global_metrics,
     })
 
 def handle_upload(request, upload_form):
@@ -67,7 +72,6 @@ def handle_upload(request, upload_form):
 
     return ConfigModel.objects.values_list('fileName', flat=True).distinct()
 
-
 def handle_delete(request):
     file_name = request.POST.get('fileName')
     if file_name:
@@ -80,7 +84,6 @@ def handle_delete(request):
     else:
         messages.error(request, "No file name provided.")
     return ConfigModel.objects.values_list('fileName', flat=True).distinct()
-
 
 def handle_download(request):
     file_name = request.POST.get('fileName')
@@ -115,73 +118,67 @@ def handle_download(request):
         messages.error(request, "No file name provided.")
         return HttpResponse("File name not provided", status=400)
 
-
 def handle_generate_graphs(request, analytics_form):
+    """
+    Function to process data for the graphs
+
+    Parameters:
+    request (HttpRequest): The request containing the form data and files.
+    analytics_form (DataAnalytcsParamsForm): The form containing the analytics parameters.
+
+    Returns:
+    tuple: A tuple containing:
+        - pca_metrics (dict): a dict with all content extract from PCA from MetricsModel
+        - pca_global_metrics (dict): a dict with all content extract from PCA from GlobalMetricsModel
+        - tsne_metrics (dict): a dict with all content extract from tSNE from MetricsModel
+        - tsne_global_metrics (dict): a dict with all content extract from tSNE from GlobalMetricsModel
+    """
+    
     analytics_form = DataAnalytcsParamsForm(request.POST, request.FILES)
 
     if analytics_form.is_valid():
-        # Captura dos parâmetros
-        PCA_n_components = int(request.POST.get('PCA_n_components'))
-        tSNE_n_components = int(request.POST.get('tSNE_n_components'))
-        tSNE_perplexity = float(request.POST.get('tSNE_perplexity'))
+        # Get parameters from the form
+        pca_n_components = int(request.POST.get('PCA_n_components'))
+        tsne_n_components = int(request.POST.get('tSNE_n_components'))
+        tsne_perplexity = float(request.POST.get('tSNE_perplexity'))
 
-        # Carrega dados
+        # Load data
         metrics_df = pd.DataFrame.from_records(MetricsModel.objects.all().values())
         global_metrics_df = pd.DataFrame.from_records(GlobalMetricsModel.objects.all().values())
 
-        if metrics_df.empty or global_metrics_df.empty:
-            return None, None, None, None, [], []
+        columns_metrics, columns_global = columns_analytics(metrics_df, global_metrics_df)
 
-        # Colunas que queremos excluir
-        exclude_columns_metrics = ['id', 'fileName', 'label', 'entityId', 'x_center', 'y_center', 'z_center']
-        exclude_columns_global = ['id', 'fileName', 'label', 'entityId', 'avgX_center', 'avgY_center', 'avgZ_center']
+        # Perform PCA for metrics and global data
+        pca_metrics = PCA(pca_n_components, metrics_df, columns_metrics).extract()
+        pca_global_metrics = PCA(pca_n_components, global_metrics_df, columns_global).extract()
 
-        # Detecta colunas interessantes dinamicamente
-        columns_metrics = [col for col in metrics_df.columns if col not in exclude_columns_metrics]
-        columns_global = [col for col in global_metrics_df.columns if col not in exclude_columns_global]
+        # Perform t-SNE for metrics and global data
+        tsne_metrics = tSNE(tsne_n_components, tsne_perplexity, metrics_df, columns_metrics).extract()
+        tsne_global_metrics = tSNE(tsne_n_components, tsne_perplexity, global_metrics_df, columns_global).extract()
 
-        PCA_n_components = min(PCA_n_components, len(columns_metrics), len(metrics_df))
-        tSNE_n_components = min(tSNE_n_components, len(columns_metrics), len(metrics_df))
-
-        if PCA_n_components > 0:
-            result_metrics = PCA(metrics_df, columns_metrics, PCA_n_components).extract()
-            result_global = PCA(global_metrics_df, columns_global, PCA_n_components).extract()
-            explained_metrics = result_metrics['explained_variance'].tolist()
-            explained_global = result_global['explained_variance'].tolist()
-        else:
-            result_metrics = result_global = explained_metrics = explained_global = None
-
-        # t-SNE
-        if tSNE_n_components > 0:
-            tsne_metrics = tSNE(metrics_df, columns_metrics, tSNE_n_components, tSNE_perplexity).extract()
-            tsne_global = tSNE(global_metrics_df, columns_global, tSNE_n_components, tSNE_perplexity).extract()
-        else:
-            tsne_metrics = tsne_global = None
-
-        # Labels
-        if 'label' in metrics_df.columns:
-            if result_metrics: result_metrics['components']['label'] = metrics_df['label'].reset_index(drop=True)
-            if tsne_metrics: tsne_metrics['components']['label'] = metrics_df['label'].reset_index(drop=True)
-
-        if 'label' in global_metrics_df.columns:
-            if result_global: result_global['components']['label'] = global_metrics_df['label'].reset_index(drop=True)
-            if tsne_global: tsne_global['components']['label'] = global_metrics_df['label'].reset_index(drop=True)
-
-        # JSON
-        pca_metrics_json = result_metrics['components'].to_json(orient='records') if result_metrics else None
-        pca_global_json = result_global['components'].to_json(orient='records') if result_global else None
-        tsne_metrics_json = tsne_metrics['components'].to_json(orient='records') if tsne_metrics else None
-        tsne_global_json = tsne_global['components'].to_json(orient='records') if tsne_global else None
-
+        # Return the results
         return (
-            pca_metrics_json, pca_global_json,
-            tsne_metrics_json, tsne_global_json,
-            explained_metrics or [], explained_global or []
+            pca_metrics, pca_global_metrics, tsne_metrics, tsne_global_metrics
         )
 
-    return None, None, None, None, [], []
+def columns_analytics(metrics_df, global_metrics_df):
+    """
+    Function to define wich metrics will be analysed
 
+    Parameters:
+        - metrics_df (pd.DataFrame): Metrics DataFrame colected from MetricsModel.
+        - global_metrics_df (pd.DataFrame): Global Metrics DataFrame GlobalMetricsModel.
+    """
 
+    # Columns that should be excluded
+    exclude_columns_metrics = ['id', 'fileName', 'label', 'entityId', 'x_center', 'y_center', 'z_center']
+    exclude_columns_global = ['id', 'fileName', 'label', 'entityId', 'avgX_center', 'avgY_center', 'avgZ_center']
+
+    # Remove those columns from dataframe
+    columns_metrics = [col for col in metrics_df.columns if col not in exclude_columns_metrics]
+    columns_global = [col for col in global_metrics_df.columns if col not in exclude_columns_global]
+
+    return columns_metrics, columns_global
 
 def get_data(form):
     trace_file = form.cleaned_data['trace']
@@ -199,7 +196,6 @@ def get_data(form):
     )
 
     return trace_file, parameters
-
 
 def create_config_model(parameters):
     ConfigModel.objects.create(
