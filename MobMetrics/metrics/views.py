@@ -1,15 +1,15 @@
-#Standard library imports.
+# Standard library imports.
 from io import BytesIO
 import zipfile
 import json
 
-#Related third party imports.
+# Related third party imports.
 import pandas as pd
 from django.shortcuts import render
 from django.contrib import messages
 from django.http import HttpResponse
 
-#ocal application/library specific imports.
+# Local application/library specific imports.
 from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm
 from .process.factory import Factory
 from .process.format import Format
@@ -260,7 +260,6 @@ def _get_data(form):
     )
 
     return trace_file, parameters
-
 
 def _create_config_model(parameters):
     """ Function Responsable to create ConfigModel with all parameters"""
