@@ -183,7 +183,7 @@
     {% if file_names %}
       {% for name in file_names %}
         <div class="file-item">
-          <span>{{ name }}</span>
+          <div>{{ name }}</div>
         
           <div style="display: flex; gap: 10px;">
             <form method="post" action="{% url 'dashboard' %}" class="inline-form">
