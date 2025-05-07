@@ -1,14 +1,9 @@
+# Related third party imports.
 from django.contrib import admin
-from .models import (
-    ConfigModel,
-    MetricsModel,
-    StayPointModel,
-    TravelsModel,
-    VisitModel,
-    ContactModel,
-    QuadrantEntropyModel,
-    GlobalMetricsModel,
-)
+from .models import (ConfigModel, MetricsModel, 
+                     StayPointModel, TravelsModel, 
+                     VisitModel, ContactModel, 
+                     QuadrantEntropyModel, GlobalMetricsModel)
 
 admin.site.register(ConfigModel)
 admin.site.register(MetricsModel)

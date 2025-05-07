@@ -23,7 +23,6 @@ class FileNameForm(forms.Form):
     """ Form to upload file name to delete or download """
     file_name = forms.CharField(label='File Name', max_length=255, required=True)
 
-
 class DataAnalytcsParamsForm(forms.Form):
     """ Form to upload paramters to data analytics """
     PCA_n_components = forms.IntegerField(
