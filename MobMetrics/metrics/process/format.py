@@ -1,8 +1,6 @@
 # Related third party imports.
 import pandas as pd
 
-import pandas as pd
-
 
 class Format:
     """
