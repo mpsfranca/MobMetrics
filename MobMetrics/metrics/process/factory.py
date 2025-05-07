@@ -1,27 +1,23 @@
-import pandas as pd
+# Related third party imports.
 from tqdm import tqdm
-from ..models import MetricsModel
 
-# from utils
+# Local application/library specific imports.
+from ..models import MetricsModel
+## from utils
 from ..metrics.utils.stay_point import StayPoints
 from ..metrics.utils.utils import globalMetrics
-
-# from temporal
+## from temporal
 from ..metrics.temporal.total_travel_time import TotalTravelTime
-
-# from social
+## from social
 from ..metrics.social.quadrant_entropy import QuadrantEntropy
 from ..metrics.social.entropy import Entropy
 from ..metrics.social.detect_contact import DetectContact
-
-# from spatial
+## from spatial
 from ..metrics.spatial.total_travel_distance import TotalTravelDistance
 from ..metrics.spatial.center_of_mass import CenterOfMass
 from ..metrics.spatial.radios_of_gyration import RadiusOfGyration
-
-# from kinematic
+## from kinematic
 from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
-
 
 class MetricsFactory:
     """
