@@ -146,7 +146,23 @@
               <span class="tooltip">?
                 <span class="tooltiptext">The perplexity is related to the number of nearest neighbors that is used in other manifold learning algorithms. Larger datasets usually require a larger perplexity. Consider selecting a value between 5 and 50. Different values can result in significantly different results. The perplexity must be less than the number of samples.</span>
               </span>
-            </div>    
+            </div>
+           
+            <div class="form-group">
+              <label for="id_DBSCAN_eps">DBSCAN Eps:</label>
+              {{ analytcs_form.dbscan_eps }}
+              <span class="tooltip">?
+                <span class="tooltiptext">Maximum distance between two samples for one to be considered as in the neighborhood of the other.</span>
+              </span>
+            </div>
+            
+            <div class="form-group">
+              <label for="id_DBSCAN_min_samples">DBSCAN Min Samples:</label>
+              {{ analytcs_form.dbscan_min_samples }}
+              <span class="tooltip">?
+                <span class="tooltiptext">The number of samples in a neighborhood for a point to be considered as a core point.</span>
+              </span>
+            </div>
           </div>
           <button class="button" type="submit" name="generate_graphs">Generate Graphs</button>
         </form>
@@ -162,24 +178,35 @@
       </div>
 
       <div class="graph-container">
-        <h3>PCA - Variância Explicada</h3>
+        <h3>PCA - Explained Variance</h3>
         <div id="pcaExplainedPlot"></div>
       </div>
-  
+
       <div class="graph-container">
-        <h3>PCA - GlobalMetricsModel</h3>
-        <div id="pcaGlobalPlot"></div>
+        <h3>DBSCAN - PCA MetricsModel</h3>
+        <div id="pcaDbscanMetricsPlot"></div>
       </div>
   
       <div class="graph-container">
         <h3>t-SNE - MetricsModel</h3>
         <div id="tsneMetricsPlot"></div>
       </div>
+
+      <div class="graph-container">
+        <h3>DBSCAN - tSNE MetricsModel</h3>
+        <div id="tsneDbscanMetricsPlot"></div>
+      </div>
   
       <div class="graph-container">
         <h3>t-SNE - GlobalMetricsModel</h3>
         <div id="tsneGlobalPlot"></div>
       </div>
+
+      <div class="graph-container">
+        <h3>PCA - GlobalMetricsModel</h3>
+        <div id="pcaGlobalPlot"></div>
+      </div>
+
     </div>
   </div>
 
@@ -255,7 +282,8 @@
         pca_metrics_n_components,
         'PCA - MetricsModel',
         'pcaMetricsPlot',
-        ['PC1', 'PC2', 'PC3']
+        ['PC1', 'PC2', 'PC3'],
+        'label',
     );
 
     // Explained Variance Plot
@@ -272,6 +300,17 @@
         yaxis: { title: 'Explained Variance' }
     });
 
+    // DBSCAN
+    plot_graph(
+        pca_metrics,
+        pca_metrics_contributors,
+        pca_metrics_n_components,
+        'DBSCAN - PCA MetricsModel',
+        'pcaDbscanMetricsPlot',
+        ['PC1', 'PC2', 'PC3'],
+        'dbscan_cluster',
+    );
+
     // t-SNE Metrics
     const tsne_metrics = JSON.parse('{{ tsne_metrics|escapejs }}');
 
@@ -281,8 +320,20 @@
         2,
         't-SNE - MetricsModel',
         'tsneMetricsPlot',
-        ['TSNE1', 'TSNE2', 'TSNE3']
-    );
+        ['TSNE1', 'TSNE2', 'TSNE3'],
+        'label',
+    );   
+
+    // DBSCAN for tSNE 
+    plot_graph(
+        tsne_metrics,
+        ['TSNE1', 'TSNE2'],
+        2,
+        't-SNE - MetricsModel',
+        'tsneDbscanMetricsPlot',
+        ['TSNE1', 'TSNE2', 'TSNE3'],
+        'dbscan_cluster',
+    ); 
 
     // Global Metrics Plots
 
@@ -318,14 +369,14 @@
 
     // Utils
 
-    // 2D label
-    function prepareDataByLabel(data, xKey, yKey) {
+    // 2D label (dynamic color group)
+    function prepareDataByColumn(data, colorKey, xKey, yKey) {
         const grouped = {};
         data.forEach(item => {
-            const label = item.label || 'undefined';
-            if (!grouped[label]) grouped[label] = { x: [], y: [], name: label };
-            grouped[label].x.push(item[xKey]);
-            grouped[label].y.push(item[yKey]);
+            const groupValue = item[colorKey] ?? 'undefined';
+            if (!grouped[groupValue]) grouped[groupValue] = { x: [], y: [], name: groupValue };
+            grouped[groupValue].x.push(item[xKey]);
+            grouped[groupValue].y.push(item[yKey]);
         });
         return Object.values(grouped).map(group => ({
             x: group.x,
@@ -336,15 +387,15 @@
         }));
     }
 
-    // 3D label
-    function prepareDataByLabel3D(data, xKey, yKey, zKey) {
+    // 3D label (dynamic color group)
+    function prepareDataByColumn3D(data, colorKey, xKey, yKey, zKey) {
         const grouped = {};
         data.forEach(item => {
-            const label = item.label || 'undefined';
-            if (!grouped[label]) grouped[label] = { x: [], y: [], z: [], name: label };
-            grouped[label].x.push(item[xKey]);
-            grouped[label].y.push(item[yKey]);
-            grouped[label].z.push(item[zKey]);
+            const groupValue = item[colorKey] ?? 'undefined';
+            if (!grouped[groupValue]) grouped[groupValue] = { x: [], y: [], z: [], name: groupValue };
+            grouped[groupValue].x.push(item[xKey]);
+            grouped[groupValue].y.push(item[yKey]);
+            grouped[groupValue].z.push(item[zKey]);
         });
         return Object.values(grouped).map(group => ({
             x: group.x,
@@ -357,35 +408,36 @@
     }
 
     // Unified plot function
-    function plot_graph(data_frame, contributors, n_components, title, graph_name, axis) {
-      console.log(contributors)
-      if (n_components >= 3) {
-          // 3D Plot with label grouping
-          const data = prepareDataByLabel3D(data_frame, axis[0], axis[1], axis[2]);
+    function plot_graph(data_frame, contributors, n_components, title, graph_name, axis, colorBy) {
+        console.log(`Coloring by: ${colorBy}`);
+        if (n_components >= 3) {
+            // 3D Plot with dynamic color grouping
+            const data = prepareDataByColumn3D(data_frame, colorBy, axis[0], axis[1], axis[2]);
 
-          const layout = {
-              title: title,
-              scene: {
-                  xaxis: { title: `${contributors[0]}` },
-                  yaxis: { title: `${contributors[1]}` },
-                  zaxis: { title: `${contributors[2]}` }
-              }
-          };
+            const layout = {
+                title: title,
+                scene: {
+                    xaxis: { title: `${contributors[0]}` },
+                    yaxis: { title: `${contributors[1]}` },
+                    zaxis: { title: `${contributors[2]}` }
+                }
+            };
 
-          Plotly.newPlot(graph_name, data, layout);
-      } else {
-          // 2D Plot with label grouping
-          const data = prepareDataByLabel(data_frame, axis[0], axis[1]);
+            Plotly.newPlot(graph_name, data, layout);
+        } else {
+            // 2D Plot with dynamic color grouping
+            const data = prepareDataByColumn(data_frame, colorBy, axis[0], axis[1]);
 
-          const layout = {
-              title: title,
-              xaxis: { title: `${contributors[0]}` },
-              yaxis: { title: `${contributors[1]}` }
-          };
+            const layout = {
+                title: title,
+                xaxis: { title: `${contributors[0]}` },
+                yaxis: { title: `${contributors[1]}` }
+            };
 
-          Plotly.newPlot(graph_name, data, layout);
-      }
+            Plotly.newPlot(graph_name, data, layout);
+        }
     }
+
 
 
   </script>

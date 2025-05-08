@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Local application/library specific imports.
 from ...utils.abs_data import AbsData
+from .clustering.DBscan import DBscan
 
 class PCA(AbsData):
     """
@@ -12,7 +13,7 @@ class PCA(AbsData):
     on a specified subset of a DataFrame.
     """
 
-    def __init__(self, n_components, data, columns):
+    def __init__(self, n_components, data, columns, dbscan_paramters):
         """
         Initializes the PCA extractor.
 
@@ -24,6 +25,7 @@ class PCA(AbsData):
         self.data = data
         self.columns = columns
         self.n_components = n_components
+        self.dbscan_paramters = dbscan_paramters
 
     def extract(self):
         """
@@ -47,10 +49,13 @@ class PCA(AbsData):
         # Optionally label the PCA components with original labels
         pca_result = self._label_dataframe(pca_result)
 
+        pca = self._clustering(pca_result['components'])
+
         # Convert to JSON format
-        pca_json = pca_result['components'].to_json(orient='records') if pca_result else None
+        pca_json = pca.to_json(orient='records') if pca_result else None
 
         return {
+            'pca': pca,
             'pca_json': pca_json,
             'n_components': self.n_components,
             'explained_variance': explained_variance,
@@ -130,3 +135,9 @@ class PCA(AbsData):
 
         return top_contributors
 
+    def _clustering(self, result):
+
+        dbscan_result = DBscan(self.dbscan_paramters, result).extract()
+        result['dbscan_cluster'] = dbscan_result['cluster_labels']
+
+        return result

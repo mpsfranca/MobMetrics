@@ -6,13 +6,13 @@ from sklearn.preprocessing import StandardScaler
 # Local application/library specific imports.
 from ....utils.abs_data import AbsData
 
-class DBSCANCluster(AbsData):
+class DBscan(AbsData):
     """
     Wrapper class for performing DBSCAN clustering
     on a specified subset of a DataFrame.
     """
 
-    def __init__(self, eps, min_samples, data, columns):
+    def __init__(self, parameters, data):
         """
         Initializes the DBSCAN clustering extractor.
 
@@ -23,9 +23,9 @@ class DBSCANCluster(AbsData):
             columns (list, optional): List of column names to apply DBSCAN on, if None, all columns are used.
         """
         self.data = data
-        self.columns = columns
-        self.eps = eps
-        self.min_samples = min_samples
+        self.columns = [col for col in data.columns if col != 'label']
+        self.eps = parameters[0]
+        self.min_samples = parameters[1]
 
     def extract(self):
         """
@@ -58,7 +58,7 @@ class DBSCANCluster(AbsData):
             dict: Contains the cluster labels and the clustered data.
         """
         # If specific columns are provided, use those, otherwise use all columns
-        selected_data = self.data[self.columns] if self.columns else self.data
+        selected_data = self.data[self.columns]
 
         # Standardizing the data before applying DBSCAN
         scaler = StandardScaler()

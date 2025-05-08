@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Local application/library specific imports.
 from ...utils.abs_data import AbsData
+from .clustering.DBscan import DBscan
 
 class tSNE(AbsData):
     """
@@ -12,7 +13,7 @@ class tSNE(AbsData):
     on selected columns of a DataFrame.
     """
 
-    def __init__(self, n_components, perplexity, data, columns):
+    def __init__(self, n_components, perplexity, data, columns, dbscan_paramters):
         """
         Initializes the TSNEEmbedding extractor.
 
@@ -26,6 +27,7 @@ class tSNE(AbsData):
         self.columns = columns
         self.n_components = n_components
         self.perplexity = perplexity
+        self.dbscan_paramters = dbscan_paramters
 
     def extract(self):
         """
@@ -43,7 +45,10 @@ class tSNE(AbsData):
 
         tsne_result = self._label_dataframe(tsne_result)
 
-        tsne_json = tsne_result['components'].to_json(orient='records') if tsne_result else None
+        tsne = self._clustering(tsne_result['components'])
+
+        tsne_json = tsne.to_json(orient='records') if tsne_result else None
+
         return tsne_json
 
     def _tsne(self):
@@ -52,12 +57,19 @@ class tSNE(AbsData):
 
         Returns:
             dict: Contains the transformed components as a DataFrame.
+
+        Raises:
+            ValueError: If n_components is not 2 or 3.
         """
         selected_data = self.data[self.columns]
 
         # Standardize the data
         scaler = StandardScaler()
         scaled_data = scaler.fit_transform(selected_data)
+
+        # Validate n_components
+        if self.n_components not in [2, 3]:
+            raise ValueError("t-SNE currently supports only 2 or 3 components for visualization.")
 
         # Validate and adjust perplexity
         n_samples = scaled_data.shape[0]
@@ -74,6 +86,7 @@ class tSNE(AbsData):
             'components': components_df
         }
 
+
     def _label_dataframe(self, result):
         """
         Adds original labels to the t-SNE components if present.
@@ -86,5 +99,12 @@ class tSNE(AbsData):
         """
         if result and 'label' in self.data.columns:
             result['components']['label'] = self.data['label'].reset_index(drop=True)
+
+        return result
+
+    def _clustering(self, result):
+
+        dbscan_result = DBscan(self.dbscan_paramters, result).extract()
+        result['dbscan_cluster'] = dbscan_result['cluster_labels']
 
         return result

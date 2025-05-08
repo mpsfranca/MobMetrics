@@ -15,6 +15,7 @@ from .process.factory import Factory
 from .process.format import Format
 from .process.DataAnalytcs.pca import PCA
 from .process.DataAnalytcs.tSNE import tSNE
+from .process.DataAnalytcs.clustering.DBscan import DBscan
 from .models import (ConfigModel, MetricsModel, 
                      TravelsModel, StayPointModel, 
                      VisitModel,ContactModel, 
@@ -42,7 +43,7 @@ def dashboard_view(request):
     file_names = ConfigModel.objects.values_list('fileName', flat=True).distinct()
     pca_metrics = pca_global_metrics = {'pca_json': None, 'explained_variance': None, 'n_components': None, 'top_contributors': None}
     tsne_metrics = tsne_global_metrics = {'components': None}
-
+ 
     # Get forms.
     upload_form = UploadForm()
     file_form = FileNameForm()
@@ -57,8 +58,7 @@ def dashboard_view(request):
         elif 'download' in request.POST:
             return _handle_download(request)
         elif 'generate_graphs' in request.POST:
-            (pca_metrics, pca_global_metrics, 
-             tsne_metrics, tsne_global_metrics) = _handle_generate_graphs(request)
+            (pca_metrics, pca_global_metrics, tsne_metrics, tsne_global_metrics) = _handle_generate_graphs(request)
 
     return render(request, 'dashboard.html', {
         'upload_form': upload_form,
@@ -195,6 +195,10 @@ def _handle_generate_graphs(request):
         pca_n_components = int(request.POST.get('PCA_n_components'))
         tsne_n_components = int(request.POST.get('tSNE_n_components'))
         tsne_perplexity = float(request.POST.get('tSNE_perplexity'))
+        dbscan_eps = float(request.POST.get('dbscan_eps'))  # Adicionando o parâmetro DBSCAN
+        dbscan_min_samples = int(request.POST.get('dbscan_min_samples'))  # Adicionando o parâmetro DBSCAN
+
+        dbscan_paramters = (dbscan_eps, dbscan_min_samples)
 
         # Load data
         metrics_df = pd.DataFrame.from_records(MetricsModel.objects.all().values())
@@ -203,18 +207,17 @@ def _handle_generate_graphs(request):
         columns_metrics, columns_global = _columns_analytics(metrics_df, global_metrics_df)
 
         # Perform PCA for metrics and global data
-        pca_metrics = PCA(pca_n_components, metrics_df, columns_metrics).extract()
-        pca_global_metrics = PCA(pca_n_components, global_metrics_df, columns_global).extract()
+        pca_metrics = PCA(pca_n_components, metrics_df, columns_metrics, dbscan_paramters).extract()
+        pca_global_metrics = PCA(pca_n_components, global_metrics_df, columns_global, dbscan_paramters).extract()
 
         # Perform t-SNE for metrics and global data
-        tsne_metrics = tSNE(tsne_n_components, tsne_perplexity, metrics_df, columns_metrics).extract()
-        tsne_global_metrics = tSNE(tsne_n_components, tsne_perplexity, global_metrics_df, columns_global).extract()
+        tsne_metrics = tSNE(tsne_n_components, tsne_perplexity, metrics_df, columns_metrics, dbscan_paramters).extract()
+        tsne_global_metrics = tSNE(tsne_n_components, tsne_perplexity, global_metrics_df, columns_global, dbscan_paramters).extract()
 
         # Return the results
-        return (
-            pca_metrics, pca_global_metrics, tsne_metrics, tsne_global_metrics
-        )
-
+        return (pca_metrics, pca_global_metrics, 
+            tsne_metrics, tsne_global_metrics)
+    
 def _columns_analytics(metrics_df, global_metrics_df):
     """
     Function to define wich metrics will be analysed
