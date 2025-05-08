@@ -40,10 +40,8 @@ def dashboard_view(request):
 
     # Start Variables.
     file_names = ConfigModel.objects.values_list('fileName', flat=True).distinct()
-    pca_metrics = {'pca_json': None, 'explained_variance': None}
-    pca_global_metrics = {'pca_json': None, 'explained_variance': None}
-    tsne_metrics = {'components': None}
-    tsne_global_metrics = {'components': None}
+    pca_metrics = pca_global_metrics = {'pca_json': None, 'explained_variance': None, 'n_components': None, 'top_contributors': None}
+    tsne_metrics = tsne_global_metrics = {'components': None}
 
     # Get forms.
     upload_form = UploadForm()
@@ -70,13 +68,13 @@ def dashboard_view(request):
 
         'pca_metrics': pca_metrics['pca_json'],
         'pca_explained_metrics': json.dumps(pca_metrics['explained_variance']),
-        'pca_loadings_metrics': pca_metrics['loadings_pca_json'],
+        'n_components_metrics': pca_metrics['n_components'],
         'pca_contributors_metrics': json.dumps(pca_metrics['top_contributors']),
 
         'pca_global': pca_global_metrics['pca_json'],
         'pca_explained_global': json.dumps(pca_global_metrics['explained_variance']),
-        'pca_loadings_global': pca_global_metrics['loadings_pca_json'],
-        'pca_contributors_globaç': pca_global_metrics['top_contributors'],
+        'n_components_global': pca_global_metrics['n_components'],
+        'pca_contributors_global': pca_global_metrics['top_contributors'],
 
         'tsne_metrics': tsne_metrics,
 

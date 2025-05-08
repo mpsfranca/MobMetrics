@@ -97,7 +97,7 @@
           <h3>Entropy Parameters</h3>
           <div class="form-group">
             <label for="quadrant">Quadrant Divisions:</label>
-            {{ upload_form.quadrant_size }}
+            {{ upload_form.quadrant_parts }}
             <span class="tooltip">?
               <span class="tooltiptext">Number of quadrant divisions, the total quadrants will be Quradrant_Divisions^2</span>
             </span>
@@ -211,6 +211,7 @@
   </div>
 
   <script>
+    // Configure Tabs
     function toggleConfig() {
       const configDiv = document.getElementById('configForm');
       configDiv.classList.toggle('hidden');
@@ -238,71 +239,153 @@
       });
     });
 
-    const pcaMetrics = JSON.parse('{{ pca_metrics|escapejs }}');
-    const pcaGlobal = JSON.parse('{{ pca_global|escapejs }}');
-    const tsneMetrics = JSON.parse('{{ tsne_metrics|escapejs }}');
-    const tsneGlobal = JSON.parse('{{ tsne_global|escapejs }}');
-    const pcaMetricsExplained = JSON.parse('{{ pca_explained_metrics|escapejs }}');
-    const pcaMetricsContributors = JSON.parse('{{ pca_contributors_metrics|escapejs }}');
+    // Generate Plots
 
-    function prepareDataByLabel(data, xKey, yKey) {
-      const grouped = {};
-      data.forEach(item => {
-        const label = item.label || 'undefined';
-        if (!grouped[label]) grouped[label] = { x: [], y: [], name: label };
-        grouped[label].x.push(item[xKey]);
-        grouped[label].y.push(item[yKey]);
-      });
-      return Object.values(grouped).map(group => ({
-        x: group.x,
-        y: group.y,
-        mode: 'markers',
-        type: 'scatter',
-        name: group.name
-      }));
-    }
+    // Metrics Model Plots
 
-    // Get contributors for PC1 and PC2
-    const pc1Contributor = pcaMetricsContributors[0] || 'PC1';
-    const pc2Contributor = pcaMetricsContributors[1] || 'PC2';
+    // PCA
+    const pca_metrics = JSON.parse('{{ pca_metrics|escapejs }}');
+    const pca_metrics_contributors = JSON.parse('{{ pca_contributors_metrics|escapejs }}');
+    const pca_metrics_n_components = JSON.parse('{{ n_components_metrics|escapejs }}');
+    const pca_explained_metrics = JSON.parse('{{ pca_explained_metrics|escapejs }}');
 
-    Plotly.newPlot('pcaMetricsPlot', prepareDataByLabel(pcaMetrics, 'PC1', 'PC2'), {
-      title: 'PCA - MetricsModel',
-      xaxis: { title: `PC1 (${pc1Contributor})` },
-      yaxis: { title: `PC2 (${pc2Contributor})` }
-    });
+    plot_graph(
+        pca_metrics,
+        pca_metrics_contributors,
+        pca_metrics_n_components,
+        'PCA - MetricsModel',
+        'pcaMetricsPlot',
+        ['PC1', 'PC2', 'PC3']
+    );
 
-    Plotly.newPlot('pcaGlobalPlot', prepareDataByLabel(pcaGlobal, 'PC1', 'PC2'), {
-      title: 'PCA - GlobalMetricsModel',
-      xaxis: { title: `PC1 (${pc1Contributor})` },
-      yaxis: { title: `PC2 (${pc2Contributor})` }
-    });
-
-    Plotly.newPlot('tsneMetricsPlot', prepareDataByLabel(tsneMetrics, 'TSNE1', 'TSNE2'), {
-      title: 't-SNE - MetricsModel',
-      xaxis: { title: 'TSNE1' },
-      yaxis: { title: 'TSNE2' }
-    });
-
-    Plotly.newPlot('tsneGlobalPlot', prepareDataByLabel(tsneGlobal, 'TSNE1', 'TSNE2'), {
-      title: 't-SNE - GlobalMetricsModel',
-      xaxis: { title: 'TSNE1' },
-      yaxis: { title: 'TSNE2' }
-    });
-
-    // PCA Explained Variance - Gráfico de Barras
+    // Explained Variance Plot
     const explainedTrace = {
-      x: pcaMetricsExplained.map((_, i) => `PC${i + 1}`),
-      y: pcaMetricsExplained,
-      type: 'bar',
-      marker: { color: 'rgba(100, 149, 237, 0.7)' }
+        x: pca_explained_metrics.map((_, i) => `PC${i + 1}`),
+        y: pca_explained_metrics,
+        type: 'bar',
+        marker: { color: 'rgba(100, 149, 237, 0.7)' }
     };
 
     Plotly.newPlot('pcaExplainedPlot', [explainedTrace], {
-      title: 'Variância Explicada por Componente',
-      xaxis: { title: 'Componentes Principais' },
-      yaxis: { title: 'Variância Explicada' }
+        title: 'Explained Variance Components',
+        xaxis: { title: 'Principal Components' },
+        yaxis: { title: 'Explained Variance' }
     });
+
+    // t-SNE Metrics
+    const tsne_metrics = JSON.parse('{{ tsne_metrics|escapejs }}');
+
+    plot_graph(
+        tsne_metrics,
+        ['TSNE1', 'TSNE2'],
+        2,
+        't-SNE - MetricsModel',
+        'tsneMetricsPlot',
+        ['TSNE1', 'TSNE2', 'TSNE3']
+    );
+
+    // Global Metrics Plots
+
+    // PCA
+    const pca_global = JSON.parse('{{ pca_global|escapejs }}');
+    const pca_contributors_global = JSON.parse('{{ pca_contributors_metrics|escapejs }}');
+    const n_components_global = JSON.parse('{{ n_components_metrics|escapejs }}');
+
+    console.log('pca_global:', pca_global);
+    console.log('pca_contributors_global:', pca_contributors_global);
+    console.log('n_components_global:', n_components_global);
+
+    plot_graph(
+      pca_global, 
+      pca_contributors_global, 
+      n_components_global, 
+      'PCA - GlobalMetricsModel', 
+      'pcaGlobalPlot', 
+      ['PC1', 'PC2', 'PC3']
+    );
+
+    // t-SNE Global
+    const tsne_global = JSON.parse('{{ tsne_global|escapejs }}');
+
+    plot_graph(
+        tsne_global,
+        ['TSNE1', 'TSNE2'],
+        2,
+        't-SNE - GlobalMetricsModel',
+        'tsneGlobalPlot',
+        ['TSNE1', 'TSNE2', 'TSNE3']
+    );
+
+    // Utils
+
+    // 2D label
+    function prepareDataByLabel(data, xKey, yKey) {
+        const grouped = {};
+        data.forEach(item => {
+            const label = item.label || 'undefined';
+            if (!grouped[label]) grouped[label] = { x: [], y: [], name: label };
+            grouped[label].x.push(item[xKey]);
+            grouped[label].y.push(item[yKey]);
+        });
+        return Object.values(grouped).map(group => ({
+            x: group.x,
+            y: group.y,
+            mode: 'markers',
+            type: 'scatter',
+            name: group.name
+        }));
+    }
+
+    // 3D label
+    function prepareDataByLabel3D(data, xKey, yKey, zKey) {
+        const grouped = {};
+        data.forEach(item => {
+            const label = item.label || 'undefined';
+            if (!grouped[label]) grouped[label] = { x: [], y: [], z: [], name: label };
+            grouped[label].x.push(item[xKey]);
+            grouped[label].y.push(item[yKey]);
+            grouped[label].z.push(item[zKey]);
+        });
+        return Object.values(grouped).map(group => ({
+            x: group.x,
+            y: group.y,
+            z: group.z,
+            mode: 'markers',
+            type: 'scatter3d',
+            name: group.name
+        }));
+    }
+
+    // Unified plot function
+    function plot_graph(data_frame, contributors, n_components, title, graph_name, axis) {
+      console.log(contributors)
+      if (n_components >= 3) {
+          // 3D Plot with label grouping
+          const data = prepareDataByLabel3D(data_frame, axis[0], axis[1], axis[2]);
+
+          const layout = {
+              title: title,
+              scene: {
+                  xaxis: { title: `${contributors[0]}` },
+                  yaxis: { title: `${contributors[1]}` },
+                  zaxis: { title: `${contributors[2]}` }
+              }
+          };
+
+          Plotly.newPlot(graph_name, data, layout);
+      } else {
+          // 2D Plot with label grouping
+          const data = prepareDataByLabel(data_frame, axis[0], axis[1]);
+
+          const layout = {
+              title: title,
+              xaxis: { title: `${contributors[0]}` },
+              yaxis: { title: `${contributors[1]}` }
+          };
+
+          Plotly.newPlot(graph_name, data, layout);
+      }
+    }
 
 
   </script>

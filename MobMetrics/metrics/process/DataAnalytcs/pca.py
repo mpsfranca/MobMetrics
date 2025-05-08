@@ -49,13 +49,12 @@ class PCA(AbsData):
 
         # Convert to JSON format
         pca_json = pca_result['components'].to_json(orient='records') if pca_result else None
-        loadings_pca_json = pca_result['loadings'].to_json(orient='records') if pca_result else None
 
         return {
-            'explained_variance': explained_variance,
             'pca_json': pca_json,
-            'loadings_pca_json': loadings_pca_json,
-            'top_contributors': pca_result['top_contributors']
+            'n_components': self.n_components,
+            'explained_variance': explained_variance,
+            'top_contributors': pca_result['top_contributors'],
         }
 
     def _pca(self):
