@@ -19,7 +19,7 @@ from ..metrics.spatial.radios_of_gyration import RadiusOfGyration
 ## from kinematic
 from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
 
-class MetricsFactory:
+class Factory:
     """
     A factory class to extract and compute different types of metrics for an individual trace file.
 

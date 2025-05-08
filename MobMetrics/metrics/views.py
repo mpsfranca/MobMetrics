@@ -59,9 +59,8 @@ def dashboard_view(request):
         elif 'download' in request.POST:
             return _handle_download(request)
         elif 'generate_graphs' in request.POST:
-            (pca_metrics_json, pca_global_json, 
-             tsne_metrics_json, tsne_global_json, 
-             explained_metrics, explained_global) = _handle_generate_graphs(request)
+            (pca_metrics, pca_global_metrics, 
+             tsne_metrics, tsne_global_metrics) = _handle_generate_graphs(request)
 
     return render(request, 'dashboard.html', {
         'upload_form': upload_form,
@@ -71,9 +70,13 @@ def dashboard_view(request):
 
         'pca_metrics': pca_metrics['pca_json'],
         'pca_explained_metrics': json.dumps(pca_metrics['explained_variance']),
+        'pca_loadings_metrics': pca_metrics['loadings_pca_json'],
+        'pca_contributors_metrics': json.dumps(pca_metrics['top_contributors']),
 
         'pca_global': pca_global_metrics['pca_json'],
         'pca_explained_global': json.dumps(pca_global_metrics['explained_variance']),
+        'pca_loadings_global': pca_global_metrics['loadings_pca_json'],
+        'pca_contributors_globaç': pca_global_metrics['top_contributors'],
 
         'tsne_metrics': tsne_metrics,
 

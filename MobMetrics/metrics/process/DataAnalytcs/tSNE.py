@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 # Local application/library specific imports.
 from ...utils.abs_data import AbsData
 
-class TSNEEmbedding(AbsData):
+class tSNE(AbsData):
     """
     Class to perform t-Distributed Stochastic Neighbor Embedding (t-SNE)
     on selected columns of a DataFrame.
