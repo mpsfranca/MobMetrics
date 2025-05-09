@@ -1,11 +1,13 @@
 from ..utils.abs_metric import AbsMetric
+from ...models import GlobalMetricsModel
 from sklearn.metrics.pairwise import cosine_similarity
 
 import numpy as np
 
-class TrajectoryCosineStd(AbsMetric):
-    def __init__(self, trace):
+class TrajectoryCorrelationDegree(AbsMetric):
+    def __init__(self, trace, parameters):
         self.trace = trace
+        self.parameters = parameters
         self.num_points = 20
 
     def _uniform_sample_traj(self, df_id):
@@ -35,6 +37,9 @@ class TrajectoryCosineStd(AbsMetric):
         sim_values = sim_matrix[upper_indices]
 
         dist_values = 1 - sim_values
-        std_dev = np.std(dist_values)
+        correlation_degree = 1 - np.std(dist_values)
 
-        return round(std_dev, 5)
+        global_metric = GlobalMetricsModel.objects.get(fileName=self.parameters[4])
+        global_metric.trajectory_correlation = correlation_degree
+
+        global_metric.save()
