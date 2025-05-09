@@ -3,6 +3,7 @@ from ...models import GlobalMetricsModel
 from sklearn.metrics.pairwise import cosine_similarity
 
 import numpy as np
+import tqdm
 
 class TrajectoryCorrelationDegree(AbsMetric):
     def __init__(self, trace, parameters):
@@ -21,7 +22,7 @@ class TrajectoryCorrelationDegree(AbsMetric):
 
     def extract(self):
         vectors = []
-        for ent_id, df_ent in self.trace.groupby('id'):
+        for ent_id, df_ent in tqdm.tqdm(self.trace.groupby('id'), desc="Trajectory Correlation Degree"):
             traj_vector = self._uniform_sample_traj(df_ent)
 
             if traj_vector is not None:
