@@ -1,3 +1,5 @@
+import numpy as np
+
 from math import sqrt,radians, sin, cos, sqrt, atan2
 from django.db.models import Avg, Sum
 from ...models import (
@@ -90,5 +92,48 @@ def globalMetrics(file_name):
             'avgStayPointEntropy': sp_agg['avgStayPointEntropy'] or 0.0,
             'avgQuadrantEntropy': quadrants_agg['avgQuadrantEntropy'] or 0.0,
             'numContacts': num_contacts,
+            'mobility_profile': find_mobility_profile(metrics_qs)
         }
     )
+
+def find_mobility_profile(metrics_qs):
+    """
+    Computes a normalized mobility profile score for a dataset of individual mobility traces.
+
+    Parameters:
+        `metrics_qs` (QuerySet): A Django QuerySet containing MetricsModel instances for a given dataset.
+
+    Returns:
+        `mobility_profile_score` (float): A scalar value representing the normalized average mobility profile
+                                          of the dataset.
+    """
+    vectors = []
+
+    for metrics in metrics_qs:
+        values = [
+            getattr(metrics, 'TTrvT', 0) or 0.0,
+            getattr(metrics, 'TTrvD', 0) or 0.0,
+            getattr(metrics, 'TTrvAS', 0) or 0.0,
+            getattr(metrics, 'num_travels', 0) or 0.0,
+            getattr(metrics, 'avg_travel_time', 0) or 0.0,
+            getattr(metrics, 'avg_travel_distance', 0) or 0.0,
+            getattr(metrics, 'avg_travel_avg_speed', 0) or 0.0,
+            getattr(metrics, 'numStayPointsVisits', 0) or 0.0,
+        ]
+
+        min_val = min(values)
+        max_val = max(values)
+        if max_val - min_val == 0:
+            norm_values = [0.0 for _ in values]
+        else:
+            norm_values = [(v - min_val) / (max_val - min_val) for v in values]
+
+        vectors.append(norm_values)
+
+    if not vectors:
+        return 0.0
+
+    avg_vector = np.mean(vectors, axis=0)
+    mobility_profile_score = float(np.mean(avg_vector))
+
+    return round(mobility_profile_score, 4)

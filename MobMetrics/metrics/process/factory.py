@@ -38,7 +38,7 @@ class Factory:
 
     def __init__(self, trace_file, parameters):
         """
-        Initializes the MetricsFactory with the trace file and parameters.
+        Initializes the Factory with the trace file and parameters.
 
         Args:
             trace_file (DataFrame): The trace data containing movement information.
@@ -69,7 +69,9 @@ class Factory:
         # Extracting additional global and social metrics
         Entropy(self.total_visits, self.parameters, self.trace_file).extract()
         DetectContact(self.parameters, self.trace_file).extract()
+
         globalMetrics(self.file_name)
+        
         QuadrantEntropy(self.trace_file, self.parameters).extract()
 
     def _metrics(self, id, filtered_trace):

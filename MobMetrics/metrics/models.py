@@ -73,11 +73,13 @@ class GlobalMetricsModel(models.Model):
     # Contact Metrics
     numContacts = models.IntegerField()
 
-    # Travel Metrics
     num_travels = models.IntegerField()
     avg_travel_time = models.FloatField()
     avg_travel_distance = models.FloatField()
     avg_travel_avg_speed = models.FloatField()
+
+    occupied_quadrants = models.IntegerField(null=True, blank=True)
+    mobility_profile = models.FloatField(null=True, blank=True)
 
 class StayPointModel(models.Model):
     """ Model responsable to save all Stay Points"""
