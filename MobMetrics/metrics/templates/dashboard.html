@@ -97,7 +97,7 @@
           <h3>Entropy Parameters</h3>
           <div class="form-group">
             <label for="quadrant">Quadrant Divisions:</label>
-            {{ upload_form.quadrant_size }}
+            {{ upload_form.quadrant_parts }}
             <span class="tooltip">?
               <span class="tooltiptext">Number of quadrant divisions, the total quadrants will be Quradrant_Divisions^2</span>
             </span>
@@ -146,7 +146,23 @@
               <span class="tooltip">?
                 <span class="tooltiptext">The perplexity is related to the number of nearest neighbors that is used in other manifold learning algorithms. Larger datasets usually require a larger perplexity. Consider selecting a value between 5 and 50. Different values can result in significantly different results. The perplexity must be less than the number of samples.</span>
               </span>
-            </div>    
+            </div>
+           
+            <div class="form-group">
+              <label for="id_DBSCAN_eps">DBSCAN Eps:</label>
+              {{ analytcs_form.dbscan_eps }}
+              <span class="tooltip">?
+                <span class="tooltiptext">Maximum distance between two samples for one to be considered as in the neighborhood of the other.</span>
+              </span>
+            </div>
+            
+            <div class="form-group">
+              <label for="id_DBSCAN_min_samples">DBSCAN Min Samples:</label>
+              {{ analytcs_form.dbscan_min_samples }}
+              <span class="tooltip">?
+                <span class="tooltiptext">The number of samples in a neighborhood for a point to be considered as a core point.</span>
+              </span>
+            </div>
           </div>
           <button class="button" type="submit" name="generate_graphs">Generate Graphs</button>
         </form>
@@ -160,21 +176,37 @@
         <h3>PCA - MetricsModel</h3>
         <div id="pcaMetricsPlot"></div>
       </div>
-  
+
       <div class="graph-container">
-        <h3>PCA - GlobalMetricsModel</h3>
-        <div id="pcaGlobalPlot"></div>
+        <h3>PCA - Explained Variance</h3>
+        <div id="pcaExplainedPlot"></div>
+      </div>
+
+      <div class="graph-container">
+        <h3>DBSCAN - PCA MetricsModel</h3>
+        <div id="pcaDbscanMetricsPlot"></div>
       </div>
   
       <div class="graph-container">
         <h3>t-SNE - MetricsModel</h3>
         <div id="tsneMetricsPlot"></div>
       </div>
+
+      <div class="graph-container">
+        <h3>DBSCAN - tSNE MetricsModel</h3>
+        <div id="tsneDbscanMetricsPlot"></div>
+      </div>
   
       <div class="graph-container">
         <h3>t-SNE - GlobalMetricsModel</h3>
         <div id="tsneGlobalPlot"></div>
       </div>
+
+      <div class="graph-container">
+        <h3>PCA - GlobalMetricsModel</h3>
+        <div id="pcaGlobalPlot"></div>
+      </div>
+
     </div>
   </div>
 
@@ -206,6 +238,7 @@
   </div>
 
   <script>
+    // Configure Tabs
     function toggleConfig() {
       const configDiv = document.getElementById('configForm');
       configDiv.classList.toggle('hidden');
@@ -233,51 +266,180 @@
       });
     });
 
-    const pcaMetrics = JSON.parse('{{ pca_metrics|escapejs }}');
-    const pcaGlobal = JSON.parse('{{ pca_global|escapejs }}');
-    const tsneMetrics = JSON.parse('{{ tsne_metrics|escapejs }}');
-    const tsneGlobal = JSON.parse('{{ tsne_global|escapejs }}');
+    // Generate Plots
 
-    function prepareDataByLabel(data, xKey, yKey) {
-      const grouped = {};
-      data.forEach(item => {
-        const label = item.label || 'undefined';
-        if (!grouped[label]) grouped[label] = { x: [], y: [], name: label };
-        grouped[label].x.push(item[xKey]);
-        grouped[label].y.push(item[yKey]);
-      });
-      return Object.values(grouped).map(group => ({
-        x: group.x,
-        y: group.y,
-        mode: 'markers',
-        type: 'scatter',
-        name: group.name
-      }));
+    // Metrics Model Plots
+
+    // PCA
+    const pca_metrics = JSON.parse('{{ pca_metrics|escapejs }}');
+    const pca_metrics_contributors = JSON.parse('{{ pca_contributors_metrics|escapejs }}');
+    const pca_metrics_n_components = JSON.parse('{{ n_components_metrics|escapejs }}');
+    const pca_explained_metrics = JSON.parse('{{ pca_explained_metrics|escapejs }}');
+
+    plot_graph(
+        pca_metrics,
+        pca_metrics_contributors,
+        pca_metrics_n_components,
+        'PCA - MetricsModel',
+        'pcaMetricsPlot',
+        ['PC1', 'PC2', 'PC3'],
+        'label',
+    );
+
+    // Explained Variance Plot
+    const explainedTrace = {
+        x: pca_explained_metrics.map((_, i) => `PC${i + 1}`),
+        y: pca_explained_metrics,
+        type: 'bar',
+        marker: { color: 'rgba(100, 149, 237, 0.7)' }
+    };
+
+    Plotly.newPlot('pcaExplainedPlot', [explainedTrace], {
+        title: 'Explained Variance Components',
+        xaxis: { title: 'Principal Components' },
+        yaxis: { title: 'Explained Variance' }
+    });
+
+    // DBSCAN
+    plot_graph(
+        pca_metrics,
+        pca_metrics_contributors,
+        pca_metrics_n_components,
+        'DBSCAN - PCA MetricsModel',
+        'pcaDbscanMetricsPlot',
+        ['PC1', 'PC2', 'PC3'],
+        'dbscan_cluster',
+    );
+
+    // t-SNE Metrics
+    const tsne_metrics = JSON.parse('{{ tsne_metrics|escapejs }}');
+
+    plot_graph(
+        tsne_metrics,
+        ['TSNE1', 'TSNE2'],
+        2,
+        't-SNE - MetricsModel',
+        'tsneMetricsPlot',
+        ['TSNE1', 'TSNE2', 'TSNE3'],
+        'label',
+    );   
+
+    // DBSCAN for tSNE 
+    plot_graph(
+        tsne_metrics,
+        ['TSNE1', 'TSNE2'],
+        2,
+        't-SNE - MetricsModel',
+        'tsneDbscanMetricsPlot',
+        ['TSNE1', 'TSNE2', 'TSNE3'],
+        'dbscan_cluster',
+    ); 
+
+    // Global Metrics Plots
+
+    // PCA
+    const pca_global = JSON.parse('{{ pca_global|escapejs }}');
+    const pca_contributors_global = JSON.parse('{{ pca_contributors_metrics|escapejs }}');
+    const n_components_global = JSON.parse('{{ n_components_metrics|escapejs }}');
+
+    console.log('pca_global:', pca_global);
+    console.log('pca_contributors_global:', pca_contributors_global);
+    console.log('n_components_global:', n_components_global);
+
+    plot_graph(
+      pca_global, 
+      pca_contributors_global, 
+      n_components_global, 
+      'PCA - GlobalMetricsModel', 
+      'pcaGlobalPlot', 
+      ['PC1', 'PC2', 'PC3']
+    );
+
+    // t-SNE Global
+    const tsne_global = JSON.parse('{{ tsne_global|escapejs }}');
+
+    plot_graph(
+        tsne_global,
+        ['TSNE1', 'TSNE2'],
+        2,
+        't-SNE - GlobalMetricsModel',
+        'tsneGlobalPlot',
+        ['TSNE1', 'TSNE2', 'TSNE3']
+    );
+
+    // Utils
+
+    // 2D label (dynamic color group)
+    function prepareDataByColumn(data, colorKey, xKey, yKey) {
+        const grouped = {};
+        data.forEach(item => {
+            const groupValue = item[colorKey] ?? 'undefined';
+            if (!grouped[groupValue]) grouped[groupValue] = { x: [], y: [], name: groupValue };
+            grouped[groupValue].x.push(item[xKey]);
+            grouped[groupValue].y.push(item[yKey]);
+        });
+        return Object.values(grouped).map(group => ({
+            x: group.x,
+            y: group.y,
+            mode: 'markers',
+            type: 'scatter',
+            name: group.name
+        }));
     }
 
-    Plotly.newPlot('pcaMetricsPlot', prepareDataByLabel(pcaMetrics, 'PC1', 'PC2'), {
-      title: 'PCA - MetricsModel',
-      xaxis: { title: 'PC1' },
-      yaxis: { title: 'PC2' }
-    });
+    // 3D label (dynamic color group)
+    function prepareDataByColumn3D(data, colorKey, xKey, yKey, zKey) {
+        const grouped = {};
+        data.forEach(item => {
+            const groupValue = item[colorKey] ?? 'undefined';
+            if (!grouped[groupValue]) grouped[groupValue] = { x: [], y: [], z: [], name: groupValue };
+            grouped[groupValue].x.push(item[xKey]);
+            grouped[groupValue].y.push(item[yKey]);
+            grouped[groupValue].z.push(item[zKey]);
+        });
+        return Object.values(grouped).map(group => ({
+            x: group.x,
+            y: group.y,
+            z: group.z,
+            mode: 'markers',
+            type: 'scatter3d',
+            name: group.name
+        }));
+    }
 
-    Plotly.newPlot('pcaGlobalPlot', prepareDataByLabel(pcaGlobal, 'PC1', 'PC2'), {
-      title: 'PCA - GlobalMetricsModel',
-      xaxis: { title: 'PC1' },
-      yaxis: { title: 'PC2' }
-    });
+    // Unified plot function
+    function plot_graph(data_frame, contributors, n_components, title, graph_name, axis, colorBy) {
+        console.log(`Coloring by: ${colorBy}`);
+        if (n_components >= 3) {
+            // 3D Plot with dynamic color grouping
+            const data = prepareDataByColumn3D(data_frame, colorBy, axis[0], axis[1], axis[2]);
 
-    Plotly.newPlot('tsneMetricsPlot', prepareDataByLabel(tsneMetrics, 'TSNE1', 'TSNE2'), {
-      title: 't-SNE - MetricsModel',
-      xaxis: { title: 'TSNE1' },
-      yaxis: { title: 'TSNE2' }
-    });
+            const layout = {
+                title: title,
+                scene: {
+                    xaxis: { title: `${contributors[0]}` },
+                    yaxis: { title: `${contributors[1]}` },
+                    zaxis: { title: `${contributors[2]}` }
+                }
+            };
 
-    Plotly.newPlot('tsneGlobalPlot', prepareDataByLabel(tsneGlobal, 'TSNE1', 'TSNE2'), {
-      title: 't-SNE - GlobalMetricsModel',
-      xaxis: { title: 'TSNE1' },
-      yaxis: { title: 'TSNE2' }
-    });
+            Plotly.newPlot(graph_name, data, layout);
+        } else {
+            // 2D Plot with dynamic color grouping
+            const data = prepareDataByColumn(data_frame, colorBy, axis[0], axis[1]);
+
+            const layout = {
+                title: title,
+                xaxis: { title: `${contributors[0]}` },
+                yaxis: { title: `${contributors[1]}` }
+            };
+
+            Plotly.newPlot(graph_name, data, layout);
+        }
+    }
+
+
+
   </script>
 </body>
 </html>
