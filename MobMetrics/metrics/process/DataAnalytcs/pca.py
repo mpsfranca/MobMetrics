@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Local application/library specific imports.
 from ...utils.abs_data import AbsData
+from .clustering.DBscan import DBscan
 
 class PCA(AbsData):
     """
@@ -12,7 +13,7 @@ class PCA(AbsData):
     on a specified subset of a DataFrame.
     """
 
-    def __init__(self, n_components, data, columns):
+    def __init__(self, n_components, data, columns, dbscan_paramters):
         """
         Initializes the PCA extractor.
 
@@ -24,6 +25,7 @@ class PCA(AbsData):
         self.data = data
         self.columns = columns
         self.n_components = n_components
+        self.dbscan_paramters = dbscan_paramters
 
     def extract(self):
         """
@@ -35,7 +37,7 @@ class PCA(AbsData):
                 - 'pca_json': JSON representation of principal components.
                 - 'loadings_pca_json': JSON representation of loadings.
         """
-        self.n_components = min(self.n_components, len(self.columns))
+        self.n_components = min(self.n_components, len(self.data))
 
         if self.n_components > 0:
             pca_result = self._pca()
@@ -47,14 +49,17 @@ class PCA(AbsData):
         # Optionally label the PCA components with original labels
         pca_result = self._label_dataframe(pca_result)
 
+        pca = self._clustering(pca_result['components'])
+
         # Convert to JSON format
-        pca_json = pca_result['components'].to_json(orient='records') if pca_result else None
-        loadings_pca_json = pca_result['loadings'].to_json(orient='records') if pca_result else None
+        pca_json = pca.to_json(orient='records') if pca_result else None
 
         return {
-            'explained_variance': explained_variance,
+            'pca': pca,
             'pca_json': pca_json,
-            'loadings_pca_json': loadings_pca_json
+            'n_components': self.n_components,
+            'explained_variance': explained_variance,
+            'top_contributors': pca_result['top_contributors'],
         }
 
     def _pca(self):
@@ -63,7 +68,7 @@ class PCA(AbsData):
 
         Returns:
             dict: Contains the PCA components, explained variance,
-                  fitted model, and feature loadings.
+                  fitted model, feature loadings and top contributors.
         """
         # Select and standardize the data
         selected_data = self.data[self.columns]
@@ -81,6 +86,8 @@ class PCA(AbsData):
             columns=[f'PC{i+1}' for i in range(self.n_components)]
         )
 
+        top_contributors = self._get_top_contributors(loadings)
+
         component_names = [f'PC{i+1}' for i in range(self.n_components)]
         components_df = pd.DataFrame(principal_components, columns=component_names)
 
@@ -88,7 +95,8 @@ class PCA(AbsData):
             'components': components_df,
             'explained_variance': pca.explained_variance_ratio_,
             'pca_model': pca,
-            'loadings': loadings
+            'loadings': loadings,
+            'top_contributors': top_contributors,
         }
 
     def _label_dataframe(self, result):
@@ -103,5 +111,33 @@ class PCA(AbsData):
         """
         if result and 'label' in self.data.columns:
             result['components']['label'] = self.data['label'].reset_index(drop=True)
+
+        return result
+
+    def _get_top_contributors(self, loadings):
+        """
+        Finds the top contributing feature (highest absolute loading) for each principal component.
+
+        Args:
+            loadings (pd.DataFrame): DataFrame containing PCA loadings with features as rows
+                                     and principal components as columns.
+
+        Returns:
+            top_contributors (list): A list containing the feature name (str) 
+            that has the highest absolute loading for each principal component.
+        """
+        top_contributors = []
+
+        for component in loadings.columns:
+            # Find the feature with the maximum absolute loading for this component
+            top_feature = loadings[component].abs().idxmax()
+            top_contributors.append(top_feature)
+
+        return top_contributors
+
+    def _clustering(self, result):
+
+        dbscan_result = DBscan(self.dbscan_paramters, result).extract()
+        result['dbscan_cluster'] = dbscan_result['cluster_labels']
 
         return result

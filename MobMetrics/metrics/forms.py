@@ -25,12 +25,26 @@ class FileNameForm(forms.Form):
 
 class DataAnalytcsParamsForm(forms.Form):
     """ Form to upload paramters to data analytics """
+    # PCA
     PCA_n_components = forms.IntegerField(
         label='PCA N Components', initial=2  
     )
+
+    #TSNE
     tSNE_n_components = forms.IntegerField(
         label='tSNE N Components', initial=2  
     )
     tSNE_perplexity = forms.IntegerField(
         label='Perplexity N Components', initial=30  
     )
+
+    #BDscan
+    dbscan_eps = forms.FloatField(
+        label='BDscan epslon', initial=0.5 
+    )
+    
+    dbscan_min_samples = forms.IntegerField(
+        label='BDscan Min Samples', initial=5 
+    )
+
+#
