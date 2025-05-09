@@ -11,10 +11,10 @@ from django.http import HttpResponse
 
 # Local application/library specific imports.
 from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm
-from .process.factory import Factory
+from .process.factory import MetricsFactory
 from .process.format import Format
 from .process.DataAnalytcs.pca import PCA
-from .process.DataAnalytcs.tSNE import tSNE
+from .process.DataAnalytcs.tSNE import TSNEEmbedding
 from .models import (ConfigModel, MetricsModel, 
                      TravelsModel, StayPointModel, 
                      VisitModel,ContactModel, 
@@ -101,7 +101,7 @@ def _handle_upload(request):
             data_frame = Format(data_frame).extract()
 
             _create_config_model(parameters)
-            Factory(data_frame, parameters).extract()
+            MetricsFactory(data_frame, parameters).extract()
 
             messages.success(request, "Upload and processing completed.")
 
@@ -206,8 +206,8 @@ def _handle_generate_graphs(request):
         pca_global_metrics = PCA(pca_n_components, global_metrics_df, columns_global).extract()
 
         # Perform t-SNE for metrics and global data
-        tsne_metrics = tSNE(tsne_n_components, tsne_perplexity, metrics_df, columns_metrics).extract()
-        tsne_global_metrics = tSNE(tsne_n_components, tsne_perplexity, global_metrics_df, columns_global).extract()
+        tsne_metrics = TSNEEmbedding(tsne_n_components, tsne_perplexity, metrics_df, columns_metrics).extract()
+        tsne_global_metrics = TSNEEmbedding(tsne_n_components, tsne_perplexity, global_metrics_df, columns_global).extract()
 
         # Return the results
         return (
