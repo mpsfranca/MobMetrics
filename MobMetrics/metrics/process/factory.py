@@ -69,7 +69,7 @@ class Factory:
 
         # Extracting additional global and social metrics
         Entropy(self.total_visits, self.parameters, self.trace_file).extract()
-        DetectContact(self.parameters, self.trace_file).extract()
+        # DetectContact(self.parameters, self.trace_file).extract()
 
         globalMetrics(self.file_name)
         

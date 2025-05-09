@@ -16,28 +16,27 @@ class TrajectoryCorrelationDegree(AbsMetric):
             `parameters` (list): configuration parameters for processing
             `fraction` (float): fraction of points at which trajectories will be reduced
             `min_points` (int): minimal number of points at which trajectories will be reduced
+            `fixed_n_points` (int): fixed number of points to sample from each trajectory
         """
         self.trace = trace
         self.parameters = parameters
 
-        self.fraction = 0.5
+        self.fraction = 0.8
         self.min_points = 20
+
+        group_sizes = self.trace.groupby('id').size()
+        self.fixed_n_points = max(self.min_points, int(self.fraction * group_sizes.min()))
 
     def _uniform_sample_traj(self, df_id):
         df_id_sorted = df_id.sort_values('time')
 
-        n_points_id = max(
-            self.min_points,
-            int(self.fraction * len(df_id_sorted))
-        )
-
-        if len(df_id_sorted) < n_points_id:
+        if len(df_id_sorted) < self.fixed_n_points:
             return None
-        
+
         sampled = df_id_sorted.iloc[
-            np.linspace(0, len(df_id_sorted) - 1, n_points_id, dtype=int)
+            np.linspace(0, len(df_id_sorted) - 1, self.fixed_n_points, dtype=int)
         ]
-        
+
         return sampled[['x', 'y']].to_numpy().flatten()
 
     def extract(self):
@@ -62,5 +61,4 @@ class TrajectoryCorrelationDegree(AbsMetric):
 
         global_metric = GlobalMetricsModel.objects.get(fileName=self.parameters[4])
         global_metric.trajectory_correlation = correlation_degree
-
         global_metric.save()
