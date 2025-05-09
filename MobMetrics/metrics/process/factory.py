@@ -38,7 +38,7 @@ class Factory:
 
     def __init__(self, trace_file, parameters):
         """
-        Initializes the MetricsFactory with the trace file and parameters.
+        Initializes the Factory with the trace file and parameters.
 
         Args:
             trace_file (DataFrame): The trace data containing movement information.

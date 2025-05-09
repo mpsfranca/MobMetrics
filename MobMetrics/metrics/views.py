@@ -11,7 +11,7 @@ from django.http import HttpResponse
 
 # Local application/library specific imports.
 from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm
-from .process.factory import MetricsFactory
+from .process.factory import Factory
 from .process.format import Format
 from .process.DataAnalytcs.pca import PCA
 from .process.DataAnalytcs.tSNE import tSNE
@@ -102,7 +102,7 @@ def _handle_upload(request):
             data_frame = Format(data_frame).extract()
 
             _create_config_model(parameters)
-            MetricsFactory(data_frame, parameters).extract()
+            Factory(data_frame, parameters).extract()
 
             messages.success(request, "Upload and processing completed.")
 
