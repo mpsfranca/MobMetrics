@@ -16,6 +16,7 @@ from ..metrics.social.detect_contact import DetectContact
 from ..metrics.spatial.total_travel_distance import TotalTravelDistance
 from ..metrics.spatial.center_of_mass import CenterOfMass
 from ..metrics.spatial.radios_of_gyration import RadiusOfGyration
+from ..metrics.spatial.trajectory_correlation import TrajectoryCorrelationDegree
 from ..metrics.spatial.staypoint_importance_degree import StaypointImportanceDegree
 ## from kinematic
 from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
@@ -75,6 +76,7 @@ class Factory:
         globalMetrics(self.file_name)
         
         QuadrantEntropy(self.trace_file, self.parameters).extract()
+        TrajectoryCorrelationDegree(self.trace_file, self.parameters).extract()
 
     def _metrics(self, id, filtered_trace):
         """

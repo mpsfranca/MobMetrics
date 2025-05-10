@@ -82,6 +82,9 @@ class GlobalMetricsModel(models.Model):
     occupied_quadrants = models.IntegerField(null=True, blank=True)
     mobility_profile = models.FloatField(null=True, blank=True)
 
+    # Other Spatial Metrics
+    trajectory_correlation = models.FloatField(null=True, blank=True)
+
 class StayPointModel(models.Model):
     """ Model responsable to save all Stay Points"""
     # File
