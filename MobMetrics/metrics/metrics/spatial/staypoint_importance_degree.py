@@ -8,6 +8,9 @@ class StaypointImportanceDegree(AbsMetric):
         """
         Class that represents the Stay Point Importance Degree metric. It is calculated based on the total number of
         visits, total visits time and entropy level of each stay point.
+
+        Attributes:
+            `parameters` (list): configuration parameters for processing
         """
         self.parameters = parameters
 
@@ -15,11 +18,27 @@ class StaypointImportanceDegree(AbsMetric):
         self._compute_importance_degree()
 
     def _normalize(self, value, min_val, max_val):
+        """
+        Function responsible for normalizing a given value within a specified range.
+
+        Args:
+            `value` (float): value to be normalized
+            `min_val` (float): minimum value of the range
+            `max_val` (float): maximum value of the range
+
+        Returns:
+            `normalized_value` (float): value normalized between 0 and 1.
+                                        Returns 0 if `min_val` and `max_val` are equal
+        """
         if max_val == min_val:
             return 0.0
         return (value - min_val) / (max_val - min_val)
 
     def _compute_importance_degree(self):
+        """
+        Function that calculates the degree of importance of stay points based on the following
+        measures: number of visits, total visit time at the stay point and entropy.
+        """
         stay_points = StayPointModel.objects.filter(fileName=self.parameters[4])
 
         visits_list = [sp.numVisits for sp in stay_points]
