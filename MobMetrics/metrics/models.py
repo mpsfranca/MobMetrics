@@ -73,6 +73,7 @@ class GlobalMetricsModel(models.Model):
     # Contact Metrics
     numContacts = models.IntegerField()
 
+    # Travel Metrics
     num_travels = models.IntegerField()
     avg_travel_time = models.FloatField()
     avg_travel_distance = models.FloatField()
