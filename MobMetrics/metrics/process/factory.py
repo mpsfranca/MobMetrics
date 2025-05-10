@@ -17,6 +17,7 @@ from ..metrics.spatial.total_travel_distance import TotalTravelDistance
 from ..metrics.spatial.center_of_mass import CenterOfMass
 from ..metrics.spatial.radios_of_gyration import RadiusOfGyration
 from ..metrics.spatial.trajectory_correlation import TrajectoryCorrelationDegree
+from ..metrics.spatial.staypoint_importance_degree import StaypointImportanceDegree
 ## from kinematic
 from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
 
@@ -69,7 +70,8 @@ class Factory:
 
         # Extracting additional global and social metrics
         Entropy(self.total_visits, self.parameters, self.trace_file).extract()
-        # DetectContact(self.parameters, self.trace_file).extract()
+        StaypointImportanceDegree(self.parameters).extract()
+        DetectContact(self.parameters, self.trace_file).extract()
 
         globalMetrics(self.file_name)
         
