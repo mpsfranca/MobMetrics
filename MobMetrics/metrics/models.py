@@ -93,6 +93,8 @@ class StayPointModel(models.Model):
     # Metrics
     numVisits   = models.IntegerField()
     entropy = models.FloatField(null=True, blank=True)
+    totalVisitsTime = models.FloatField(null=True, blank=True)
+    importanceDegree = models.FloatField(null=True, blank=True)
 
 class TravelsModel(models.Model):
     """ Model responsable to save all Travels"""
