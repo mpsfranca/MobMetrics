@@ -18,6 +18,7 @@ class Visit:
                 self.is_geographical_coordinates
             ) <= self.distance_threshold:
                 existing_sp.numVisits += 1
+                existing_sp.totalVisitsTime += duration
                 existing_sp.save()
 
                 VisitModel.objects.create(
@@ -36,6 +37,7 @@ class Visit:
             y=y_avg,
             z=z_avg,
             numVisits=1,
+            totalVisitsTime=0,
             fileName=self.file_name
         )
 
