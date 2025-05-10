@@ -112,7 +112,7 @@ class Factory:
             id (str): The ID of the individual.
         """
         # Extracting stay point metrics
-        visit_count,time_visit_count, num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed = StayPoints(
+        visit_count, time_visit_count, num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed = StayPoints(
             filtered_trace, id, self.parameters).extract()
 
         # Fetching the corresponding MetricsModel for the individual

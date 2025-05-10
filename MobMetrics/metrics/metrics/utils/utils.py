@@ -59,7 +59,7 @@ def globalMetrics(file_name):
 
     sp_agg = staypoints_qs.aggregate(
         NumStayPointsVisits=Sum('numVisits'),
-        avgStayPointEntropy=Avg('entropy')
+        avgStayPointEntropy=Avg('entropy'),
     )
 
     quadrants_agg = quadrants_qs.aggregate(
