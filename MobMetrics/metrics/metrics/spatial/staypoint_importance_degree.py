@@ -4,7 +4,11 @@ from ...models import StayPointModel
 from ..utils.abs_metric import AbsMetric
 
 class StaypointImportanceDegree(AbsMetric):
-    def __init__(self, parameters): 
+    def __init__(self, parameters):
+        """
+        Class that represents the Stay Point Importance Degree metric. It is calculated based on the total number of
+        visits, total visits time and entropy level of each stay point.
+        """
         self.parameters = parameters
 
     def extract(self):
