@@ -28,6 +28,16 @@ class TrajectoryCorrelationDegree(AbsMetric):
         self.fixed_n_points = max(self.min_points, int(self.fraction * group_sizes.min()))
 
     def _uniform_sample_traj(self, df_id):
+        """
+        Function responsible for uniformly sampling a fixed number of points from a trajectory.
+
+        Args:
+            `df_id` (DataFrame): DataFrame containing the trajectory of a single ID
+
+        Returns:
+            `sampled_traj` (ndarray or None): flattened NumPy array with the uniformly sampled 
+                x and y coordinates. Returns `None` if the trajectory has fewer points than required.
+        """
         df_id_sorted = df_id.sort_values('time')
 
         if len(df_id_sorted) < self.fixed_n_points:
