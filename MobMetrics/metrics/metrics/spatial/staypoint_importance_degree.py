@@ -12,14 +12,14 @@ class StaypointImportanceDegree(AbsMetric):
         self.parameters = parameters
 
     def extract(self):
-        self.computeImportanceDegree()
+        self._compute_importance_degree()
 
-    def normalize(self, value, min_val, max_val):
+    def _normalize(self, value, min_val, max_val):
         if max_val == min_val:
             return 0.0
         return (value - min_val) / (max_val - min_val)
 
-    def computeImportanceDegree(self):
+    def _compute_importance_degree(self):
         stay_points = StayPointModel.objects.filter(fileName=self.parameters[4])
 
         visits_list = [sp.numVisits for sp in stay_points]
@@ -34,9 +34,9 @@ class StaypointImportanceDegree(AbsMetric):
         alpha, beta, gamma = 0.4, 0.4, 0.2
 
         for sp in tqdm.tqdm(stay_points, desc="Stay Point Importance Degree"):
-            norm_visits = self.normalize(sp.numVisits, min_visits, max_visits)
-            norm_time = self.normalize(sp.totalVisitsTime, min_time, max_time)
-            norm_entropy = self.normalize(sp.entropy, min_entropy, max_entropy)
+            norm_visits = self._normalize(sp.numVisits, min_visits, max_visits)
+            norm_time = self._normalize(sp.totalVisitsTime, min_time, max_time)
+            norm_entropy = self._normalize(sp.entropy, min_entropy, max_entropy)
 
             importance = (
                 alpha * norm_visits +
