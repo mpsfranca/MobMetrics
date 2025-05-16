@@ -5,21 +5,21 @@ from tqdm import tqdm
 from ..models import MetricsModel
 ## from utils
 from ..metrics.utils.stay_point import StayPoints
-from ..metrics.utils.utils import globalMetrics
+from ..metrics.utils.utils import compute_global_metrics
 ## from temporal
-from ..metrics.temporal.total_travel_time import TotalTravelTime
+from ..metrics.temporal.travel_time import TotalTravelTime
 ## from social
 from ..metrics.social.quadrant_entropy import QuadrantEntropy
 from ..metrics.social.entropy import Entropy
 from ..metrics.social.detect_contact import DetectContact
 ## from spatial
-from ..metrics.spatial.total_travel_distance import TotalTravelDistance
-from ..metrics.spatial.center_of_mass import CenterOfMass
+from ..metrics.spatial.travel_distance import TravelDistance
+from ..metrics.utils.center_of_mass import CenterOfMass
 from ..metrics.spatial.radios_of_gyration import RadiusOfGyration
 from ..metrics.spatial.trajectory_correlation import TrajectoryCorrelationDegree
 from ..metrics.spatial.staypoint_importance_degree import StaypointImportanceDegree
 ## from kinematic
-from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
+from ..metrics.kinematic.travel_avarage_speed import TravelAverageSpeed
 
 class Factory:
     """
@@ -73,7 +73,7 @@ class Factory:
         StaypointImportanceDegree(self.parameters).extract()
         DetectContact(self.parameters, self.trace_file).extract()
 
-        globalMetrics(self.file_name)
+        compute_global_metrics(self.file_name)
         
         QuadrantEntropy(self.trace_file, self.parameters).extract()
         TrajectoryCorrelationDegree(self.trace_file, self.parameters).extract()
@@ -88,8 +88,8 @@ class Factory:
         """
         # Extracting temporal and spatial metrics
         travel_time = TotalTravelTime(filtered_trace).extract()
-        travel_distance = TotalTravelDistance(filtered_trace, self.parameters).extract()
-        travel_average_speed = TotalTravelAverageSpeed(travel_time, travel_distance).extract()
+        travel_distance = TravelDistance(filtered_trace, self.parameters).extract()
+        travel_average_speed = TravelAverageSpeed(travel_time, travel_distance).extract()
         center_of_mass = CenterOfMass(filtered_trace).extract()
         radius_of_gyration = RadiusOfGyration(filtered_trace, center_of_mass).extract()
 

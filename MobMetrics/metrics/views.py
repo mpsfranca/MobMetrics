@@ -17,7 +17,7 @@ from .process.DataAnalytcs.pca import PCA
 from .process.DataAnalytcs.tSNE import tSNE
 from .process.DataAnalytcs.clustering.DBscan import DBscan
 from .models import (ConfigModel, MetricsModel, 
-                     JurnayModel, StayPointModel, 
+                     JourneyModel, StayPointModel, 
                      VisitModel,ContactModel, 
                      QuadrantEntropyModel, GlobalMetricsModel)
 
@@ -40,7 +40,7 @@ def dashboard_view(request):
     """
 
     # Start Variables.
-    file_names = ConfigModel.objects.values_list('fileName', flat=True).distinct()
+    file_names = ConfigModel.objects.values_list('file_name', flat=True).distinct()
     pca_metrics = pca_global_metrics = {'pca_json': None, 'explained_variance': None, 'n_components': None, 'top_contributors': None}
     tsne_metrics = tsne_global_metrics = {'components': None}
  
@@ -118,10 +118,10 @@ def _handle_delete(request):
             file_names (list): List of uploaded file names.
     """
 
-    file_name = request.POST.get('file_name')
+    file_name = request.POST.get('fileName')
     models_list = [
             ConfigModel, MetricsModel, 
-            JurnayModel, StayPointModel,
+            JourneyModel, StayPointModel,
             VisitModel, ContactModel, 
             QuadrantEntropyModel, GlobalMetricsModel
         ]
@@ -141,7 +141,7 @@ def _handle_download(request):
     """
         Function is responsable to download all data from a especific file.
     """
-    file_name = request.POST.get('file_name')
+    file_name = request.POST.get('fileName')
 
     if file_name:
         zip_buffer = BytesIO()
@@ -150,7 +150,7 @@ def _handle_download(request):
         models = {
             'ConfigModel': ConfigModel.objects.filter(file_name=file_name),
             'MetricsModel': MetricsModel.objects.filter(file_name=file_name),
-            'JurnayModel': JurnayModel.objects.filter(file_name=file_name),
+            'JurnayModel': JourneyModel.objects.filter(file_name=file_name),
             'StayPointModel': StayPointModel.objects.filter(file_name=file_name),
             'VisitModel': VisitModel.objects.filter(file_name=file_name),
             'ContactModel': ContactModel.objects.filter(file_name=file_name),
@@ -268,11 +268,11 @@ def _get_data(form):
 def _create_config_model(parameters):
     """ Function Responsable to create ConfigModel with all parameters"""
     ConfigModel.objects.create(
-        file_name=parameters[4],
-        label=parameters[5],
-        is_geographical_coordinates=parameters[6],
-        distance_threshold=parameters[0],
-        time_threshold=parameters[1],
-        radius_threshold=parameters[2],
-        quadrant_parts=parameters[3],
+        file_name = parameters[4],
+        label = parameters[5],
+        is_geographical_coordinates = parameters[6],
+        distance_threshold = parameters[0],
+        time_threshold = parameters[1],
+        radius_threshold = parameters[2],
+        quadrant_parts = parameters[3],
     )

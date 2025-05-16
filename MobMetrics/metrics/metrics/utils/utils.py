@@ -69,10 +69,10 @@ def compute_global_metrics(file_name):
         avg_y_center = Avg('y_center'),
         avg_z_center = Avg('z_center'),
         avg_radius_of_gyration = Avg('radius_of_gyration'),
-        total_num_jurnays = Sum('num_jurnays'),
-        total_avg_jurnay_time = Avg('avg_jurnay_time'),
-        total_avg_jurnay_distance = Avg('avg_jurnay_distance'),
-        total_avg_jurnay_avg_speed = Avg('avg_jurnay_avg_speed'),
+        total_num_journeys = Sum('num_journeys'),
+        total_avg_journey_time = Avg('avg_journey_time'),
+        total_avg_journey_distance = Avg('avg_journey_distance'),
+        total_avg_journey_avg_speed = Avg('avg_journey_avg_speed'),
         avg_num_stay_points_visits = Avg('stay_points_visits'),
     )
 
@@ -89,24 +89,24 @@ def compute_global_metrics(file_name):
     num_contacts = contacts_qs.count()
 
     GlobalMetricsModel.objects.update_or_create(
-        fileName=file_name,
-        defaults={
+        file_name = file_name,
+        defaults = {
             'label': label,
-            'avg_travel_time': metrics_agg['avg_TTrvT'] or 0.0,
-            'avg_travel_distance': metrics_agg['avg_TTrvD'] or 0.0,
-            'avg_travel_avg_speed': metrics_agg['avg_TTrvAS'] or 0.0,
+            'avg_travel_time': metrics_agg['avg_travel_time'] or 0.0,
+            'avg_travel_distance': metrics_agg['avg_travel_distance'] or 0.0,
+            'avg_travel_avg_speed': metrics_agg['avg_travel_avg_speed'] or 0.0,
             'avg_x_center': metrics_agg['avg_x_center'] or 0.0,
             'avg_y_center': metrics_agg['avg_y_center'] or 0.0,
             'avg_z_center': metrics_agg['avg_z_center'] or 0.0,
-            'avg_radius_of_gyration': metrics_agg['avg_radius'] or 0.0,
-            'total_num_jurnays': metrics_agg['total_travels'] or 0,
-            'total_avg_jurnay_time': metrics_agg['avg_travel_time'] or 0.0,
-            'total_avg_jurnay_distance': metrics_agg['avg_travel_distance'] or 0.0,
-            'total_avg_jurnay_avg_speed': metrics_agg['avg_travel_speed'] or 0.0,
-            'avg_num_stay_points_visits': metrics_agg['avg_staypoint_visits'] or 0.0,
+            'avg_radius_of_gyration': metrics_agg['avg_radius_of_gyration'] or 0.0,
+            'total_num_journeys': metrics_agg['total_num_journeys'] or 0,
+            'total_avg_journey_time': metrics_agg['total_avg_journey_time'] or 0.0,
+            'total_avg_journey_distance': metrics_agg['total_avg_journey_distance'] or 0.0,
+            'total_avg_journey_avg_speed': metrics_agg['total_avg_journey_avg_speed'] or 0.0,
+            'avg_num_stay_points_visits': metrics_agg['avg_num_stay_points_visits'] or 0.0,
             'num_stay_points': staypoints_qs.count(),
-            'stay_points_visits': staypoints_agg['total_visits'] or 0,
-            'avg_stay_point_entropy': staypoints_agg['avg_entropy'] or 0.0,
+            'stay_points_visits': staypoints_agg['stay_points_visits'] or 0,
+            'avg_stay_point_entropy': staypoints_agg['avg_stay_point_entropy'] or 0.0,
             'avg_quadrant_entropy': quadrants_agg['avg_quadrant_entropy'] or 0.0,
             'num_contacts': num_contacts,
             'mobility_profile': _calculate_mobility_profile(metrics_qs)
@@ -130,10 +130,10 @@ def _calculate_mobility_profile(metrics_qs):
             getattr(metrics, 'travel_time', 0.0) or 0.0,
             getattr(metrics, 'travel_distance', 0.0) or 0.0,
             getattr(metrics, 'travel_avg_speed', 0.0) or 0.0,
-            getattr(metrics, 'num_jurnays', 0.0) or 0.0,
-            getattr(metrics, 'avg_jurnay_time', 0.0) or 0.0,
-            getattr(metrics, 'avg_jurnay_distance', 0.0) or 0.0,
-            getattr(metrics, 'avg_jurnay_avg_speed', 0.0) or 0.0,
+            getattr(metrics, 'num_journeys', 0.0) or 0.0,
+            getattr(metrics, 'avg_journey_time', 0.0) or 0.0,
+            getattr(metrics, 'avg_journey_distance', 0.0) or 0.0,
+            getattr(metrics, 'avg_journey_avg_speed', 0.0) or 0.0,
             getattr(metrics, 'stay_points_visits', 0.0) or 0.0,
         ]
 

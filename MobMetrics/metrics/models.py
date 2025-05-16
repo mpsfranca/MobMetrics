@@ -2,8 +2,9 @@
 from django.db import models
 
 class ConfigModel(models.Model):
-    """ Model responsable to save all parameters used"""
-    # FIle
+    """Model responsible for saving all configuration parameters used."""
+    
+    # File
     file_name = models.TextField()
     label = models.TextField()
     is_geographical_coordinates = models.BooleanField()
@@ -17,15 +18,17 @@ class ConfigModel(models.Model):
 
     # Quadrant Entropy
     quadrant_parts = models.FloatField()
-    
+
+
 class MetricsModel(models.Model):
-    """ Model responsable to save all metrics data from each entity"""
+    """Model responsible for saving all metrics data for each entity."""
+    
     # File
     file_name = models.TextField()
     label = models.TextField()
     entity_id = models.IntegerField()
 
-    #utils
+    # Utils
     x_center = models.FloatField()
     y_center = models.FloatField()
     z_center = models.FloatField()
@@ -41,14 +44,16 @@ class MetricsModel(models.Model):
     stay_points_visits = models.IntegerField(null=True, blank=True)
     avg_time_visit = models.FloatField(null=True, blank=True)
 
-    # Jurnay Metrics
-    num_jurnays = models.IntegerField(null=True, blank=True)
-    avg_jurnay_time = models.FloatField(null=True, blank=True)
-    avg_jurnay_distance = models.FloatField(null=True, blank=True)
-    avg_jurnay_avg_speed = models.FloatField(null=True, blank=True)
+    # Journey Metrics
+    num_journeys = models.IntegerField(null=True, blank=True)
+    avg_journey_time = models.FloatField(null=True, blank=True)
+    avg_journey_distance = models.FloatField(null=True, blank=True)
+    avg_journey_avg_speed = models.FloatField(null=True, blank=True)
+
 
 class GlobalMetricsModel(models.Model):
-    """ Model responsable to save all metrics data from the trace"""
+    """Model responsible for saving all global metrics data from the trace."""
+
     # File
     file_name = models.TextField()
     label = models.TextField()
@@ -76,19 +81,21 @@ class GlobalMetricsModel(models.Model):
     # Contact Metrics
     num_contacts = models.IntegerField()
 
-    # Jurnay Metrics
-    total_num_jurnays = models.IntegerField()
-    total_avg_jurnay_time = models.FloatField()
-    total_avg_jurnay_distance = models.FloatField()
-    total_avg_jurnay_avg_speed = models.FloatField()
+    # Journey Metrics
+    total_num_journeys = models.IntegerField()
+    total_avg_journey_time = models.FloatField()
+    total_avg_journey_distance = models.FloatField()
+    total_avg_journey_avg_speed = models.FloatField()
 
     # Other Spatial Metrics
     trajectory_correlation = models.FloatField(null=True, blank=True)
-    total_spatial_cover = models.IntegerField(null=True, blank=True)  
-    mobility_profile = models.FloatField(null=True, blank=True)  
+    total_spatial_cover = models.IntegerField(null=True, blank=True)
+    mobility_profile = models.FloatField(null=True, blank=True)
+
 
 class StayPointModel(models.Model):
-    """ Model responsable to save all Stay Points"""
+    """Model responsible for saving all Stay Points."""
+
     # File
     file_name = models.TextField()
 
@@ -104,26 +111,30 @@ class StayPointModel(models.Model):
     entropy = models.FloatField(null=True, blank=True)
     importance_degree = models.FloatField(null=True, blank=True)
 
-class JurnayModel(models.Model):
-    """ Model responsable to save all Travels"""
-    #File
+
+class JourneyModel(models.Model):
+    """Model responsible for saving all Journeys (travels between stay points)."""
+
+    # File
     file_name = models.TextField()
 
     # Entity
     entity_id = models.IntegerField()
 
     # Stay Point
-    lev_id = models.IntegerField()  # Stay Point that entity leave
-    arv_id = models.IntegerField()  # Stay Point that entity arrival
-    
+    lev_id = models.IntegerField()  # Stay Point that entity left
+    arv_id = models.IntegerField()  # Stay Point that entity arrived
+
     # Metrics
-    jurnay_time = models.FloatField()
-    jurnay_distance = models.FloatField()
-    jurnay_avg_speed = models.FloatField()
+    journey_time = models.FloatField()
+    journey_distance = models.FloatField()
+    journey_avg_speed = models.FloatField()
+
 
 class VisitModel(models.Model):
-    """ Model responsable to save all Stay Point Visits"""
-    #File
+    """Model responsible for saving all Stay Point visits."""
+
+    # File
     file_name = models.TextField()
 
     # Entity
@@ -133,30 +144,34 @@ class VisitModel(models.Model):
     stay_point_id = models.IntegerField()
     arv_time = models.FloatField()
     lev_time = models.FloatField()
-    
+
     # Metrics
     visit_time = models.FloatField()
 
+
 class ContactModel(models.Model):
-    """ Model responsable to save all contacts detected"""
+    """Model responsible for saving all detected contacts."""
+
     # File
     file_name = models.TextField()
 
-    #Contacts Entity and Position
-    id_1 = models.IntegerField()
-    x_id_1 = models.FloatField()
-    y_id_1 = models.FloatField()
-    z_id_1 = models.FloatField()
+    # Contacts Entity and Position
+    id1 = models.IntegerField()
+    x_id1 = models.FloatField()
+    y_id1 = models.FloatField()
+    z_id1 = models.FloatField()
 
-    id_2 = models.IntegerField()
-    x_id_2 = models.FloatField()
-    y_id_2 = models.FloatField()
-    z_id_2 = models.FloatField()
+    id2 = models.IntegerField()
+    x_id2 = models.FloatField()
+    y_id2 = models.FloatField()
+    z_id2 = models.FloatField()
 
     contact_timestamp = models.FloatField()
 
+
 class QuadrantEntropyModel(models.Model):
-    """ Model responsable to save all quadrants"""
+    """Model responsible for saving all quadrant entropy data."""
+
     # File
     file_name = models.TextField()
 
@@ -164,10 +179,10 @@ class QuadrantEntropyModel(models.Model):
     entity_id = models.IntegerField(null=True, blank=True)
 
     # Quadrant
-    x        = models.IntegerField()
-    y        = models.IntegerField()
+    x = models.IntegerField()
+    y = models.IntegerField()
 
     # Metrics
     visit_count = models.IntegerField()
-    entropy  = models.FloatField()
+    entropy = models.FloatField()
     spatial_cover = models.IntegerField(null=True)
