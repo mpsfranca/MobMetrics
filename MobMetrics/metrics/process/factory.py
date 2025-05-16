@@ -95,15 +95,15 @@ class Factory:
 
         # Creating a new entry in the database for the computed metrics
         MetricsModel.objects.create(
-            file_name=self.file_name,
-            label=self.file_label,
-            entity_id=id,
-            travel_time=travel_time,
-            travel_distance=travel_distance,
-            travel_avg_speed=travel_average_speed,
-            x_center=center_of_mass[0],
-            y_center=center_of_mass[1],
-            z_center=center_of_mass[2],
+            file_name = self.file_name,
+            label = self.file_label,
+            entity_id = id,
+            travel_time = travel_time,
+            travel_distance = travel_distance,
+            travel_avg_speed = travel_average_speed,
+            x_center = center_of_mass[0],
+            y_center = center_of_mass[1],
+            z_center = center_of_mass[2],
             radius_of_gyration=radius_of_gyration
         )
 
