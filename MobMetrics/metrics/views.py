@@ -17,7 +17,7 @@ from .process.DataAnalytcs.pca import PCA
 from .process.DataAnalytcs.tSNE import tSNE
 from .process.DataAnalytcs.clustering.DBscan import DBscan
 from .models import (ConfigModel, MetricsModel, 
-                     TravelsModel, StayPointModel, 
+                     JurnayModel, StayPointModel, 
                      VisitModel,ContactModel, 
                      QuadrantEntropyModel, GlobalMetricsModel)
 
@@ -121,7 +121,7 @@ def _handle_delete(request):
     file_name = request.POST.get('fileName')
     models_list = [
             ConfigModel, MetricsModel, 
-            TravelsModel, StayPointModel,
+            JurnayModel, StayPointModel,
             VisitModel, ContactModel, 
             QuadrantEntropyModel, GlobalMetricsModel
         ]
