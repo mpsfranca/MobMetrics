@@ -84,8 +84,8 @@ class GlobalMetricsModel(models.Model):
 
     # Other Spatial Metrics
     trajectory_correlation = models.FloatField(null=True, blank=True)
-    total_spatial_cover = models.IntegerField(null=True, blank=True)
-    mobility_profile = models.FloatField(null=True, blank=True)
+    total_spatial_cover = models.IntegerField(null=True, blank=True)  
+    mobility_profile = models.FloatField(null=True, blank=True)  
 
 class StayPointModel(models.Model):
     """ Model responsable to save all Stay Points"""
