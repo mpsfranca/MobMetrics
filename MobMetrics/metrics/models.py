@@ -38,12 +38,15 @@ class MetricsModel(models.Model):
     # Stay Point Metrics
     numStayPointsVisits = models.IntegerField(null=True, blank=True)
     avgTimeVisit = models.FloatField(null=True, blank=True)
+    visit_time_variation_coefficient = models.FloatField(null=True, blank=True)
 
     # Travel Metrics
     num_travels = models.IntegerField(null=True, blank=True)
     avg_travel_time = models.FloatField(null=True, blank=True)
     avg_travel_distance = models.FloatField(null=True, blank=True)
     avg_travel_avg_speed = models.FloatField(null=True, blank=True)
+
+
 
 class GlobalMetricsModel(models.Model):
     """ Model responsable to save all metrics data from the trace"""
@@ -84,9 +87,6 @@ class GlobalMetricsModel(models.Model):
 
     # Other Spatial Metrics
     trajectory_correlation = models.FloatField(null=True, blank=True)
-
-    # Other Temporal Metric
-    visit_time_variation_coefficient = models.FloatField(null=True, blank=True)
 
 class StayPointModel(models.Model):
     """ Model responsable to save all Stay Points"""
