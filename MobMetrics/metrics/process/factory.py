@@ -91,7 +91,7 @@ class Factory:
             filtered_trace (DataFrame): The trace data filtered for the specific individual.
         """
         # Extracting temporal and spatial metrics
-        travel_time = TotalTravelTime(filtered_trace).extract()
+        travel_time = TravelTime(filtered_trace).extract()
         travel_distance = TravelDistance(filtered_trace, self.parameters).extract()
         travel_average_speed = TravelAverageSpeed(travel_time, travel_distance).extract()
         center_of_mass = CenterOfMass(filtered_trace).extract()
