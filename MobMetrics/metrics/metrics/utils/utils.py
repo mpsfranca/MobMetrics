@@ -1,6 +1,6 @@
 # Related third party imports.
 import numpy as np
-from math import radians, sin, cos, sqrt, atan2
+from math import radians, sin, cos, sqrt, atan2, degrees 
 from django.db.models import Avg, Sum
 
 # Local application/library specific imports.
@@ -48,6 +48,57 @@ def distance(point_a, point_b, is_geo_coords):
         (point_b['y'] - point_a['y']) ** 2 +
         (point_b['z'] - point_a['z']) ** 2
     )
+
+def direction_angle(point_a, point_b, is_geo_coords):
+    """
+    Calculates the direction angles (azimuth and elevation) between two 3D points.
+    If geographical coordinates are used, bearing is used for azimuth, and elevation is computed using altitude.
+    Otherwise, Cartesian geometry is used.
+
+    Args:
+        point_a (dict): Dictionary with keys 'x', 'y', 'z'.
+        point_b (dict): Dictionary with keys 'x', 'y', 'z'.
+        is_geo_coords (bool): Whether the coordinates are geographical (longitude/latitude in x/y).
+
+    Returns:
+        tuple:
+            azimuth (float): Horizontal angle in degrees from North (or x-axis if Cartesian), in [0, 360).
+            elevation (float): Vertical angle (inclination) in degrees, in [-90, 90].
+    """
+    if is_geo_coords:
+        # Geographical: compute azimuth as bearing
+        lat1 = radians(point_a['y'])
+        lon1 = radians(point_a['x'])
+        lat2 = radians(point_b['y'])
+        lon2 = radians(point_b['x'])
+
+        delta_lon = lon2 - lon1
+
+        x = sin(delta_lon) * cos(lat2)
+        y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(delta_lon)
+
+        azimuth_rad = atan2(x, y)
+        azimuth = (degrees(azimuth_rad) + 360) % 360
+
+        # Approximate horizontal distance (ignoring Earth's curvature for elevation)
+        earth_radius = 6371000  # meters
+        delta_lat = lat2 - lat1
+        horizontal_distance = earth_radius * sqrt(delta_lat**2 + delta_lon**2)
+
+    else:
+        # Cartesian: compute azimuth relative to x-axis
+        dx = point_b['x'] - point_a['x']
+        dy = point_b['y'] - point_a['y']
+        azimuth_rad = atan2(dy, dx)
+        azimuth = (degrees(azimuth_rad) + 360) % 360
+        horizontal_distance = sqrt(dx**2 + dy**2)
+
+    # Compute elevation angle
+    dz = point_b['z'] - point_a['z']
+    elevation_rad = atan2(dz, horizontal_distance)
+    elevation = degrees(elevation_rad)
+
+    return azimuth, elevation
 
 def compute_global_metrics(file_name):
     """
