@@ -85,6 +85,9 @@ class GlobalMetricsModel(models.Model):
     # Other Spatial Metrics
     trajectory_correlation = models.FloatField(null=True, blank=True)
 
+    # Other Temporal Metric
+    visit_time_variation_coefficient = models.FloatField(null=True, blank=True)
+
 class StayPointModel(models.Model):
     """ Model responsable to save all Stay Points"""
     # File

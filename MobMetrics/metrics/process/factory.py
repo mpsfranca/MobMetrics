@@ -7,6 +7,7 @@ from ..models import MetricsModel
 from ..metrics.utils.stay_point import StayPoints
 from ..metrics.utils.utils import globalMetrics
 ## from temporal
+from ..metrics.temporal.visit_time_variation_coefficient import VisitTimeVariationCoefficient
 from ..metrics.temporal.total_travel_time import TotalTravelTime
 ## from social
 from ..metrics.social.quadrant_entropy import QuadrantEntropy
@@ -77,6 +78,7 @@ class Factory:
         
         QuadrantEntropy(self.trace_file, self.parameters).extract()
         TrajectoryCorrelationDegree(self.trace_file, self.parameters).extract()
+        VisitTimeVariationCoefficient(self.file_name)
 
     def _metrics(self, id, filtered_trace):
         """
