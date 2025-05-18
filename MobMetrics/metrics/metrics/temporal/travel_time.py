@@ -2,7 +2,7 @@
 from ..utils.abs_metric import AbsMetric
 
 
-class TotalTravelTime(AbsMetric):
+class TravelTime(AbsMetric):
     """
     Computes the total travel time of a trace based on the first and last timestamps.
     """

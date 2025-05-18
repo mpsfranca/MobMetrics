@@ -76,7 +76,7 @@ class Visit:
             y_center = y_avg,
             z_center = z_avg,
             num_visits = 1,
-            total_visits_time = 0,
+            total_visits_time = duration,
         )
 
         VisitModel.objects.create(

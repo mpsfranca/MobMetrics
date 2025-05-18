@@ -37,9 +37,15 @@ class MetricsModel(models.Model):
     travel_time = models.FloatField()
     travel_distance = models.FloatField()
     travel_avg_speed = models.FloatField()
+    travel_avg_angle_dirct = models.FloatField()
     radius_of_gyration = models.FloatField()
     spatial_cover = models.IntegerField(null=True, blank=True)
 
+    # Variation Coefficients
+    angle_variation_coefficient = models.FloatField()
+    distance_variation_coefficient = models.FloatField(null=True, blank=True)
+    
+    # Stay Points Metrics
     stay_points_visits = models.IntegerField(null=True, blank=True)
     avg_time_visit = models.FloatField(null=True, blank=True)
     visit_time_variation_coefficient = models.FloatField(null=True, blank=True)
@@ -49,10 +55,6 @@ class MetricsModel(models.Model):
     avg_journey_time = models.FloatField(null=True, blank=True)
     avg_journey_distance = models.FloatField(null=True, blank=True)
     avg_journey_avg_speed = models.FloatField(null=True, blank=True)
-
-
-
-
 
 class GlobalMetricsModel(models.Model):
     """Model responsible for saving all global metrics data from the trace."""

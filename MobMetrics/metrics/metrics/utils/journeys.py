@@ -84,6 +84,8 @@ class Journey:
         if num_journeys == 0:
             return 0, 0.0, 0.0, 0.0
 
+        print(num_journeys)
+        
         avg_time = total_journey_time / num_journeys
         avg_distance = total_journey_distance / num_journeys
         avg_speed = total_journey_avg_speed / num_journeys
@@ -120,13 +122,13 @@ class Journey:
         journey_speed = JourneyAverageSpeed(journey_distance, journey_time).extract()
 
         JourneyModel.objects.create(
-            file_name=self.file_name,
-            entity_id=entity_id,
-            lev_id=traces.iloc[0]['spId'],
-            arv_id=traces.iloc[-1]['spId'],
-            journey_distance=journey_distance,
-            journey_time=journey_time,
-            journey_avg_speed=journey_speed
+            file_name = self.file_name,
+            entity_id = entity_id,
+            lev_id = traces.iloc[0]['spId'],
+            arv_id = traces.iloc[-1]['spId'],
+            journey_distance = journey_distance,
+            journey_time = journey_time,
+            journey_avg_speed = journey_speed
         )
 
         return journey_time, journey_distance, journey_speed

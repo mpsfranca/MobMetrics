@@ -1,6 +1,6 @@
 # Related third party imports.
 import numpy as np
-from math import radians, sin, cos, sqrt, atan2
+from math import radians, sin, cos, sqrt, atan2, degrees 
 from django.db.models import Avg, Sum
 
 # Local application/library specific imports.
@@ -48,6 +48,45 @@ def distance(point_a, point_b, is_geo_coords):
         (point_b['y'] - point_a['y']) ** 2 +
         (point_b['z'] - point_a['z']) ** 2
     )
+
+def direction_angle(point_a, point_b, is_geo_coords):
+    """
+    Calculates the horizontal direction angle between two 3D points.
+    If the coordinates are geographical (latitude and longitude), computes the bearing.
+    Otherwise, computes the angle relative to the x-axis in a Cartesian plane.
+
+    Args:
+        point_a (dict): Dictionary with keys 'x', 'y', 'z' representing the first point.
+        point_b (dict): Dictionary with keys 'x', 'y', 'z' representing the second point.
+        is_geo_coords (bool): Whether the coordinates are geographical (latitude/longitude).
+
+    Returns:
+        float: The angle in degrees, in the range [0, 360).
+    """
+    if is_geo_coords:
+        # Treat x as longitude, y as latitude
+        lat1 = radians(point_a['y'])
+        lon1 = radians(point_a['x'])
+        lat2 = radians(point_b['y'])
+        lon2 = radians(point_b['x'])
+
+        delta_lon = lon2 - lon1
+
+        x = sin(delta_lon) * cos(lat2)
+        y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(delta_lon)
+
+        bearing_rad = atan2(x, y)
+        bearing_deg = (degrees(bearing_rad) + 360) % 360
+
+        return bearing_deg
+    else:
+        dx = point_b['x'] - point_a['x']
+        dy = point_b['y'] - point_a['y']
+
+        angle_rad = atan2(dy, dx)
+        angle_deg = (degrees(angle_rad) + 360) % 360
+
+        return angle_deg
 
 def compute_global_metrics(file_name):
     """
