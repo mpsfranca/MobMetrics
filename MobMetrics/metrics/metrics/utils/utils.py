@@ -51,22 +51,20 @@ def distance(point_a, point_b, is_geo_coords):
 
 def direction_angle(point_a, point_b, is_geo_coords):
     """
-    Calculates the direction angles (azimuth and elevation) between two 3D points.
-    If geographical coordinates are used, bearing is used for azimuth, and elevation is computed using altitude.
-    Otherwise, Cartesian geometry is used.
+    Calculates the horizontal direction angle between two 3D points.
+    If the coordinates are geographical (latitude and longitude), computes the bearing.
+    Otherwise, computes the angle relative to the x-axis in a Cartesian plane.
 
     Args:
-        point_a (dict): Dictionary with keys 'x', 'y', 'z'.
-        point_b (dict): Dictionary with keys 'x', 'y', 'z'.
-        is_geo_coords (bool): Whether the coordinates are geographical (longitude/latitude in x/y).
+        point_a (dict): Dictionary with keys 'x', 'y', 'z' representing the first point.
+        point_b (dict): Dictionary with keys 'x', 'y', 'z' representing the second point.
+        is_geo_coords (bool): Whether the coordinates are geographical (latitude/longitude).
 
     Returns:
-        tuple:
-            azimuth (float): Horizontal angle in degrees from North (or x-axis if Cartesian), in [0, 360).
-            elevation (float): Vertical angle (inclination) in degrees, in [-90, 90].
+        float: The angle in degrees, in the range [0, 360).
     """
     if is_geo_coords:
-        # Geographical: compute azimuth as bearing
+        # Treat x as longitude, y as latitude
         lat1 = radians(point_a['y'])
         lon1 = radians(point_a['x'])
         lat2 = radians(point_b['y'])
@@ -77,28 +75,18 @@ def direction_angle(point_a, point_b, is_geo_coords):
         x = sin(delta_lon) * cos(lat2)
         y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(delta_lon)
 
-        azimuth_rad = atan2(x, y)
-        azimuth = (degrees(azimuth_rad) + 360) % 360
+        bearing_rad = atan2(x, y)
+        bearing_deg = (degrees(bearing_rad) + 360) % 360
 
-        # Approximate horizontal distance (ignoring Earth's curvature for elevation)
-        earth_radius = 6371000  # meters
-        delta_lat = lat2 - lat1
-        horizontal_distance = earth_radius * sqrt(delta_lat**2 + delta_lon**2)
-
+        return bearing_deg
     else:
-        # Cartesian: compute azimuth relative to x-axis
         dx = point_b['x'] - point_a['x']
         dy = point_b['y'] - point_a['y']
-        azimuth_rad = atan2(dy, dx)
-        azimuth = (degrees(azimuth_rad) + 360) % 360
-        horizontal_distance = sqrt(dx**2 + dy**2)
 
-    # Compute elevation angle
-    dz = point_b['z'] - point_a['z']
-    elevation_rad = atan2(dz, horizontal_distance)
-    elevation = degrees(elevation_rad)
+        angle_rad = atan2(dy, dx)
+        angle_deg = (degrees(angle_rad) + 360) % 360
 
-    return azimuth, elevation
+        return angle_deg
 
 def compute_global_metrics(file_name):
     """
