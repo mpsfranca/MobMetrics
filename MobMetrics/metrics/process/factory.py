@@ -129,20 +129,19 @@ class Factory:
         """
         # Extracting stay point metrics
         (visit_count, time_visit_count, 
-         num_jurnays, avg_jurnay_time, 
-         avg_jurnay_distance, avg_jurnay_avg_speed) = StayPoints(filtered_trace, 
+         num_journeys, avg_journey_time, 
+         avg_journey_distance, avg_journey_avg_speed) = StayPoints(filtered_trace, 
                                                                  id, self.parameters).extract()
-
         # Fetching the corresponding MetricsModel for the individual
-        metric = MetricsModel.objects.get(file_name=self.file_name, entity_id=id)
+        metric = MetricsModel.objects.get(file_name = self.file_name, entity_id = id)
 
         # Updating the extracted stay point metrics in the database
         metric.stay_points_visits = visit_count
         metric.avg_time_visit = time_visit_count / visit_count if visit_count != 0 else 0
-        metric.num_jurnays = num_jurnays
-        metric.avg_jurnay_time = avg_jurnay_time
-        metric.avg_jurnay_distance = avg_jurnay_distance
-        metric.avg_jurnay_avg_speed = avg_jurnay_avg_speed
+        metric.num_journeys = num_journeys
+        metric.avg_journey_time = avg_journey_time
+        metric.avg_journey_distance = avg_journey_distance
+        metric.avg_journey_avg_speed = avg_journey_avg_speed
 
         metric.save()
 

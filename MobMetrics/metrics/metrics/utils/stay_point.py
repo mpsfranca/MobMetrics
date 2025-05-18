@@ -60,6 +60,7 @@ class StayPoints:
                 start_idx += 1
 
         num_journeys, avg_journey_time, avg_journey_distance, avg_journey_avg_speed = self.journey_processor.process_journey()
+
         return visit_count, time_visit_count, num_journeys, avg_journey_time, avg_journey_distance, avg_journey_avg_speed
 
     def _detect_stay_point(self, start_idx, stay_point_id):

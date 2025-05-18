@@ -49,3 +49,5 @@ class VisitTimeVariationCoefficient(AbsMetric):
                 standard_deviation = sqrt(deviation_sum / num_visits)
                 visit_time_variation_coefficient = standard_deviation / metric_avg_time_visit
                 metric.visit_time_variation_coefficient = visit_time_variation_coefficient
+
+                metric.save()
