@@ -1,27 +1,42 @@
+# Local application/library specific imports.
 from ..utils.abs_metric import AbsMetric
 from ..utils.utils import distance
 
+
 class TravelDistance(AbsMetric):
-    def __init__(self, traces, parameters):
-        self.traces = traces
+    """
+    A metric class to calculate the travel distance of a trace.
+
+    Attributes:
+        trace (pd.DataFrame): The input trace containing spatial coordinates.
+        is_geographical_coordinates (bool): Flag indicating if coordinates are geographical.
+    """
+
+    def __init__(self, trace, parameters):
+        """
+        Initialize the TravelDistance class.
+
+        Args:
+            trace (pd.DataFrame): The trajectory data.
+            parameters (list): A list of parameters where the 7th element (index 6) 
+                               indicates if the coordinates are geographical.
+        """
+        self.trace = trace
         self.is_geographical_coordinates = parameters[6]
 
     def extract(self):
-        distancia_total = 0
+        """
+        Calculate the total travel distance along the trace.
 
-        if len(self.traces) < 2:
-            return distancia_total
+        Returns:
+            float: The total travel distance rounded to 5 decimal places.
+        """
+        travel_distance = 0.0
 
-        previous_trace = self.traces.iloc[0]
+        for prev_row, curr_row in zip(self.trace.iloc[:-1].iterrows(), self.trace.iloc[1:].iterrows()):
+            _, prev_row = prev_row
+            _, curr_row = curr_row
 
-        for i in range(1, len(self.traces)):
-            current_trace = self.traces.iloc[i]
+            travel_distance += distance(prev_row, curr_row, self.is_geographical_coordinates)
 
-            first_point = {'x': previous_trace['x'], 'y': previous_trace['y'], 'z': previous_trace['z']}
-            second_point = {'x': current_trace['x'], 'y': current_trace['y'], 'z': current_trace['z']}
-
-            distancia_total += distance(first_point, second_point, self.is_geographical_coordinates)
-
-            previous_trace = current_trace
-
-        return distancia_total
+        return round(travel_distance, 5)

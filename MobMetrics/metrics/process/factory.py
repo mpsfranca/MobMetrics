@@ -5,22 +5,22 @@ from tqdm import tqdm
 from ..models import MetricsModel
 ## from utils
 from ..metrics.utils.stay_point import StayPoints
-from ..metrics.utils.utils import globalMetrics
+from ..metrics.utils.utils import compute_global_metrics
 ## from temporal
+from ..metrics.temporal.travel_time import TravelTime
 from ..metrics.temporal.visit_time_variation_coefficient import VisitTimeVariationCoefficient
-from ..metrics.temporal.total_travel_time import TotalTravelTime
 ## from social
 from ..metrics.social.quadrant_entropy import QuadrantEntropy
 from ..metrics.social.entropy import Entropy
 from ..metrics.social.detect_contact import DetectContact
 ## from spatial
-from ..metrics.spatial.total_travel_distance import TotalTravelDistance
-from ..metrics.spatial.center_of_mass import CenterOfMass
+from ..metrics.spatial.travel_distance import TravelDistance
+from ..metrics.utils.center_of_mass import CenterOfMass
 from ..metrics.spatial.radios_of_gyration import RadiusOfGyration
 from ..metrics.spatial.trajectory_correlation import TrajectoryCorrelationDegree
 from ..metrics.spatial.staypoint_importance_degree import StaypointImportanceDegree
 ## from kinematic
-from ..metrics.kinematic.total_travel_avarage_speed import TotalTravelAverageSpeed
+from ..metrics.kinematic.travel_avarage_speed import TravelAverageSpeed
 
 class Factory:
     """
@@ -74,7 +74,7 @@ class Factory:
         StaypointImportanceDegree(self.parameters).extract()
         DetectContact(self.parameters, self.trace_file).extract()
 
-        globalMetrics(self.file_name)
+        compute_global_metrics(self.file_name)
         
         QuadrantEntropy(self.trace_file, self.parameters).extract()
         TrajectoryCorrelationDegree(self.trace_file, self.parameters).extract()
@@ -89,24 +89,24 @@ class Factory:
             filtered_trace (DataFrame): The trace data filtered for the specific individual.
         """
         # Extracting temporal and spatial metrics
-        total_travel_time = TotalTravelTime(filtered_trace).extract()
-        total_travel_distance = TotalTravelDistance(filtered_trace, self.parameters).extract()
-        total_travel_average_speed = TotalTravelAverageSpeed(total_travel_time, total_travel_distance).extract()
+        travel_time = TotalTravelTime(filtered_trace).extract()
+        travel_distance = TravelDistance(filtered_trace, self.parameters).extract()
+        travel_average_speed = TravelAverageSpeed(travel_time, travel_distance).extract()
         center_of_mass = CenterOfMass(filtered_trace).extract()
         radius_of_gyration = RadiusOfGyration(filtered_trace, center_of_mass).extract()
 
         # Creating a new entry in the database for the computed metrics
         MetricsModel.objects.create(
-            fileName=self.file_name,
-            label=self.file_label,
-            entityId=id,
-            TTrvT=total_travel_time,
-            TTrvD=total_travel_distance,
-            TTrvAS=total_travel_average_speed,
-            x_center=center_of_mass[0],
-            y_center=center_of_mass[1],
-            z_center=center_of_mass[2],
-            radius=radius_of_gyration
+            file_name = self.file_name,
+            label = self.file_label,
+            entity_id = id,
+            travel_time = travel_time,
+            travel_distance = travel_distance,
+            travel_avg_speed = travel_average_speed,
+            x_center = center_of_mass[0],
+            y_center = center_of_mass[1],
+            z_center = center_of_mass[2],
+            radius_of_gyration=radius_of_gyration
         )
 
     def _stayPoint(self, filtered_trace, id):
@@ -118,19 +118,21 @@ class Factory:
             id (str): The ID of the individual.
         """
         # Extracting stay point metrics
-        visit_count, time_visit_count, num_travels, avg_travel_time, avg_travel_distance, avg_travel_avg_speed = StayPoints(
-            filtered_trace, id, self.parameters).extract()
+        (visit_count, time_visit_count, 
+         num_jurnays, avg_jurnay_time, 
+         avg_jurnay_distance, avg_jurnay_avg_speed) = StayPoints(filtered_trace, 
+                                                                 id, self.parameters).extract()
 
         # Fetching the corresponding MetricsModel for the individual
-        metric = MetricsModel.objects.get(fileName=self.file_name, entityId=id)
+        metric = MetricsModel.objects.get(file_name=self.file_name, entity_id=id)
 
         # Updating the extracted stay point metrics in the database
-        metric.numStayPointsVisits = visit_count
-        metric.avgTimeVisit = time_visit_count / visit_count if visit_count != 0 else 0
-        metric.num_travels = num_travels
-        metric.avg_travel_time = avg_travel_time
-        metric.avg_travel_distance = avg_travel_distance
-        metric.avg_travel_avg_speed = avg_travel_avg_speed
+        metric.stay_points_visits = visit_count
+        metric.avg_time_visit = time_visit_count / visit_count if visit_count != 0 else 0
+        metric.num_jurnays = num_jurnays
+        metric.avg_jurnay_time = avg_jurnay_time
+        metric.avg_jurnay_distance = avg_jurnay_distance
+        metric.avg_jurnay_avg_speed = avg_jurnay_avg_speed
 
         metric.save()
 

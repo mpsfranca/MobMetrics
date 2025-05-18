@@ -1,34 +1,48 @@
+# Related third party imports.
 import tqdm
 
+# Local application/library specific imports.
 from ...models import StayPointModel
 from ..utils.abs_metric import AbsMetric
 
+
 class StaypointImportanceDegree(AbsMetric):
+    """
+    A metric class to calculate the importance degree of stay points based on:
+    - Number of visits
+    - Total visit time
+    - Entropy
+
+    Attributes:
+        parameters (list): Configuration parameters for processing.
+    """
+
     def __init__(self, parameters):
         """
-        Class that represents the Stay Point Importance Degree metric. It is calculated based on the total number of
-        visits, total visits time and entropy level of each stay point.
+        Initialize the StaypointImportanceDegree class.
 
-        Attributes:
-            `parameters` (list): configuration parameters for processing
+        Args:
+            parameters (list): A list of configuration parameters where index 4 is expected to be the file name.
         """
         self.parameters = parameters
 
     def extract(self):
+        """
+        Entry point to extract the metric by computing the importance degree.
+        """
         self._compute_importance_degree()
 
     def _normalize(self, value, min_val, max_val):
         """
-        Function responsible for normalizing a given value within a specified range.
+        Normalize a given value within a specified range.
 
         Args:
-            `value` (float): value to be normalized
-            `min_val` (float): minimum value of the range
-            `max_val` (float): maximum value of the range
+            value (float): Value to be normalized.
+            min_val (float): Minimum value in the dataset.
+            max_val (float): Maximum value in the dataset.
 
         Returns:
-            `normalized_value` (float): value normalized between 0 and 1.
-                                        Returns 0 if `min_val` and `max_val` are equal
+            float: Normalized value between 0 and 1. Returns 0 if min_val == max_val.
         """
         if max_val == min_val:
             return 0.0
@@ -36,25 +50,25 @@ class StaypointImportanceDegree(AbsMetric):
 
     def _compute_importance_degree(self):
         """
-        Function that calculates the degree of importance of stay points based on the following
-        measures: number of visits, total visit time at the stay point and entropy.
+        Compute the importance degree for each stay point based on normalized values
+        of visit count, total visit time, and entropy.
         """
-        stay_points = StayPointModel.objects.filter(fileName=self.parameters[4])
+        stay_points = StayPointModel.objects.filter(file_name=self.parameters[4])
 
-        visits_list = [sp.numVisits for sp in stay_points]
-        visit_time_list = [sp.totalVisitsTime for sp in stay_points]
+        visits_list = [sp.num_visits for sp in stay_points]
+        visit_time_list = [sp.total_visits_time for sp in stay_points]
         entropy_list = [sp.entropy for sp in stay_points]
 
         min_visits, max_visits = min(visits_list), max(visits_list)
         min_time, max_time = min(visit_time_list), max(visit_time_list)
         min_entropy, max_entropy = min(entropy_list), max(entropy_list)
 
-        # Weights
+        # Weights for the importance calculation
         alpha, beta, gamma = 0.4, 0.4, 0.2
 
         for sp in tqdm.tqdm(stay_points, desc="Stay Point Importance Degree"):
-            norm_visits = self._normalize(sp.numVisits, min_visits, max_visits)
-            norm_time = self._normalize(sp.totalVisitsTime, min_time, max_time)
+            norm_visits = self._normalize(sp.num_visits, min_visits, max_visits)
+            norm_time = self._normalize(sp.total_visits_time, min_time, max_time)
             norm_entropy = self._normalize(sp.entropy, min_entropy, max_entropy)
 
             importance = (
@@ -63,5 +77,5 @@ class StaypointImportanceDegree(AbsMetric):
                 gamma * (1 - norm_entropy)
             )
 
-            sp.importanceDegree = importance
+            sp.importance_degree = importance
             sp.save()
