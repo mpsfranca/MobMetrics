@@ -6,7 +6,7 @@ from ..utils.abs_metric import AbsMetric
 from ...models import MetricsModel, GlobalMetricsModel
 
 
-class SpeedVariationCoefficient(AbsMetric):
+class SpeedVariationCoefficient:
     """
     Computes the speed variation coefficient for a given file and stores it in the GlobalMetricsModel.
     """
