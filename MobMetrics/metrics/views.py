@@ -17,7 +17,7 @@ from .process.DataAnalytcs.pca import PCA
 from .process.DataAnalytcs.tSNE import tSNE
 from .process.DataAnalytcs.clustering.DBscan import DBscan
 from .models import (ConfigModel, MetricsModel, 
-                     TravelsModel, StayPointModel, 
+                     JourneyModel, StayPointModel, 
                      VisitModel,ContactModel, 
                      QuadrantEntropyModel, GlobalMetricsModel)
 
@@ -40,7 +40,7 @@ def dashboard_view(request):
     """
 
     # Start Variables.
-    file_names = ConfigModel.objects.values_list('fileName', flat=True).distinct()
+    file_names = ConfigModel.objects.values_list('file_name', flat=True).distinct()
     pca_metrics = pca_global_metrics = {'pca_json': None, 'explained_variance': None, 'n_components': None, 'top_contributors': None}
     tsne_metrics = tsne_global_metrics = {'components': None}
  
@@ -95,7 +95,7 @@ def _handle_upload(request):
         trace_file, parameters = _get_data(upload_form)
         file_name = parameters[4]
 
-        if ConfigModel.objects.filter(fileName=file_name).exists():
+        if ConfigModel.objects.filter(file_name=file_name).exists():
             messages.warning(request, "A file with the same name already exists.")
         else:
             data_frame = pd.read_csv(trace_file)
@@ -106,7 +106,7 @@ def _handle_upload(request):
 
             messages.success(request, "Upload and processing completed.")
 
-    file_names = ConfigModel.objects.values_list('fileName', flat=True).distinct()
+    file_names = ConfigModel.objects.values_list('file_name', flat=True).distinct()
 
     return file_names
 
@@ -121,7 +121,7 @@ def _handle_delete(request):
     file_name = request.POST.get('fileName')
     models_list = [
             ConfigModel, MetricsModel, 
-            TravelsModel, StayPointModel,
+            JourneyModel, StayPointModel,
             VisitModel, ContactModel, 
             QuadrantEntropyModel, GlobalMetricsModel
         ]
@@ -129,12 +129,12 @@ def _handle_delete(request):
     if file_name:
         for model in models_list:
             # Delet data from that file name for each Model
-            model.objects.filter(fileName=file_name).delete()
+            model.objects.filter(file_name=file_name).delete()
         messages.success(request, f"Data for '{file_name}' deleted.")
     else:
         messages.error(request, "No file name provided.")
     
-    file_names = ConfigModel.objects.values_list('fileName', flat=True).distinct()
+    file_names = ConfigModel.objects.values_list('file_name', flat=True).distinct()
     return file_names
 
 def _handle_download(request):
@@ -148,14 +148,14 @@ def _handle_download(request):
 
         # Get all models data
         models = {
-            'ConfigModel': ConfigModel.objects.filter(fileName=file_name),
-            'MetricsModel': MetricsModel.objects.filter(fileName=file_name),
-            'TravelsModel': TravelsModel.objects.filter(fileName=file_name),
-            'StayPointModel': StayPointModel.objects.filter(fileName=file_name),
-            'VisitModel': VisitModel.objects.filter(fileName=file_name),
-            'ContactModel': ContactModel.objects.filter(fileName=file_name),
-            'QuadrantEntropyModel': QuadrantEntropyModel.objects.filter(fileName=file_name),
-            'GlobalMetricsModel': GlobalMetricsModel.objects.filter(fileName=file_name),
+            'ConfigModel': ConfigModel.objects.filter(file_name=file_name),
+            'MetricsModel': MetricsModel.objects.filter(file_name=file_name),
+            'JurnayModel': JourneyModel.objects.filter(file_name=file_name),
+            'StayPointModel': StayPointModel.objects.filter(file_name=file_name),
+            'VisitModel': VisitModel.objects.filter(file_name=file_name),
+            'ContactModel': ContactModel.objects.filter(file_name=file_name),
+            'QuadrantEntropyModel': QuadrantEntropyModel.objects.filter(file_name=file_name),
+            'GlobalMetricsModel': GlobalMetricsModel.objects.filter(file_name=file_name),
         }
 
         # Transfor in a Zip Folder
@@ -170,7 +170,7 @@ def _handle_download(request):
 
         zip_buffer.seek(0)
         response = HttpResponse(zip_buffer, content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename={file_name}.zip'
+        response['Content-Disposition'] = f'attachment; file_name={file_name}.zip'
         return response
     else:
         messages.error(request, "No file name provided.")
@@ -268,11 +268,11 @@ def _get_data(form):
 def _create_config_model(parameters):
     """ Function Responsable to create ConfigModel with all parameters"""
     ConfigModel.objects.create(
-        fileName=parameters[4],
-        label=parameters[5],
-        isGeographicalCoordinates=parameters[6],
-        distanceThreshold=parameters[0],
-        timeThreshold=parameters[1],
-        radiusThreshold=parameters[2],
-        quadrantSize=parameters[3],
+        file_name = parameters[4],
+        label = parameters[5],
+        is_geographical_coordinates = parameters[6],
+        distance_threshold = parameters[0],
+        time_threshold = parameters[1],
+        radius_threshold = parameters[2],
+        quadrant_parts = parameters[3],
     )

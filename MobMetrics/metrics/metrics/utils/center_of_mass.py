@@ -1,5 +1,5 @@
 import logging
-from ..utils.abs_metric import AbsMetric
+from .abs_metric import AbsMetric
 
 
 class CenterOfMass(AbsMetric):

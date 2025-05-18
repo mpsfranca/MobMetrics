@@ -1,22 +1,35 @@
-from ..utils.abs_metric import AbsMetric
-from ...models import GlobalMetricsModel
+# Standard library imports.
+import numpy as np
+
+# Related third party imports.
+import tqdm
 from sklearn.metrics.pairwise import cosine_similarity
 
-import numpy as np
-import tqdm
+# Local application/library specific imports.
+from ..utils.abs_metric import AbsMetric
+from ...models import GlobalMetricsModel
+
 
 class TrajectoryCorrelationDegree(AbsMetric):
+    """
+    A metric class to compute the trajectory correlation degree among entities.
+    The higher the similarity between trajectories, the higher the correlation degree.
+
+    Attributes:
+        trace (pd.DataFrame): Data containing coordinates, timestamp, and entity ID.
+        parameters (list): Configuration parameters for processing.
+        fraction (float): Fraction of points to sample from the shortest trajectory.
+        min_points (int): Minimum number of points required for sampling.
+        fixed_n_points (int): Number of points to sample uniformly from each trajectory.
+    """
+
     def __init__(self, trace, parameters):
         """
-        Class that represents the Trajectory Correlation Degree metric. The more similar the trajectories
-        of the entities present in the trace are, the higher the index represented by this measure will be.
+        Initialize the TrajectoryCorrelationDegree class.
 
-        Attributes:
-            `trace` (DataFrame): trace data with coordinates, timestamp and identifier
-            `parameters` (list): configuration parameters for processing
-            `fraction` (float): fraction of points at which trajectories will be reduced
-            `min_points` (int): minimal number of points at which trajectories will be reduced
-            `fixed_n_points` (int): fixed number of points to sample from each trajectory
+        Args:
+            trace (pd.DataFrame): Trajectory data with 'x', 'y', 'time', and 'id' columns.
+            parameters (list): A list of configuration parameters.
         """
         self.trace = trace
         self.parameters = parameters
@@ -29,14 +42,14 @@ class TrajectoryCorrelationDegree(AbsMetric):
 
     def _uniform_sample_traj(self, df_id):
         """
-        Function responsible for uniformly sampling a fixed number of points from a trajectory.
+        Uniformly sample a fixed number of points from a single trajectory.
 
         Args:
-            `df_id` (DataFrame): DataFrame containing the trajectory of a single ID
+            df_id (pd.DataFrame): Trajectory data for a single entity.
 
         Returns:
-            `sampled_traj` (ndarray or None): flattened NumPy array with the uniformly sampled 
-                x and y coordinates. Returns `None` if the trajectory has fewer points than required.
+            np.ndarray or None: Flattened array of sampled (x, y) coordinates,
+                                or None if trajectory is too short.
         """
         df_id_sorted = df_id.sort_values('time')
 
@@ -50,7 +63,15 @@ class TrajectoryCorrelationDegree(AbsMetric):
         return sampled[['x', 'y']].to_numpy().flatten()
 
     def extract(self):
+        """
+        Compute the correlation degree of the trajectories using cosine similarity.
+        The result is saved into the GlobalMetricsModel.
+
+        Returns:
+            None
+        """
         vectors = []
+
         for ent_id, df_ent in tqdm.tqdm(self.trace.groupby('id'), desc="Trajectory Correlation Degree"):
             traj_vector = self._uniform_sample_traj(df_ent)
 
@@ -69,6 +90,6 @@ class TrajectoryCorrelationDegree(AbsMetric):
         dist_values = 1 - sim_values
         correlation_degree = 1 - np.std(dist_values)
 
-        global_metric = GlobalMetricsModel.objects.get(fileName=self.parameters[4])
+        global_metric = GlobalMetricsModel.objects.get(file_name=self.parameters[4])
         global_metric.trajectory_correlation = correlation_degree
         global_metric.save()

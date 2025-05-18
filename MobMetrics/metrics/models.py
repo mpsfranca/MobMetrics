@@ -2,170 +2,187 @@
 from django.db import models
 
 class ConfigModel(models.Model):
-    """ Model responsable to save all parameters used"""
-    # FIle
-    fileName          = models.TextField()
-    label             = models.TextField()
-    isGeographicalCoordinates = models.BooleanField()
+    """Model responsible for saving all configuration parameters used."""
+    
+    # File
+    file_name = models.TextField()
+    label = models.TextField()
+    is_geographical_coordinates = models.BooleanField()
 
     # Stay Point
-    distanceThreshold = models.FloatField()
-    timeThreshold     = models.FloatField()
+    distance_threshold = models.FloatField()
+    time_threshold = models.FloatField()
 
     # Detect Contact
-    radiusThreshold   = models.FloatField()
+    radius_threshold = models.FloatField()
 
     # Quadrant Entropy
-    quadrantSize      = models.FloatField()
-    
-class MetricsModel(models.Model):
-    """ Model responsable to save all metrics data from each entity"""
-    # File
-    fileName = models.TextField()
-    label = models.TextField()
-    entityId = models.IntegerField()
+    quadrant_parts = models.FloatField()
 
-    # Total Travel Metrics
-    TTrvT = models.FloatField()
-    TTrvD = models.FloatField()
-    TTrvAS = models.FloatField()
+
+class MetricsModel(models.Model):
+    """Model responsible for saving all metrics data for each entity."""
+    
+    # File
+    file_name = models.TextField()
+    label = models.TextField()
+    entity_id = models.IntegerField()
+
+    # Utils
     x_center = models.FloatField()
     y_center = models.FloatField()
     z_center = models.FloatField()
-    radius = models.FloatField()
-    occupied_quadrants = models.IntegerField(null=True, blank=True)
-
-    # Stay Point Metrics
-    numStayPointsVisits = models.IntegerField(null=True, blank=True)
-    avgTimeVisit = models.FloatField(null=True, blank=True)
 
     # Travel Metrics
-    num_travels = models.IntegerField(null=True, blank=True)
-    avg_travel_time = models.FloatField(null=True, blank=True)
-    avg_travel_distance = models.FloatField(null=True, blank=True)
-    avg_travel_avg_speed = models.FloatField(null=True, blank=True)
+    travel_time = models.FloatField()
+    travel_distance = models.FloatField()
+    travel_avg_speed = models.FloatField()
+    radius_of_gyration = models.FloatField()
+    spatial_cover = models.IntegerField(null=True, blank=True)
+
+    # Stay Point Metrics
+    stay_points_visits = models.IntegerField(null=True, blank=True)
+    avg_time_visit = models.FloatField(null=True, blank=True)
+
+    # Journey Metrics
+    num_journeys = models.IntegerField(null=True, blank=True)
+    avg_journey_time = models.FloatField(null=True, blank=True)
+    avg_journey_distance = models.FloatField(null=True, blank=True)
+    avg_journey_avg_speed = models.FloatField(null=True, blank=True)
+
 
 class GlobalMetricsModel(models.Model):
-    """ Model responsable to save all metrics data from the trace"""
+    """Model responsible for saving all global metrics data from the trace."""
+
     # File
-    fileName = models.TextField()
+    file_name = models.TextField()
     label = models.TextField()
 
-    # Total Travel Metrics
-    avgTTrvT = models.FloatField()
-    avgTTrvD = models.FloatField()
-    avgTTrvAS = models.FloatField()
-    avgX_center = models.FloatField()
-    avgY_center = models.FloatField()
-    avgZ_center = models.FloatField()
-    avgRadius = models.FloatField()
-    occupied_quadrants = models.IntegerField(null=True, blank=True)
-
-    # Stay Point Metrics
-    numStayPoints = models.IntegerField()
-    avgNumStayPointsVisitsPerEtity  = models.FloatField()
-    NumStayPointsVisits = models.IntegerField()
-    avgStayPointEntropy = models.FloatField()
-    
-    # Quadrant Metrics
-    avgQuadrantEntropy = models.FloatField()
-
-    # Contact Metrics
-    numContacts = models.IntegerField()
+    # Utils
+    avg_x_center = models.FloatField()
+    avg_y_center = models.FloatField()
+    avg_z_center = models.FloatField()
 
     # Travel Metrics
-    num_travels = models.IntegerField()
     avg_travel_time = models.FloatField()
     avg_travel_distance = models.FloatField()
     avg_travel_avg_speed = models.FloatField()
+    avg_radius_of_gyration = models.FloatField()
 
-    occupied_quadrants = models.IntegerField(null=True, blank=True)
-    mobility_profile = models.FloatField(null=True, blank=True)
+    # Stay Point Metrics
+    num_stay_points = models.IntegerField()
+    avg_num_stay_points_visits = models.FloatField()
+    stay_points_visits = models.IntegerField()
+    avg_stay_point_entropy = models.FloatField()
+    
+    # Quadrant Metrics
+    avg_quadrant_entropy = models.FloatField()
+
+    # Contact Metrics
+    num_contacts = models.IntegerField()
+
+    # Journey Metrics
+    total_num_journeys = models.IntegerField()
+    total_avg_journey_time = models.FloatField()
+    total_avg_journey_distance = models.FloatField()
+    total_avg_journey_avg_speed = models.FloatField()
 
     # Other Spatial Metrics
     trajectory_correlation = models.FloatField(null=True, blank=True)
+    total_spatial_cover = models.IntegerField(null=True, blank=True)
+    mobility_profile = models.FloatField(null=True, blank=True)
+
 
 class StayPointModel(models.Model):
-    """ Model responsable to save all Stay Points"""
+    """Model responsible for saving all Stay Points."""
+
     # File
-    fileName = models.TextField()
+    file_name = models.TextField()
 
     # Stay Point
-    spId        = models.IntegerField()
-    x           = models.FloatField()
-    y           = models.FloatField()
-    z           = models.FloatField()
+    stay_point_id = models.IntegerField()
+    x_center = models.FloatField()
+    y_center = models.FloatField()
+    z_center = models.FloatField()
 
     # Metrics
-    numVisits   = models.IntegerField()
+    num_visits = models.IntegerField()
+    total_visits_time = models.FloatField(null=True, blank=True)
     entropy = models.FloatField(null=True, blank=True)
-    totalVisitsTime = models.FloatField(null=True, blank=True)
-    importanceDegree = models.FloatField(null=True, blank=True)
+    importance_degree = models.FloatField(null=True, blank=True)
 
-class TravelsModel(models.Model):
-    """ Model responsable to save all Travels"""
-    #File
-    fileName = models.TextField()
+
+class JourneyModel(models.Model):
+    """Model responsible for saving all Journeys (travels between stay points)."""
+
+    # File
+    file_name = models.TextField()
 
     # Entity
-    entityId= models.IntegerField()
+    entity_id = models.IntegerField()
 
-    # Travel
-    arvId   = models.IntegerField()
-    levId   = models.IntegerField()
-    
+    # Stay Point
+    lev_id = models.IntegerField()  # Stay Point that entity left
+    arv_id = models.IntegerField()  # Stay Point that entity arrived
+
     # Metrics
-    TrvD    = models.FloatField()
-    TrvT    = models.FloatField()
-    TrvAS   = models.FloatField()
+    journey_time = models.FloatField()
+    journey_distance = models.FloatField()
+    journey_avg_speed = models.FloatField()
+
 
 class VisitModel(models.Model):
-    """ Model responsable to save all Stay Point Visits"""
-    #File
-    fileName = models.TextField()
+    """Model responsible for saving all Stay Point visits."""
+
+    # File
+    file_name = models.TextField()
 
     # Entity
-    entityId= models.IntegerField()
+    entity_id = models.IntegerField()
 
     # Visit
-    spId    = models.IntegerField()
-    arvT    = models.FloatField()
-    levT    = models.FloatField()
-    
+    stay_point_id = models.IntegerField()
+    arv_time = models.FloatField()
+    lev_time = models.FloatField()
+
     # Metrics
-    visitT  = models.FloatField()
+    visit_time = models.FloatField()
+
 
 class ContactModel(models.Model):
-    """ Model responsable to save all contacts detected"""
-    # File
-    fileName = models.TextField()
+    """Model responsible for saving all detected contacts."""
 
-    #Contacts Entity and Position
+    # File
+    file_name = models.TextField()
+
+    # Contacts Entity and Position
     id1 = models.IntegerField()
-    x_id_1 = models.FloatField()
-    y_id_1 = models.FloatField()
-    z_id_1 = models.FloatField()
+    x_id1 = models.FloatField()
+    y_id1 = models.FloatField()
+    z_id1 = models.FloatField()
 
     id2 = models.IntegerField()
-    x_id_2 = models.FloatField()
-    y_id_2 = models.FloatField()
-    z_id_2 = models.FloatField()
+    x_id2 = models.FloatField()
+    y_id2 = models.FloatField()
+    z_id2 = models.FloatField()
 
     contact_timestamp = models.FloatField()
 
+
 class QuadrantEntropyModel(models.Model):
-    """ Model responsable to save all quadrants"""
+    """Model responsible for saving all quadrant entropy data."""
+
     # File
-    fileName = models.TextField()
+    file_name = models.TextField()
 
     # Entity (None represents all entities from a trace)
     entity_id = models.IntegerField(null=True, blank=True)
 
     # Quadrant
-    x        = models.IntegerField()
-    y        = models.IntegerField()
+    x = models.IntegerField()
+    y = models.IntegerField()
 
     # Metrics
     visit_count = models.IntegerField()
-    entropy  = models.FloatField()
-    occupied_quadrants = models.IntegerField(null=True)
+    entropy = models.FloatField()
+    spatial_cover = models.IntegerField(null=True)
