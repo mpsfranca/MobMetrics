@@ -40,15 +40,18 @@ class MetricsModel(models.Model):
     radius_of_gyration = models.FloatField()
     spatial_cover = models.IntegerField(null=True, blank=True)
 
-    # Stay Point Metrics
     stay_points_visits = models.IntegerField(null=True, blank=True)
     avg_time_visit = models.FloatField(null=True, blank=True)
-
+    visit_time_variation_coefficient = models.FloatField(null=True, blank=True)
+    
     # Journey Metrics
     num_journeys = models.IntegerField(null=True, blank=True)
     avg_journey_time = models.FloatField(null=True, blank=True)
     avg_journey_distance = models.FloatField(null=True, blank=True)
     avg_journey_avg_speed = models.FloatField(null=True, blank=True)
+
+
+
 
 
 class GlobalMetricsModel(models.Model):
