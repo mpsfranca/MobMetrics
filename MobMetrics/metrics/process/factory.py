@@ -21,6 +21,7 @@ from ..metrics.spatial.trajectory_correlation import TrajectoryCorrelationDegree
 from ..metrics.spatial.staypoint_importance_degree import StaypointImportanceDegree
 ## from kinematic
 from ..metrics.kinematic.travel_avarage_speed import TravelAverageSpeed
+from ..metrics.kinematic.speed_variation_coefficient import SpeedVariationCoefficient
 
 class Factory:
     """
@@ -78,7 +79,8 @@ class Factory:
         
         QuadrantEntropy(self.trace_file, self.parameters).extract()
         TrajectoryCorrelationDegree(self.trace_file, self.parameters).extract()
-        VisitTimeVariationCoefficient(self.file_name)
+        VisitTimeVariationCoefficient(self.file_name).extract()
+        SpeedVariationCoefficient(self.file_name).extract()
 
     def _metrics(self, id, filtered_trace):
         """

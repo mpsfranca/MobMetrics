@@ -95,6 +95,9 @@ class GlobalMetricsModel(models.Model):
     total_spatial_cover = models.IntegerField(null=True, blank=True)
     mobility_profile = models.FloatField(null=True, blank=True)
 
+    # Other Temporal Metrics
+    speed_variation_coefficient = models.FloatField(null=True, blank=True)
+
 
 class StayPointModel(models.Model):
     """Model responsible for saving all Stay Points."""
