@@ -163,18 +163,14 @@ class ContactModel(models.Model):
     # File
     file_name = models.TextField()
 
-    # Contacts Entity and Position
+    # Contacts Entity
     id1 = models.IntegerField()
-    x_id1 = models.FloatField()
-    y_id1 = models.FloatField()
-    z_id1 = models.FloatField()
-
     id2 = models.IntegerField()
-    x_id2 = models.FloatField()
-    y_id2 = models.FloatField()
-    z_id2 = models.FloatField()
 
-    contact_timestamp = models.FloatField()
+    initial_timestamp = models.FloatField()
+    final_timestamp = models.FloatField()
+
+    contact_time = models.FloatField()
 
 
 class QuadrantEntropyModel(models.Model):

@@ -64,6 +64,8 @@ class Factory:
         to isolate their data, and computes various metrics such as total travel time, distance, 
         average speed, stay points, and entropy. It also calls other global metrics and social metrics.
         """
+
+        
         ids = self.trace_file['id'].unique()
 
         for id in tqdm(ids, desc="Individual Metrics"):
@@ -75,15 +77,13 @@ class Factory:
         # Extracting additional global and social metrics
         Entropy(self.total_visits, self.parameters, self.trace_file).extract()
         StaypointImportanceDegree(self.parameters).extract()
-        DetectContact(self.parameters, self.trace_file).extract()
-
+        DetectContact(self.parameters, self.trace_file).extract()        
         compute_global_metrics(self.file_name)
-        
         QuadrantEntropy(self.trace_file, self.parameters).extract()
         TrajectoryCorrelationDegree(self.trace_file, self.parameters).extract()
         VisitTimeVariationCoefficient(self.file_name).extract()
         SpeedVariationCoefficient(self.file_name).extract()
-
+        
     def _metrics(self, id, filtered_trace):
         """
         Extracts individual-specific metrics and stores them in the database.
