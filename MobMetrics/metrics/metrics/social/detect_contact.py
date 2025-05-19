@@ -8,7 +8,7 @@ from tqdm import tqdm
 # Local application/library specific imports.
 from ..utils.utils import distance
 from ..utils.abs_metric import AbsMetric
-from ...models import ContactModel
+from ...models import ContactModel, MetricsModel
 
 
 class DetectContact(AbsMetric):
@@ -31,12 +31,14 @@ class DetectContact(AbsMetric):
         """
         self.parameters = parameters
         self.contact_time_threshold = parameters[7]
+        self.file_name = parameters[4]
         self.trace = trace
         self.contacts = []
 
     def extract(self):
         self._find_contacts()
         self._find_continuite()
+        self._contact_metrics()
 
     def _find_contacts(self):
         """
@@ -99,9 +101,9 @@ class DetectContact(AbsMetric):
                 end_timestamp = row['contact_timestamp']
             else:
                 # Save the previous contact if one was ongoing
-                if prev_row is not None and start_timestamp != end_timestamp:
+                if prev_row is not None:
                     contact_instances.append(ContactModel(
-                        file_name=prev_row['file_name'],
+                        file_name=self.file_name,
                         id1=prev_row['id1'],
                         id2=prev_row['id2'],
                         initial_timestamp=start_timestamp,
@@ -115,9 +117,9 @@ class DetectContact(AbsMetric):
             prev_row = row
 
         # Save the last contact if needed
-        if prev_row is not None and start_timestamp != end_timestamp:
+        if prev_row is not None:
             contact_instances.append(ContactModel(
-                file_name=prev_row['file_name'],
+                file_name=self.file_name,
                 id1=prev_row['id1'],
                 id2=prev_row['id2'],
                 initial_timestamp=start_timestamp,
@@ -127,3 +129,32 @@ class DetectContact(AbsMetric):
 
         # Save all contacts to the database at once
         ContactModel.objects.bulk_create(contact_instances)
+
+
+    def _contact_metrics(self):
+
+        contacts = ContactModel.objects.filter(file_name = self.file_name)
+
+        for contact in contacts:
+            id1 = contact.id1
+            id2 = contact.id2
+            contact_time = contact.contact_time
+
+            ids = (id1, id2)
+
+            for n in ids:
+
+                metric = MetricsModel.objects.filter(file_name = self.file_name, entity_id = n).first()
+
+                metric_total_contact_time = (metric.total_contact_time or 0) + contact_time
+                metric_num_contacts = (metric.num_contacts or 0) + 1
+                metric_avg_contact_time = metric_total_contact_time / metric_num_contacts
+
+
+                metric.total_contact_time = metric_total_contact_time
+                metric.num_contacts = metric_num_contacts
+                metric.avg_contact_time = metric_avg_contact_time
+                
+                metric.save()
+
+

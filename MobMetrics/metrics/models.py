@@ -41,6 +41,11 @@ class MetricsModel(models.Model):
     radius_of_gyration = models.FloatField()
     spatial_cover = models.IntegerField(null=True, blank=True)
 
+    # Contact Metrics
+    total_contact_time = models.FloatField(default = 0)
+    num_contacts = models.FloatField(default = 0)
+    avg_contact_time = models.FloatField(default = 0)
+
     # Variation Coefficients
     angle_variation_coefficient = models.FloatField()
     distance_variation_coefficient = models.FloatField(null=True, blank=True)
