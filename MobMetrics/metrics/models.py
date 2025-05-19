@@ -48,7 +48,6 @@ class MetricsModel(models.Model):
 
     # Variation Coefficients
     angle_variation_coefficient = models.FloatField()
-    distance_variation_coefficient = models.FloatField(null=True, blank=True)
     
     # Stay Points Metrics
     stay_points_visits = models.IntegerField(null=True, blank=True)
