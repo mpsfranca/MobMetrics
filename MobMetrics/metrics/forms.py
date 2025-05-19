@@ -15,6 +15,7 @@ class UploadForm(forms.Form):
 
     # Contact parameters
     radius_threshold = forms.FloatField(label='Radius Threshold')
+    contact_time_threshold = forms.FloatField(label='Contact Time Threshold')
     
     #Quadrant Entropy Parameters
     quadrant_parts = forms.FloatField(label='Quadrant Parts')

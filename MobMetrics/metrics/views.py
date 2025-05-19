@@ -257,10 +257,12 @@ def _get_data(form):
     quadrant_parts = form.cleaned_data['quadrant_parts']
     name = form.cleaned_data['name']
     label = form.cleaned_data['label']
+    contact_time_threshold = form.cleaned_data['contact_time_threshold']
 
     parameters = (
         distance_threshold, time_threshold, radius_threshold,
-        quadrant_parts, name, label, is_geographical_coordinates
+        quadrant_parts, name, label, is_geographical_coordinates,
+        contact_time_threshold
     )
 
     return trace_file, parameters

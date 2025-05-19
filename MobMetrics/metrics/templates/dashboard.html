@@ -84,6 +84,7 @@
 
         <div class="parameter-group">
           <h3>Contact Parameters</h3>
+
           <div class="form-group">
             <label for="radius">Radius Threshold:</label>
             {{ upload_form.radius_threshold }}
@@ -91,6 +92,15 @@
               <span class="tooltiptext">Maximum radius to classify a contact</span>
             </span>
           </div>
+
+          <div class="form-group">
+            <label for="radius">Contact Time Threshold:</label>
+            {{ upload_form.contact_time_threshold }}
+            <span class="tooltip">?
+              <span class="tooltiptext">Minimum Time between two contacts to it be continuos</span>
+            </span>
+          </div>
+
         </div>
 
         <div class="parameter-group">

@@ -84,7 +84,6 @@ class Journey:
         if num_journeys == 0:
             return 0, 0.0, 0.0, 0.0
 
-        print(num_journeys)
         
         avg_time = total_journey_time / num_journeys
         avg_distance = total_journey_distance / num_journeys

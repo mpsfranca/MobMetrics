@@ -41,6 +41,11 @@ class MetricsModel(models.Model):
     radius_of_gyration = models.FloatField()
     spatial_cover = models.IntegerField(null=True, blank=True)
 
+    # Contact Metrics
+    total_contact_time = models.FloatField(default = 0)
+    num_contacts = models.FloatField(default = 0)
+    avg_contact_time = models.FloatField(default = 0)
+
     # Variation Coefficients
     angle_variation_coefficient = models.FloatField()
     distance_variation_coefficient = models.FloatField(null=True, blank=True)
@@ -163,18 +168,14 @@ class ContactModel(models.Model):
     # File
     file_name = models.TextField()
 
-    # Contacts Entity and Position
+    # Contacts Entity
     id1 = models.IntegerField()
-    x_id1 = models.FloatField()
-    y_id1 = models.FloatField()
-    z_id1 = models.FloatField()
-
     id2 = models.IntegerField()
-    x_id2 = models.FloatField()
-    y_id2 = models.FloatField()
-    z_id2 = models.FloatField()
 
-    contact_timestamp = models.FloatField()
+    initial_timestamp = models.FloatField()
+    final_timestamp = models.FloatField()
+
+    contact_time = models.FloatField()
 
 
 class QuadrantEntropyModel(models.Model):
