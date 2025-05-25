@@ -194,3 +194,15 @@ class QuadrantEntropyModel(models.Model):
     visit_count = models.IntegerField()
     entropy = models.FloatField()
     spatial_cover = models.IntegerField(null=True)
+
+class TraceModel(models.Model):
+    """Model responsible for saving all the trace files."""
+
+    file_name = models.TextField()
+
+    entity_id = models.IntegerField()
+
+    x = models.FloatField()
+    y = models.FloatField()
+
+    timestamp = models.IntegerField()

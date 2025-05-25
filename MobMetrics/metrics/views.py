@@ -8,6 +8,7 @@ import pandas as pd
 from django.shortcuts import render
 from django.contrib import messages
 from django.http import HttpResponse
+from django.db import transaction
 
 # Local application/library specific imports.
 from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm
@@ -19,7 +20,8 @@ from .process.DataAnalytcs.clustering.DBscan import DBscan
 from .models import (ConfigModel, MetricsModel, 
                      JourneyModel, StayPointModel, 
                      VisitModel,ContactModel, 
-                     QuadrantEntropyModel, GlobalMetricsModel)
+                     QuadrantEntropyModel, GlobalMetricsModel,
+                     TraceModel)
 
 def dashboard_view(request):
     """
@@ -102,6 +104,8 @@ def _handle_upload(request):
             data_frame = Format(data_frame).extract()
 
             _create_config_model(parameters)
+            _create_trace_model(parameters, data_frame)
+            
             Factory(data_frame, parameters).extract()
 
             messages.success(request, "Upload and processing completed.")
@@ -278,3 +282,25 @@ def _create_config_model(parameters):
         radius_threshold = parameters[2],
         quadrant_parts = parameters[3],
     )
+
+def _create_trace_model(parameters, df):
+    """Function for creating a TraceModel with all the trace data"""
+    file_name = parameters[4]
+
+    required_columns = {'id', 'x', 'y', 'time'}
+    if not required_columns.issubset(df.columns):
+        raise ValueError(f"DataFrame must contain columns: {required_columns}")
+
+    trace_objects = [
+        TraceModel(
+            file_name=file_name,
+            entity_id=int(row['id']),
+            x=float(row['x']),
+            y=float(row['y']),
+            timestamp=int(row['time'])
+        )
+        for _, row in df.iterrows()
+    ]
+
+    with transaction.atomic():
+        TraceModel.objects.bulk_create(trace_objects, batch_size=1000)
