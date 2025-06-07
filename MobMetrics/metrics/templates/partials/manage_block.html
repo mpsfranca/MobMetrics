@@ -1,0 +1,26 @@
+<div class="content hidden" id="manage">
+    <h2>Manage Files</h2>
+    {% if file_names %}
+        {% for name in file_names %}
+            <div class="file-item">
+                <div>{{ name }}</div>
+            
+                <div style="display: flex; gap: 10px;">
+                    <form method="post" action="{% url 'dashboard' %}" class="inline-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="fileName" value="{{ name }}">
+                        <button class="button danger" type="submit" name="delete">Delete</button>
+                    </form>
+                
+                    <form method="post" action="{% url 'dashboard' %}" class="inline-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="fileName" value="{{ name }}">
+                        <button class="button success" type="submit" name="download">Download</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: #888;">No files found.</p>
+    {% endif %}
+</div>

@@ -1,0 +1,94 @@
+<div class="content hidden" id="results">
+    <div class="config-section">
+        <button type="button" class="button" onclick="toggleConfig()">Configuration</button>
+        
+        <div id="configForm" class="hidden" style="margin-top: 1rem;">
+            <form method="post" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="id_PCA_n_components">PCA N Components:</label>
+                        {{ analytcs_form.PCA_n_components }}
+                        <span class="tooltip">?
+                            <span class="tooltiptext">Number of components for PCA</span>
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_tSNE_n_components">t-SNE N Components:</label>
+                        {{ analytcs_form.tSNE_n_components }}
+                        <span class="tooltip">?
+                            <span class="tooltiptext">Number of components for t-SNE</span>
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_tSNE_perplexity">t-SNE Perplexity:</label>
+                        {{ analytcs_form.tSNE_perplexity }}
+                        <span class="tooltip">?
+                            <span class="tooltiptext">The perplexity is related to the number of nearest neighbors that is used in other manifold learning algorithms. Larger datasets usually require a larger perplexity. Consider selecting a value between 5 and 50. Different values can result in significantly different results. The perplexity must be less than the number of samples.</span>
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_DBSCAN_eps">DBSCAN Eps:</label>
+                        {{ analytcs_form.dbscan_eps }}
+                        <span class="tooltip">?
+                            <span class="tooltiptext">Maximum distance between two samples for one to be considered as in the neighborhood of the other.</span>
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_DBSCAN_min_samples">DBSCAN Min Samples:</label>
+                        {{ analytcs_form.dbscan_min_samples }}
+                        <span class="tooltip">?
+                            <span class="tooltiptext">The number of samples in a neighborhood for a point to be considered as a core point.</span>
+                        </span>
+                    </div>
+                </div>
+                <button class="button" type="submit" name="generate_graphs">Generate Graphs</button>
+            </form>
+        </div>
+    </div>
+    
+    <h2>Results - Graphs</h2>
+    
+    <div class="graphs-wrapper">
+        <div class="graph-container">
+            <h3>PCA - MetricsModel</h3>
+            <div id="pcaMetricsPlot"></div>
+        </div>
+
+        <div class="graph-container">
+            <h3>PCA - Explained Variance</h3>
+            <div id="pcaExplainedPlot"></div>
+        </div>
+
+        <div class="graph-container">
+            <h3>DBSCAN - PCA MetricsModel</h3>
+            <div id="pcaDbscanMetricsPlot"></div>
+        </div>
+    
+        <div class="graph-container">
+            <h3>t-SNE - MetricsModel</h3>
+            <div id="tsneMetricsPlot"></div>
+        </div>
+
+        <div class="graph-container">
+            <h3>DBSCAN - tSNE MetricsModel</h3>
+            <div id="tsneDbscanMetricsPlot"></div>
+        </div>
+    
+        <div class="graph-container">
+            <h3>t-SNE - GlobalMetricsModel</h3>
+            <div id="tsneGlobalPlot"></div>
+        </div>
+
+        <div class="graph-container">
+            <h3>PCA - GlobalMetricsModel</h3>
+            <div id="pcaGlobalPlot"></div>
+        </div>
+
+    </div>
+</div>

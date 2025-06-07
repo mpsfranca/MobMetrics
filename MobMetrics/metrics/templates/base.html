@@ -1,0 +1,232 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MobMetrics</title>
+
+    <link rel="stylesheet" href="{% static 'metrics/css/style.css' %}">
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('home')">Home</div>
+        <div class="tab" onclick="switchTab('upload')">Upload & Process</div>
+        <div class="tab" onclick="switchTab('results')">Results</div>
+        <div class="tab" onclick="switchTab('manage')">Manage Files</div>
+    </div>
+
+    <div class="content" id="home">
+        <h2>MobMetrics</h2>
+    </div>
+
+    {% block content %}
+    {# Conteúdo específico de cada página será inserido aqui #}
+    {% endblock content %}
+
+    <script>
+        // Configure Tabs
+        function toggleConfig() {
+            const configDiv = document.getElementById('configForm');
+            configDiv.classList.toggle('hidden');
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
+            document.querySelector(`.tab[onclick="switchTab('${id}')"]`).classList.add('active');
+            document.getElementById(id).classList.remove('hidden');
+            localStorage.setItem('lastTab', id);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const lastTab = localStorage.getItem('lastTab') || 'home';
+            switchTab(lastTab);
+
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", () => {
+                    const visibleTab = document.querySelector(".content:not(.hidden)");
+                    if (visibleTab && visibleTab.id) {
+                        localStorage.setItem("lastTab", visibleTab.id);
+                    }
+                });
+            });
+        });
+
+        // Generate Plots
+
+        // Metrics Model Plots
+
+        // PCA
+        const pca_metrics = JSON.parse('{{ pca_metrics|escapejs }}');
+        const pca_metrics_contributors = JSON.parse('{{ pca_contributors_metrics|escapejs }}');
+        const pca_metrics_n_components = JSON.parse('{{ n_components_metrics|escapejs }}');
+        const pca_explained_metrics = JSON.parse('{{ pca_explained_metrics|escapejs }}');
+
+        plot_graph(
+            pca_metrics,
+            pca_metrics_contributors,
+            pca_metrics_n_components,
+            'PCA - MetricsModel',
+            'pcaMetricsPlot',
+            ['PC1', 'PC2', 'PC3'],
+            'label',
+        );
+
+        // Explained Variance Plot
+        const explainedTrace = {
+            x: pca_explained_metrics.map((_, i) => `PC${i + 1}`),
+            y: pca_explained_metrics,
+            type: 'bar',
+            marker: { color: 'rgba(100, 149, 237, 0.7)' }
+        };
+
+        Plotly.newPlot('pcaExplainedPlot', [explainedTrace], {
+            title: 'Explained Variance Components',
+            xaxis: { title: 'Principal Components' },
+            yaxis: { title: 'Explained Variance' }
+        });
+
+        // DBSCAN
+        plot_graph(
+            pca_metrics,
+            pca_metrics_contributors,
+            pca_metrics_n_components,
+            'DBSCAN - PCA MetricsModel',
+            'pcaDbscanMetricsPlot',
+            ['PC1', 'PC2', 'PC3'],
+            'dbscan_cluster',
+        );
+
+        // t-SNE Metrics
+        const tsne_metrics = JSON.parse('{{ tsne_metrics|escapejs }}');
+
+        plot_graph(
+            tsne_metrics,
+            ['TSNE1', 'TSNE2'],
+            2,
+            't-SNE - MetricsModel',
+            'tsneMetricsPlot',
+            ['TSNE1', 'TSNE2', 'TSNE3'],
+            'label',
+        );    
+
+        // DBSCAN for tSNE    
+        plot_graph(
+            tsne_metrics,
+            ['TSNE1', 'TSNE2'],
+            2,
+            't-SNE - MetricsModel',
+            'tsneDbscanMetricsPlot',
+            ['TSNE1', 'TSNE2', 'TSNE3'],
+            'dbscan_cluster',
+        );    
+
+        // Global Metrics Plots
+
+        // PCA
+        const pca_global = JSON.parse('{{ pca_global|escapejs }}');
+        const pca_contributors_global = JSON.parse('{{ pca_contributors_metrics|escapejs }}');
+        const n_components_global = JSON.parse('{{ n_components_metrics|escapejs }}');
+
+        console.log('pca_global:', pca_global);
+        console.log('pca_contributors_global:', pca_contributors_global);
+        console.log('n_components_global:', n_components_global);
+
+        plot_graph(
+            pca_global,    
+            pca_contributors_global,    
+            n_components_global,    
+            'PCA - GlobalMetricsModel',    
+            'pcaGlobalPlot',    
+            ['PC1', 'PC2', 'PC3']
+        );
+
+        // t-SNE Global
+        const tsne_global = JSON.parse('{{ tsne_global|escapejs }}');
+
+        plot_graph(
+            tsne_global,
+            ['TSNE1', 'TSNE2'],
+            2,
+            't-SNE - GlobalMetricsModel',
+            'tsneGlobalPlot',
+            ['TSNE1', 'TSNE2', 'TSNE3']
+        );
+
+        // Utils
+
+        // 2D label (dynamic color group)
+        function prepareDataByColumn(data, colorKey, xKey, yKey) {
+            const grouped = {};
+            data.forEach(item => {
+                const groupValue = item[colorKey] ?? 'undefined';
+                if (!grouped[groupValue]) grouped[groupValue] = { x: [], y: [], name: groupValue };
+                grouped[groupValue].x.push(item[xKey]);
+                grouped[groupValue].y.push(item[yKey]);
+            });
+            return Object.values(grouped).map(group => ({
+                x: group.x,
+                y: group.y,
+                mode: 'markers',
+                type: 'scatter',
+                name: group.name
+            }));
+        }
+
+        // 3D label (dynamic color group)
+        function prepareDataByColumn3D(data, colorKey, xKey, yKey, zKey) {
+            const grouped = {};
+            data.forEach(item => {
+                const groupValue = item[colorKey] ?? 'undefined';
+                if (!grouped[groupValue]) grouped[groupValue] = { x: [], y: [], z: [], name: groupValue };
+                grouped[groupValue].x.push(item[xKey]);
+                grouped[groupValue].y.push(item[yKey]);
+                grouped[groupValue].z.push(item[zKey]);
+            });
+            return Object.values(grouped).map(group => ({
+                x: group.x,
+                y: group.y,
+                z: group.z,
+                mode: 'markers',
+                type: 'scatter3d',
+                name: group.name
+            }));
+        }
+
+        // Unified plot function
+        function plot_graph(data_frame, contributors, n_components, title, graph_name, axis, colorBy) {
+            console.log(`Coloring by: ${colorBy}`);
+            if (n_components >= 3) {
+                // 3D Plot with dynamic color grouping
+                const data = prepareDataByColumn3D(data_frame, colorBy, axis[0], axis[1], axis[2]);
+
+                const layout = {
+                    title: title,
+                    scene: {
+                        xaxis: { title: `${contributors[0]}` },
+                        yaxis: { title: `${contributors[1]}` },
+                        zaxis: { title: `${contributors[2]}` }
+                    }
+                };
+
+                Plotly.newPlot(graph_name, data, layout);
+            } else {
+                // 2D Plot with dynamic color grouping
+                const data = prepareDataByColumn(data_frame, colorBy, axis[0], axis[1]);
+
+                const layout = {
+                    title: title,
+                    xaxis: { title: `${contributors[0]}` },
+                    yaxis: { title: `${contributors[1]}` }
+                };
+
+                Plotly.newPlot(graph_name, data, layout);
+            }
+        }
+    </script>
+</body>
+</html>
