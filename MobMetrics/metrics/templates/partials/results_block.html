@@ -57,37 +57,51 @@
     <div class="graphs-wrapper">
         <div class="graph-container">
             <h3>PCA - MetricsModel</h3>
-            <div id="pcaMetricsPlot"></div>
+            <div id="pcaMetricsPlot">
+                {{ pca_metrics_plot_html|safe }}
+            </div>
         </div>
 
         <div class="graph-container">
             <h3>PCA - Explained Variance</h3>
-            <div id="pcaExplainedPlot"></div>
+            <div id="pcaExplainedPlot">
+                {{ pca_explained_plot_html|safe }}
+            </div>
         </div>
 
         <div class="graph-container">
             <h3>DBSCAN - PCA MetricsModel</h3>
-            <div id="pcaDbscanMetricsPlot"></div>
+            <div id="pcaDbscanMetricsPlot">
+                {{ pca_dbscan_metrics_plot_html|safe }}
+            </div>
         </div>
-    
+        
         <div class="graph-container">
             <h3>t-SNE - MetricsModel</h3>
-            <div id="tsneMetricsPlot"></div>
+            <div id="tsneMetricsPlot">
+                {{ tsne_metrics_plot_html|safe }}
+            </div>
         </div>
 
         <div class="graph-container">
             <h3>DBSCAN - tSNE MetricsModel</h3>
-            <div id="tsneDbscanMetricsPlot"></div>
+            <div id="tsneDbscanMetricsPlot">
+                {{ tsne_dbscan_metrics_plot_html|safe }}
+            </div>
         </div>
-    
+        
         <div class="graph-container">
             <h3>t-SNE - GlobalMetricsModel</h3>
-            <div id="tsneGlobalPlot"></div>
+            <div id="tsneGlobalPlot">
+                {{ tsne_global_plot_html|safe }}
+            </div>
         </div>
 
         <div class="graph-container">
             <h3>PCA - GlobalMetricsModel</h3>
-            <div id="pcaGlobalPlot"></div>
+            <div id="pcaGlobalPlot">
+                {{ pca_global_plot_html|safe }}
+            </div>
         </div>
 
     </div>

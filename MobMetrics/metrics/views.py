@@ -16,12 +16,24 @@ from .process.factory import Factory
 from .process.format import Format
 from .process.DataAnalytcs.pca import PCA
 from .process.DataAnalytcs.tSNE import tSNE
-from .process.DataAnalytcs.clustering.DBscan import DBscan
-from .models import (ConfigModel, MetricsModel, 
-                     JourneyModel, StayPointModel, 
-                     VisitModel,ContactModel, 
-                     QuadrantEntropyModel, GlobalMetricsModel,
-                     TraceModel)
+from .process.DataAnalytcs.clustering.DBscan import DBscan # Não será usado diretamente para plot, mas sim para dados
+
+# Importações das novas funções de plotagem em Python
+from .visualizations.comparative.pca_plots import (
+    generate_pca_plot_html,
+    generate_explained_variance_plot_html,
+    generate_dbscan_pca_plot_html
+)
+from .visualizations.comparative.tsne_plots import (
+    generate_tsne_plot_html,
+    generate_dbscan_tsne_plot_html
+)
+
+from .models import (ConfigModel, MetricsModel,
+                      JourneyModel, StayPointModel,
+                      VisitModel, ContactModel,
+                      QuadrantEntropyModel, GlobalMetricsModel,
+                      TraceModel)
 
 def dashboard_view(request):
     """
@@ -32,25 +44,34 @@ def dashboard_view(request):
             file_form (FileForm): Django form for file selection or metadata.
             analytics_form (AnalyticsForm): Django form for analytics/method options.
             file_names (list): List of uploaded file names.
-            pca_metrics (String): JSON String with the result from PCA coleted from MetricsModel.
-            pca_global (String): JSON String with the result from PCA coleted from GlobalMetricsModel.
-            explained_metrics (dict): Explained variance from MetricsModel.
-            explained_global (dict): Explained variance from GlobalMetricsModel.
-            tsne_metrics (dict): JSON String with the result from TSNE coleted from MetricsModel.
-            tsne_global (dict): JSON String with the result from TSNE coleted from GlobalMetricsModel.
-
+            
+            # Novas variáveis para o HTML dos gráficos
+            pca_metrics_plot_html (str): HTML do gráfico PCA de MetricsModel.
+            pca_explained_plot_html (str): HTML do gráfico de variância explicada de MetricsModel.
+            pca_dbscan_metrics_plot_html (str): HTML do gráfico DBSCAN PCA de MetricsModel.
+            tsne_metrics_plot_html (str): HTML do gráfico t-SNE de MetricsModel.
+            tsne_dbscan_metrics_plot_html (str): HTML do gráfico DBSCAN t-SNE de MetricsModel.
+            pca_global_plot_html (str): HTML do gráfico PCA de GlobalMetricsModel.
+            tsne_global_plot_html (str): HTML do gráfico t-SNE de GlobalMetricsModel.
     """
 
     # Start Variables.
     file_names = ConfigModel.objects.values_list('file_name', flat=True).distinct()
-    pca_metrics = pca_global_metrics = {'pca_json': None, 'explained_variance': None, 'n_components': None, 'top_contributors': None}
-    tsne_metrics = tsne_global_metrics = {'components': None}
- 
+    
+    # Inicializa as variáveis para o HTML dos gráficos como strings vazias
+    pca_metrics_plot_html = ""
+    pca_explained_plot_html = ""
+    pca_dbscan_metrics_plot_html = ""
+    tsne_metrics_plot_html = ""
+    tsne_dbscan_metrics_plot_html = ""
+    pca_global_plot_html = ""
+    tsne_global_plot_html = ""
+
     # Get forms.
     upload_form = UploadForm()
     file_form = FileNameForm()
     analytcs_form = DataAnalytcsParamsForm()
-    
+
     #Identify wich POST method was requested
     if request.method == 'POST':
         if 'upload' in request.POST:
@@ -60,7 +81,10 @@ def dashboard_view(request):
         elif 'download' in request.POST:
             return _handle_download(request)
         elif 'generate_graphs' in request.POST:
-            (pca_metrics, pca_global_metrics, tsne_metrics, tsne_global_metrics) = _handle_generate_graphs(request)
+            # _handle_generate_graphs agora retornará os HTMLs dos gráficos
+            (pca_metrics_plot_html, pca_explained_plot_html, pca_dbscan_metrics_plot_html,
+             tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
+             pca_global_plot_html, tsne_global_plot_html) = _handle_generate_graphs(request)
 
     return render(request, 'dashboard.html', {
         'upload_form': upload_form,
@@ -68,19 +92,14 @@ def dashboard_view(request):
         'analytcs_form': analytcs_form,
         'file_names': file_names,
 
-        'pca_metrics': pca_metrics['pca_json'],
-        'pca_explained_metrics': json.dumps(pca_metrics['explained_variance']),
-        'n_components_metrics': pca_metrics['n_components'],
-        'pca_contributors_metrics': json.dumps(pca_metrics['top_contributors']),
-
-        'pca_global': pca_global_metrics['pca_json'],
-        'pca_explained_global': json.dumps(pca_global_metrics['explained_variance']),
-        'n_components_global': pca_global_metrics['n_components'],
-        'pca_contributors_global': pca_global_metrics['top_contributors'],
-
-        'tsne_metrics': tsne_metrics,
-
-        'tsne_global': tsne_global_metrics,
+        # Passa as variáveis HTML diretamente para o contexto
+        'pca_metrics_plot_html': pca_metrics_plot_html,
+        'pca_explained_plot_html': pca_explained_plot_html,
+        'pca_dbscan_metrics_plot_html': pca_dbscan_metrics_plot_html,
+        'tsne_metrics_plot_html': tsne_metrics_plot_html,
+        'tsne_dbscan_metrics_plot_html': tsne_dbscan_metrics_plot_html,
+        'pca_global_plot_html': pca_global_plot_html,
+        'tsne_global_plot_html': tsne_global_plot_html,
     })
 
 def _handle_upload(request):
@@ -105,7 +124,7 @@ def _handle_upload(request):
 
             _create_config_model(parameters)
             _create_trace_model(parameters, data_frame)
-            
+
             Factory(data_frame, parameters).extract()
 
             messages.success(request, "Upload and processing completed.")
@@ -124,12 +143,12 @@ def _handle_delete(request):
 
     file_name = request.POST.get('fileName')
     models_list = [
-            ConfigModel, MetricsModel, 
+            ConfigModel, MetricsModel,
             JourneyModel, StayPointModel,
-            VisitModel, ContactModel, 
+            VisitModel, ContactModel,
             QuadrantEntropyModel, GlobalMetricsModel
         ]
-    
+
     if file_name:
         for model in models_list:
             # Delet data from that file name for each Model
@@ -137,7 +156,7 @@ def _handle_delete(request):
         messages.success(request, f"Data for '{file_name}' deleted.")
     else:
         messages.error(request, "No file name provided.")
-    
+
     file_names = ConfigModel.objects.values_list('file_name', flat=True).distinct()
     return file_names
 
@@ -174,7 +193,7 @@ def _handle_download(request):
 
         zip_buffer.seek(0)
         response = HttpResponse(zip_buffer, content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; file_name={file_name}.zip'
+        response['Content-Disposition'] = f'attachment; filename={file_name}.zip'
         return response
     else:
         messages.error(request, "No file name provided.")
@@ -182,27 +201,35 @@ def _handle_download(request):
 
 def _handle_generate_graphs(request):
     """
-    Function to process data for the graphs
-
+    Function to process data for the graphs and generate their HTML.
 
     Returns:
-        - pca_metrics (dict): a dict with all content extract from PCA from MetricsModel
-        - pca_global_metrics (dict): a dict with all content extract from PCA from GlobalMetricsModel
-        - tsne_metrics (dict): a dict with all content extract from tSNE from MetricsModel
-        - tsne_global_metrics (dict): a dict with all content extract from tSNE from GlobalMetricsModel
+        tuple: Contains the HTML strings for all generated plots:
+            (pca_metrics_plot_html, pca_explained_plot_html, pca_dbscan_metrics_plot_html,
+             tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
+             pca_global_plot_html, tsne_global_plot_html)
     """
-    
+
     analytics_form = DataAnalytcsParamsForm(request.POST, request.FILES)
+
+    # Inicializa todas as variáveis de HTML de plotagem
+    pca_metrics_plot_html = ""
+    pca_explained_plot_html = ""
+    pca_dbscan_metrics_plot_html = ""
+    tsne_metrics_plot_html = ""
+    tsne_dbscan_metrics_plot_html = ""
+    pca_global_plot_html = ""
+    tsne_global_plot_html = ""
 
     if analytics_form.is_valid():
         # Get parameters from the form
         pca_n_components = int(request.POST.get('PCA_n_components'))
         tsne_n_components = int(request.POST.get('tSNE_n_components'))
         tsne_perplexity = float(request.POST.get('tSNE_perplexity'))
-        dbscan_eps = float(request.POST.get('dbscan_eps'))  # Adicionando o parâmetro DBSCAN
-        dbscan_min_samples = int(request.POST.get('dbscan_min_samples'))  # Adicionando o parâmetro DBSCAN
+        dbscan_eps = float(request.POST.get('dbscan_eps'))
+        dbscan_min_samples = int(request.POST.get('dbscan_min_samples'))
 
-        dbscan_paramters = (dbscan_eps, dbscan_min_samples)
+        dbscan_parameters = (dbscan_eps, dbscan_min_samples)
 
         # Load data
         metrics_df = pd.DataFrame.from_records(MetricsModel.objects.all().values())
@@ -211,17 +238,84 @@ def _handle_generate_graphs(request):
         columns_metrics, columns_global = _columns_analytics(metrics_df, global_metrics_df)
 
         # Perform PCA for metrics and global data
-        pca_metrics = PCA(pca_n_components, metrics_df, columns_metrics, dbscan_paramters).extract()
-        pca_global_metrics = PCA(pca_n_components, global_metrics_df, columns_global, dbscan_paramters).extract()
+        pca_metrics_results = PCA(pca_n_components, metrics_df.copy(), columns_metrics, dbscan_parameters).extract()
+        pca_global_metrics_results = PCA(pca_n_components, global_metrics_df.copy(), columns_global, dbscan_parameters).extract()
 
         # Perform t-SNE for metrics and global data
-        tsne_metrics = tSNE(tsne_n_components, tsne_perplexity, metrics_df, columns_metrics, dbscan_paramters).extract()
-        tsne_global_metrics = tSNE(tsne_n_components, tsne_perplexity, global_metrics_df, columns_global, dbscan_paramters).extract()
+        tsne_metrics_results = tSNE(tsne_n_components, tsne_perplexity, metrics_df.copy(), columns_metrics, dbscan_parameters).extract()
+        tsne_global_metrics_results = tSNE(tsne_n_components, tsne_perplexity, global_metrics_df.copy(), columns_global, dbscan_parameters).extract()
 
-        # Return the results
-        return (pca_metrics, pca_global_metrics, 
-            tsne_metrics, tsne_global_metrics)
-    
+        # --- Geração dos gráficos HTML usando as funções Plotly em Python ---
+        
+        # PCA - MetricsModel
+        # Certifique-se que pca_metrics_results['pca_json'] é uma lista de dicionários
+        # e que 'label' (ou a coluna de agrupamento) existe nela.
+        pca_metrics_plot_html = generate_pca_plot_html(
+            data_frame=json.loads(pca_metrics_results['pca_json']), # Convertendo JSON string para lista de dicts
+            contributors=pca_metrics_results['top_contributors'],
+            n_components=pca_metrics_results['n_components'],
+            title='PCA - MetricsModel',
+            color_by='label' # Assumindo que a coluna 'label' existe em pca_metrics_results['pca_json']
+        )
+
+        # PCA - Explained Variance
+        pca_explained_plot_html = generate_explained_variance_plot_html(
+            explained_variance_ratio=pca_metrics_results['explained_variance'],
+            title='Explained Variance Components'
+        )
+
+        # DBSCAN - PCA MetricsModel
+        # Assumindo que a coluna 'dbscan_cluster' é adicionada em pca_metrics_results['pca_json']
+        pca_dbscan_metrics_plot_html = generate_dbscan_pca_plot_html(
+            data_frame=json.loads(pca_metrics_results['pca_json']),
+            contributors=pca_metrics_results['top_contributors'],
+            n_components=pca_metrics_results['n_components'],
+            title='DBSCAN - PCA MetricsModel',
+            color_by='dbscan_cluster' # Assumindo que a coluna 'dbscan_cluster' existe
+        )
+
+        # t-SNE - MetricsModel
+        tsne_metrics_plot_html = generate_tsne_plot_html(
+            data_frame=json.loads(tsne_metrics_results['components']), # Convertendo JSON string para lista de dicts
+            tsne_components=[f'TSNE{i+1}' for i in range(tsne_n_components)],
+            n_components=tsne_n_components,
+            title='t-SNE - MetricsModel',
+            color_by='label' # Assumindo que a coluna 'label' existe em tsne_metrics_results['components']
+        )
+
+        # DBSCAN - tSNE MetricsModel
+        tsne_dbscan_metrics_plot_html = generate_dbscan_tsne_plot_html(
+            data_frame=json.loads(tsne_metrics_results['components']),
+            tsne_components=[f'TSNE{i+1}' for i in range(tsne_n_components)],
+            n_components=tsne_n_components,
+            title='DBSCAN - tSNE MetricsModel',
+            color_by='dbscan_cluster' # Assumindo que a coluna 'dbscan_cluster' existe
+        )
+
+        # PCA - GlobalMetricsModel
+        pca_global_plot_html = generate_pca_plot_html(
+            data_frame=json.loads(pca_global_metrics_results['pca_json']),
+            contributors=pca_global_metrics_results['top_contributors'],
+            n_components=pca_global_metrics_results['n_components'],
+            title='PCA - GlobalMetricsModel',
+            color_by='label' # Assumindo que a coluna 'label' existe
+        )
+
+        # t-SNE - GlobalMetricsModel
+        tsne_global_plot_html = generate_tsne_plot_html(
+            data_frame=json.loads(tsne_global_metrics_results['components']),
+            tsne_components=[f'TSNE{i+1}' for i in range(tsne_n_components)],
+            n_components=tsne_n_components,
+            title='t-SNE - GlobalMetricsModel',
+            color_by='label' # Assumindo que a coluna 'label' existe
+        )
+
+    # Retorna todas as strings HTML dos gráficos
+    return (pca_metrics_plot_html, pca_explained_plot_html, pca_dbscan_metrics_plot_html,
+            tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
+            pca_global_plot_html, tsne_global_plot_html)
+
+
 def _columns_analytics(metrics_df, global_metrics_df):
     """
     Function to define wich metrics will be analysed
@@ -232,8 +326,8 @@ def _columns_analytics(metrics_df, global_metrics_df):
     """
 
     # Columns that should be excluded
-    exclude_columns_metrics = ['id', 'fileName', 'label', 'entityId', 'x_center', 'y_center', 'z_center']
-    exclude_columns_global = ['id', 'fileName', 'label', 'entityId', 'avgX_center', 'avgY_center', 'avgZ_center']
+    exclude_columns_metrics = ['id', 'file_name', 'label', 'entityId', 'x_center', 'y_center', 'z_center']
+    exclude_columns_global = ['id', 'file_name', 'label', 'entityId', 'avgX_center', 'avgY_center', 'avgZ_center']
 
     # Remove those columns from dataframe
     columns_metrics = [col for col in metrics_df.columns if col not in exclude_columns_metrics]
@@ -247,7 +341,7 @@ def _get_data(form):
 
         Parameters:
             - form (UploadForm): form with all data extract from frontend
-        
+
         Return:
             - trace_file (file): trace file
             - parameters (list): list with all parameters
