@@ -72,7 +72,7 @@ def dashboard_view(request):
     file_form = FileNameForm()
     analytcs_form = DataAnalytcsParamsForm()
 
-    #Identify wich POST method was requested
+    # Identify wich POST method was requested
     if request.method == 'POST':
         if 'upload' in request.POST:
             file_names = _handle_upload(request)
@@ -81,7 +81,6 @@ def dashboard_view(request):
         elif 'download' in request.POST:
             return _handle_download(request)
         elif 'generate_graphs' in request.POST:
-            # _handle_generate_graphs agora retornará os HTMLs dos gráficos
             (pca_metrics_plot_html, pca_explained_plot_html, pca_dbscan_metrics_plot_html,
              tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
              pca_global_plot_html, tsne_global_plot_html) = _handle_generate_graphs(request)
@@ -92,7 +91,7 @@ def dashboard_view(request):
         'analytcs_form': analytcs_form,
         'file_names': file_names,
 
-        # Passa as variáveis HTML diretamente para o contexto
+        # Pass HTML variables directly to the context
         'pca_metrics_plot_html': pca_metrics_plot_html,
         'pca_explained_plot_html': pca_explained_plot_html,
         'pca_dbscan_metrics_plot_html': pca_dbscan_metrics_plot_html,
