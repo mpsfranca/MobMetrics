@@ -58,7 +58,6 @@ def dashboard_view(request):
     # Start Variables.
     file_names = ConfigModel.objects.values_list('file_name', flat=True).distinct()
     
-    # Inicializa as variáveis para o HTML dos gráficos como strings vazias
     pca_metrics_plot_html = ""
     pca_explained_plot_html = ""
     pca_dbscan_metrics_plot_html = ""
@@ -211,7 +210,6 @@ def _handle_generate_graphs(request):
 
     analytics_form = DataAnalytcsParamsForm(request.POST, request.FILES)
 
-    # Inicializa todas as variáveis de HTML de plotagem
     pca_metrics_plot_html = ""
     pca_explained_plot_html = ""
     pca_dbscan_metrics_plot_html = ""
@@ -244,17 +242,15 @@ def _handle_generate_graphs(request):
         tsne_metrics_results = tSNE(tsne_n_components, tsne_perplexity, metrics_df.copy(), columns_metrics, dbscan_parameters).extract()
         tsne_global_metrics_results = tSNE(tsne_n_components, tsne_perplexity, global_metrics_df.copy(), columns_global, dbscan_parameters).extract()
 
-        # --- Geração dos gráficos HTML usando as funções Plotly em Python ---
         
         # PCA - MetricsModel
-        # Certifique-se que pca_metrics_results['pca_json'] é uma lista de dicionários
-        # e que 'label' (ou a coluna de agrupamento) existe nela.
+
         pca_metrics_plot_html = generate_pca_plot_html(
-            data_frame=json.loads(pca_metrics_results['pca_json']), # Convertendo JSON string para lista de dicts
+            data_frame=json.loads(pca_metrics_results['pca_json']),
             contributors=pca_metrics_results['top_contributors'],
             n_components=pca_metrics_results['n_components'],
             title='PCA - MetricsModel',
-            color_by='label' # Assumindo que a coluna 'label' existe em pca_metrics_results['pca_json']
+            color_by='label'
         )
 
         # PCA - Explained Variance
@@ -264,22 +260,21 @@ def _handle_generate_graphs(request):
         )
 
         # DBSCAN - PCA MetricsModel
-        # Assumindo que a coluna 'dbscan_cluster' é adicionada em pca_metrics_results['pca_json']
         pca_dbscan_metrics_plot_html = generate_dbscan_pca_plot_html(
             data_frame=json.loads(pca_metrics_results['pca_json']),
             contributors=pca_metrics_results['top_contributors'],
             n_components=pca_metrics_results['n_components'],
             title='DBSCAN - PCA MetricsModel',
-            color_by='dbscan_cluster' # Assumindo que a coluna 'dbscan_cluster' existe
+            color_by='dbscan_cluster'
         )
 
         # t-SNE - MetricsModel
         tsne_metrics_plot_html = generate_tsne_plot_html(
-            data_frame=json.loads(tsne_metrics_results['components']), # Convertendo JSON string para lista de dicts
+            data_frame=json.loads(tsne_metrics_results['components']),
             tsne_components=[f'TSNE{i+1}' for i in range(tsne_n_components)],
             n_components=tsne_n_components,
             title='t-SNE - MetricsModel',
-            color_by='label' # Assumindo que a coluna 'label' existe em tsne_metrics_results['components']
+            color_by='label'
         )
 
         # DBSCAN - tSNE MetricsModel
@@ -288,7 +283,7 @@ def _handle_generate_graphs(request):
             tsne_components=[f'TSNE{i+1}' for i in range(tsne_n_components)],
             n_components=tsne_n_components,
             title='DBSCAN - tSNE MetricsModel',
-            color_by='dbscan_cluster' # Assumindo que a coluna 'dbscan_cluster' existe
+            color_by='dbscan_cluster'
         )
 
         # PCA - GlobalMetricsModel
@@ -297,7 +292,7 @@ def _handle_generate_graphs(request):
             contributors=pca_global_metrics_results['top_contributors'],
             n_components=pca_global_metrics_results['n_components'],
             title='PCA - GlobalMetricsModel',
-            color_by='label' # Assumindo que a coluna 'label' existe
+            color_by='label'
         )
 
         # t-SNE - GlobalMetricsModel
@@ -306,10 +301,9 @@ def _handle_generate_graphs(request):
             tsne_components=[f'TSNE{i+1}' for i in range(tsne_n_components)],
             n_components=tsne_n_components,
             title='t-SNE - GlobalMetricsModel',
-            color_by='label' # Assumindo que a coluna 'label' existe
+            color_by='label'
         )
 
-    # Retorna todas as strings HTML dos gráficos
     return (pca_metrics_plot_html, pca_explained_plot_html, pca_dbscan_metrics_plot_html,
             tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
             pca_global_plot_html, tsne_global_plot_html)
