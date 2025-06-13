@@ -52,14 +52,14 @@ def generate_pca_plot_html(data_frame, contributors, n_components, title, color_
 
 def generate_explained_variance_plot_html(explained_variance_ratio, title='Explained Variance Components'):
     """
-    Gera um gráfico de barras da variância explicada com Plotly e retorna o HTML.
+    Generates a bar chart of the explained variance with Plotly and returns the HTML.
     
     Args:
-        explained_variance_ratio (list): Lista de valores da variância explicada.
-        title (str): Título do gráfico.
+        explained_variance_ratio (list): List of explained variance values.
+        title (str): Graph title.
         
     Returns:
-        str: Código HTML do gráfico Plotly.
+        str: Plotly chart HTML code.
     """
     components = [f'PC{i + 1}' for i in range(len(explained_variance_ratio))]
     
@@ -80,17 +80,17 @@ def generate_explained_variance_plot_html(explained_variance_ratio, title='Expla
 
 def generate_dbscan_pca_plot_html(data_frame, contributors, n_components, title, color_by='dbscan_cluster'):
     """
-    Gera um plot de PCA com resultados de DBSCAN (2D ou 3D) com Plotly e retorna o HTML.
+    Generates a PCA plot with DBSCAN results (2D or 3D) with Plotly and returns the HTML.
     
     Args:
-        data_frame (list of dict): Dados processados (ex: [{'PC1': 0.1, 'PC2': 0.2, 'dbscan_cluster': 0}, ...]).
-        contributors (list): Nomes dos componentes principais (e.g., ['PC1', 'PC2', 'PC3']).
-        n_components (int): Número de componentes do PCA (2 ou 3).
-        title (str): Título do gráfico.
-        color_by (str): Coluna para colorir os pontos (geralmente 'dbscan_cluster').
+        data_frame (list of dict): Processed data.
+        contributors (list): Names of main components.
+        n_components (int): Number of PCA components (2 or 3).
+        title (str): Graph title.
+        color_by (str): Column to color the dots (defaults as 'dbscan_cluster').
     
     Returns:
-        str: Código HTML do gráfico Plotly.
+        str: Plotly chart HTML code.
     """
     df = pd.DataFrame(data_frame)
 
