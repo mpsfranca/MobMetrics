@@ -7,14 +7,14 @@ def generate_pca_plot_html(data_frame, contributors, n_components, title, color_
     Gera um plot de PCA (2D ou 3D) com Plotly e retorna o HTML.
     
     Args:
-        data_frame (list of dict): Dados processados (ex: [{'PC1': 0.1, 'PC2': 0.2, 'label': 'A'}, ...]).
-        contributors (list): Nomes dos componentes principais (e.g., ['PC1', 'PC2', 'PC3']).
-        n_components (int): Número de componentes do PCA (2 ou 3).
-        title (str): Título do gráfico.
-        color_by (str): Coluna para colorir os pontos.
+        data_frame (list of dict): Processed data.
+        contributors (list): Names of the main components.
+        n_components (int): Number of PCA components.
+        title (str): Graph title.
+        color_by (str): Column to color the data.
     
     Returns:
-        str: Código HTML do gráfico Plotly.
+        str: Plotly chart HTML code.
     """
     df = pd.DataFrame(data_frame)
 

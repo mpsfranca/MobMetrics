@@ -4,17 +4,17 @@ import pandas as pd
 
 def generate_tsne_plot_html(data_frame, tsne_components, n_components, title, color_by='label'):
     """
-    Gera um plot de t-SNE (2D ou 3D) com Plotly e retorna o HTML.
+    Generates a t-SNE plot with Plotly and returns the HTML of the graph.
     
     Args:
-        data_frame (list of dict): Dados processados (ex: [{'TSNE1': 0.1, 'TSNE2': 0.2, 'label': 'A'}, ...]).
-        tsne_components (list): Nomes dos componentes t-SNE (e.g., ['TSNE1', 'TSNE2', 'TSNE3']).
-        n_components (int): Número de componentes do t-SNE (2 ou 3).
-        title (str): Título do gráfico.
-        color_by (str): Coluna para colorir os pontos.
+        data_frame (list of dict): Processed data.
+        tsne_components (list): Names of the t-SNE components).
+        n_components (int): Number of t-SNE components.
+        title (str): Graph title.
+        color_by (str): Column to color the graph.
     
     Returns:
-        str: Código HTML do gráfico Plotly.
+        str: Plotly chart HTML code.
     """
     df = pd.DataFrame(data_frame)
 
@@ -51,17 +51,17 @@ def generate_tsne_plot_html(data_frame, tsne_components, n_components, title, co
 
 def generate_dbscan_tsne_plot_html(data_frame, tsne_components, n_components, title, color_by='dbscan_cluster'):
     """
-    Gera um plot de t-SNE com resultados de DBSCAN (2D ou 3D) com Plotly e retorna o HTML.
+    Generates a t-SNE plot with DBSCAN results with Plotly and returns the HTML.
     
     Args:
-        data_frame (list of dict): Dados processados (ex: [{'TSNE1': 0.1, 'TSNE2': 0.2, 'dbscan_cluster': 0}, ...]).
-        tsne_components (list): Nomes dos componentes t-SNE (e.g., ['TSNE1', 'TSNE2', 'TSNE3']).
-        n_components (int): Número de componentes do t-SNE (2 ou 3).
-        title (str): Título do gráfico.
-        color_by (str): Coluna para colorir os pontos (geralmente 'dbscan_cluster').
+        data_frame (list of dict): Processed data.
+        tsne_components (list): Names of the t-SNE components.
+        n_components (int): Number of t-SNE components.
+        title (str): Graph title.
+        color_by (str): Column to color the graph.
     
     Returns:
-        str: Código HTML do gráfico Plotly.
+        str: Plotly chart HTML code.
     """
     df = pd.DataFrame(data_frame)
 
