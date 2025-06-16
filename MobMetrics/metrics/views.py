@@ -30,7 +30,8 @@ from .visualizations.comparative.tsne_plots import (
 
 from .visualizations.trace.trace_plot import (
     plot_trace_entities,
-    plot_trace_in_time
+    plot_trace_in_time,
+    plot_stay_points
 )
 
 from .visualizations.metrics.global_metrics import (
@@ -96,6 +97,7 @@ def dashboard_view(request):
     last_config = ConfigModel.objects.last()
 
     entity_id = request.GET.get('entity_id')
+    stay_point_id = request.GET.get('stay_point_id')
     trace_in_time_html = None
 
     if last_config:
@@ -105,6 +107,7 @@ def dashboard_view(request):
         staypoints = StayPointModel.objects.filter(file_name=file_name).order_by("stay_point_id")
         trace_plot_html = plot_trace_entities(file_name=file_name, max_points=5000)
         radar_chart_html = plot_radar_chart(file_name=file_name)
+        stay_points_html = plot_stay_points(file_name=file_name)
 
         if entity_id is not None:
             try:
@@ -116,12 +119,24 @@ def dashboard_view(request):
         else:
             trace_in_time_html = plot_trace_in_time(file_name=file_name)
             travel_distance_compare_plot_html = plot_travel_distance_comparison(file_name=file_name, entity_id=0)
+        
+        if stay_point_id is not None:
+            try:
+                stay_point_id = int(stay_point_id)
+                stay_points_html = plot_stay_points(file_name=file_name, highlight_spId=stay_point_id)
+            except ValueError:
+                stay_points_html = plot_stay_points(file_name=file_name)
+        else:
+            stay_points_html = plot_stay_points(file_name=file_name)
+
     else:
         metrics = None
         global_metrics = None
         staypoints = None
         trace_plot_html = None
         radar_chart_html = None
+        travel_distance_compare_plot_html = None
+        stay_points_html = None
 
     return render(request, 'dashboard.html', {
         'upload_form': upload_form,
@@ -138,6 +153,7 @@ def dashboard_view(request):
         'radar_chart_html': radar_chart_html,
         'trace_in_time_html': trace_in_time_html,
         'travel_distance_compare_plot': travel_distance_compare_plot_html,
+        'stay_point_scatter_plot': stay_points_html,
         'pca_metrics_plot_html': pca_metrics_plot_html,
         'pca_explained_plot_html': pca_explained_plot_html,
         'pca_dbscan_metrics_plot_html': pca_dbscan_metrics_plot_html,
@@ -397,11 +413,12 @@ def _get_data(form):
     name = form.cleaned_data['name']
     label = form.cleaned_data['label']
     contact_time_threshold = form.cleaned_data['contact_time_threshold']
+    skip_contact_detection = form.cleaned_data['skip_contact_detection']
 
     parameters = (
         distance_threshold, time_threshold, radius_threshold,
         quadrant_parts, name, label, is_geographical_coordinates,
-        contact_time_threshold
+        contact_time_threshold, skip_contact_detection
     )
 
     return trace_file, parameters

@@ -1,7 +1,8 @@
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 
-from  ...models import TraceModel
+from  ...models import TraceModel, StayPointModel
 
 
 def plot_trace_entities(file_name, max_points=5000):
@@ -96,3 +97,72 @@ def plot_trace_in_time(file_name, entity_id=0):
     html_str = fig.to_html(full_html=False, include_plotlyjs='cdn')
 
     return html_str
+
+def plot_stay_points(file_name, highlight_spId=1):
+    """
+    Generates a scatter plot of stay points, highlighting a selected spId.
+
+    Args:
+        df (pd.DataFrame): DataFrame with columns ['spId', 'x', 'y'].
+        highlight_spId (int): The spId to highlight.
+
+    Returns:
+        plotly.graph_objects.Figure: Scatter plot figure.
+    """
+    queryset = StayPointModel.objects.filter(file_name=file_name).values(
+        'stay_point_id', 'x_center', 'y_center'
+    )
+
+    df_plot = pd.DataFrame.from_records(queryset)
+
+    if df_plot.empty:
+        raise ValueError("DataFrame is empty or does not contain enough points.")
+
+    # Separa os pontos destacados e não destacados
+    df_highlight = df_plot[df_plot['stay_point_id'] == highlight_spId]
+    df_others = df_plot[df_plot['stay_point_id'] != highlight_spId]
+
+    fig = go.Figure()
+
+    # Plot dos outros stay points (cinza)
+    fig.add_trace(go.Scatter(
+        x=df_others['x_center'],
+        y=df_others['y_center'],
+        mode='markers',
+        marker=dict(
+            color='lightgray',
+            size=10,
+            line=dict(width=0)
+        ),
+        hovertext=df_others['stay_point_id'],
+        hoverinfo='text',
+        name='Other Stay Points'
+    ))
+
+    # Plot do stay point destacado (vermelho)
+    fig.add_trace(go.Scatter(
+        x=df_highlight['x_center'],
+        y=df_highlight['y_center'],
+        mode='markers',
+        marker=dict(
+            color='red',
+            size=12,
+            line=dict(width=0)
+        ),
+        hovertext=df_highlight['stay_point_id'],
+        hoverinfo='text',
+        name=f'Stay Point {highlight_spId}'
+    ))
+
+    fig.update_layout(
+        width=480,
+        height=480,
+        template="plotly_white",
+        title=f'Stay Points Scatter Plot - Highlight spId {highlight_spId}',
+        xaxis=dict(title='X'),
+        yaxis=dict(title='Y'),
+        showlegend=False,
+        font=dict(color='black')
+    )
+
+    return fig.to_html(full_html=False)

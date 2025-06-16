@@ -16,7 +16,8 @@ class UploadForm(forms.Form):
     # Contact parameters
     radius_threshold = forms.FloatField(label='Radius Threshold')
     contact_time_threshold = forms.FloatField(label='Contact Time Threshold')
-    
+    skip_contact_detection = forms.BooleanField(required=False, label="Don't detect contacts")
+
     #Quadrant Entropy Parameters
     quadrant_parts = forms.FloatField(label='Quadrant Parts')
     
@@ -47,5 +48,3 @@ class DataAnalytcsParamsForm(forms.Form):
     dbscan_min_samples = forms.IntegerField(
         label='BDscan Min Samples', initial=5 
     )
-
-#

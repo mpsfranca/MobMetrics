@@ -64,15 +64,9 @@
 
     <div class="top-bar">
         <div class="last-upload">
-            {% if selected_entity_id %}
-                <div class="last-upload">
-                    Entity Id = {{ selected_entity_id }}
-                </div>
-            {% else %}
-                <div class="last-upload">
-                    No selected entity.
-                </div>
-            {% endif %}
+            <div class="last-upload">
+                Entity Id = {{ entity.entity_id }}
+            </div>
         </div>
         <div class="actions">
             <button class="action-button">Change Trace</button>
@@ -150,13 +144,13 @@
 
     <div class="new-graph-container">
         <div id="traceOverTime">
-        {{ trace_over_time_plot|safe }}
+        {{ stay_point_scatter_plot|safe }}
         </div>
     </div>
 
     <div class="new-graph-container">
         <div id="travelDistanceCompare">
-        {{ travel_distance_compare_plot|safe }}
+        {{ stay_point_radar_chart|safe }}
         </div>
     </div>
     </div>

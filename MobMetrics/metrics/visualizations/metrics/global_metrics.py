@@ -5,14 +5,23 @@ from  ...models import GlobalMetricsModel, MetricsModel
 
 
 def plot_radar_chart(file_name):
+    """
+    Gera um radar chart para um único rastro com as métricas especificadas.
+    """
     queryset = GlobalMetricsModel.objects.filter(file_name=file_name).values(
+        'num_contacts',
         'avg_travel_time',
-        'avg_travel_distance',
+        'total_num_journeys',
+        'total_avg_journey_distance',
+        'total_avg_journey_avg_speed',
+        'total_avg_journey_time',
         'avg_radius_of_gyration',
         'avg_quadrant_entropy',
         'avg_stay_point_entropy',
         'trajectory_correlation',
-        'speed_variation_coefficient'
+        'total_spatial_cover',
+        'speed_variation_coefficient',
+        'mobility_profile'
     )
 
     if not queryset.exists():
@@ -20,48 +29,62 @@ def plot_radar_chart(file_name):
 
     df = pd.DataFrame.from_records(queryset)
 
-    metrics = [
-        'avg_travel_time',
-        'avg_travel_distance',
-        'avg_radius_of_gyration',
-        'avg_quadrant_entropy',
-        'avg_stay_point_entropy',
-        'trajectory_correlation',
-        'speed_variation_coefficient'
-    ]
+    metrics = {
+        'num_contacts': "Num. Cont.",
+        'total_num_journeys': "Num. Journeys",
+        'total_avg_journey_time': "Avg. Trav. Time",
+        'total_avg_journey_distance': "Avg. Trav. Dist.",
+        'total_avg_journey_avg_speed': "Avg. Trav. Spd.",
+        'total_spatial_cover': "Spt. Cover.",
+        'mobility_profile': "Mob. Prof."
+    }
 
-    labels = [
-        "Avg. Trav. Time",
-        "Avg. Trav. Dist.",
-        "Rad. of Gyration",
-        "Quad. Entropy",
-        "Stay Point Entropy",
-        "Traj. Correlation",
-        "Spd. Var. Coef."
-    ]
+    manual_max = {
+        'num_contacts': 6,
+        'total_num_journeys': 1000,
+        'total_avg_journey_time': 1200,
+        'total_avg_journey_distance': 300,
+        'total_avg_journey_avg_speed': 1,
+        'total_spatial_cover': 360,
+        'mobility_profile': 0.6
+    }
 
-    normalized_values = (df[metrics] - df[metrics].min()) / (df[metrics].max() - df[metrics].min())
+    normalized = []
+    for metric in metrics.keys():
+        value = df.iloc[0][metric]
+        max_value = manual_max.get(metric, 1)
+
+        norm_value = value / max_value if max_value != 0 else 0
+        norm_value = min(max(norm_value, 0), 1)
+        normalized.append(norm_value)
+
+    labels = list(metrics.values())
 
     fig = go.Figure()
 
     fig.add_trace(go.Scatterpolar(
-        r=normalized_values.iloc[0].tolist(),
+        r=normalized,
         theta=labels,
         fill='toself',
-        name=file_name
+        name=df.iloc[0]['fileName'] if 'fileName' in df.columns else 'Trace'
     ))
 
     fig.update_layout(
+        width=480,
+        height=480,
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, 1]
+                range=[0, 1],
+                showticklabels=True,
+                tickfont=dict(color="black")
             )
         ),
         showlegend=False,
-        width=480,
-        height=480,
-        title=f"Mobility Profile for {file_name}"
+        title=f"Mobility Profile for {file_name}",
+        font=dict(
+            color="black"
+        )
     )
 
     return fig.to_html(full_html=False)
