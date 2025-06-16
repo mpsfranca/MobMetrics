@@ -51,7 +51,7 @@
         </div>
         <div class="metric-card">
         <div class="card-title">Average Journey Distance</div>
-        <div class="card-value">{{ global_metrics.total_avg_journey_distance|floatformat:2 }} km</div>
+        <div class="card-value">{{ global_metrics.total_avg_journey_distance|floatformat:2 }} m</div>
         </div>
     </div>
     </div>
@@ -81,9 +81,9 @@
         {% for entity in metrics %}
         <div class="entity-card {% if entity.entity_id == selected_entity_id %}active{% endif %}" onclick="selectEntity({{ entity.entity_id }})">
             <strong>Entity {{ entity.entity_id }}</strong><br>
-            <small>Avg. Trv. Distance: {{ entity.travel_distance|floatformat:2 }} km</small><br>
+            <small>Avg. Jou. Distance: {{ entity.travel_distance|floatformat:2 }} m</small><br>
             <small>Stay Points Visited: {{ entity.stay_points_visits }}</small><br>
-            <small>Average Travel Speed: {{ entity.travel_avg_speed|floatformat:1 }} m/s</small>
+            <small>Avg. Journey Speed: {{ entity.travel_avg_speed|floatformat:1 }} m/s</small>
         </div>
         {% endfor %}
         </div>
