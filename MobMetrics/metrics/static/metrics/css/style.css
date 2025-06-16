@@ -393,6 +393,10 @@ input[type="checkbox"] {
   padding: 10px;
   background-color: #f9f9f9;
   min-height: 460px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .ngraphs-wrapper {
@@ -442,7 +446,7 @@ input[type="checkbox"] {
 }
 
 .card-value {
-  font-size: 24px;
+  font-size: 42px;
   font-weight: bold;
   color: #111;
 

@@ -31,13 +31,13 @@ def plot_radar_chart(file_name):
     ]
 
     labels = [
-        "Average Travel Time",
-        "Average Travel Distance",
-        "Radius of Gyration",
-        "Quadrant Entropy",
+        "Avg. Trav. Time",
+        "Avg. Trav. Dist.",
+        "Rad. of Gyration",
+        "Quad. Entropy",
         "Stay Point Entropy",
-        "Trajectory Correlation",
-        "Speed Variation Coef."
+        "Traj. Correlation",
+        "Spd. Var. Coef."
     ]
 
     normalized_values = (df[metrics] - df[metrics].min()) / (df[metrics].max() - df[metrics].min())
@@ -59,6 +59,8 @@ def plot_radar_chart(file_name):
             )
         ),
         showlegend=False,
+        width=480,
+        height=480,
         title=f"Mobility Profile for {file_name}"
     )
 

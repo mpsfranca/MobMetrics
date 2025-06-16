@@ -38,8 +38,8 @@ def plot_trace_entities(file_name, max_points=5000):
     )
 
     fig.update_layout(
-        width=800,
-        height=600,
+        width=480,
+        height=480,
         legend_title="Entity ID",
         template="plotly_white"
     )
@@ -48,7 +48,7 @@ def plot_trace_entities(file_name, max_points=5000):
 
     return html_str
 
-def plot_trace_in_time(file_name, entity_id):
+def plot_trace_in_time(file_name, entity_id=0):
     """
     Generates an interactive scatterplot for a single entity,
     with color representing the timestamp (time progression).
@@ -84,8 +84,8 @@ def plot_trace_in_time(file_name, entity_id):
     )
 
     fig.update_layout(
-        width=800,
-        height=600,
+        width=480,
+        height=480,
         template="plotly_white",
         coloraxis_colorbar=dict(
             title="Timestamp",

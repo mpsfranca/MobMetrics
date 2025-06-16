@@ -30,12 +30,12 @@
     <div class="new-graphs-row">
         <div class="new-graph-container">
         <div id="traceScatterPlot">
-            {{ trace_scatter_plot_html|safe }}
+            {{ trace_plot_html|safe }}
         </div>
         </div>
         <div class="new-graph-container">
         <div id="mobilityRadarPlot">
-            {{ radar_plot_html|safe }}
+            {{ radar_chart_html|safe }}
         </div>
         </div>
     </div>
@@ -43,15 +43,15 @@
     <div class="cards-column">
         <div class="metric-card">
         <div class="card-title">Total Number of Stay-points</div>
-        <div class="card-value">{{ total_staypoints }}</div>
+        <div class="card-value">{{ global_metrics.num_stay_points }}</div>
         </div>
         <div class="metric-card">
         <div class="card-title">Total Number of Contacts</div>
-        <div class="card-value">{{ total_contacts }}</div>
+        <div class="card-value">{{ global_metrics.num_contacts }}</div>
         </div>
         <div class="metric-card">
-        <div class="card-title">Average Travel Distance</div>
-        <div class="card-value">{{ avg_travel_distance }} km</div>
+        <div class="card-title">Average Journey Distance</div>
+        <div class="card-value">{{ global_metrics.total_avg_journey_distance|floatformat:2 }} km</div>
         </div>
     </div>
     </div>
@@ -84,10 +84,10 @@
     <div class="entity-list">
         <div class="entity-list-title">Entity List</div>
         <div class="entity-scroll">
-        {% for entity in metrics_entities %}
+        {% for entity in metrics %}
         <div class="entity-card {% if entity.entity_id == selected_entity_id %}active{% endif %}" onclick="selectEntity({{ entity.entity_id }})">
             <strong>Entity {{ entity.entity_id }}</strong><br>
-            <small>Avg. Travel Distance: {{ entity.travel_distance|floatformat:2 }} km</small><br>
+            <small>Avg. Trv. Distance: {{ entity.travel_distance|floatformat:2 }} km</small><br>
             <small>Stay Points Visited: {{ entity.stay_points_visits }}</small><br>
             <small>Average Travel Speed: {{ entity.travel_avg_speed|floatformat:1 }} m/s</small>
         </div>
@@ -97,7 +97,7 @@
 
     <div class="new-graph-container">
         <div id="traceOverTime">
-        {{ trace_over_time_plot|safe }}
+        {{ trace_in_time_html|safe }}
         </div>
     </div>
 
@@ -141,7 +141,7 @@
         <div class="entity-card {% if staypoint.stay_point_id == selected_staypoint_id %}active{% endif %}" onclick="selectEntity({{ staypoint.stay_point_id }})">
             <strong>Stay-point {{ staypoint.stay_point_id }}</strong><br>
             <small>Num. of Visits: {{ staypoint.num_visits|floatformat:2 }}</small><br>
-            <small>Tot. Visits Time: {{ staypoint.total_visits_time }} s</small><br>
+            <small>Tot. Visits Time: {{ staypoint.total_visits_time|floatformat:2 }} s</small><br>
             <small>Importance Degree: {{ staypoint.importance_degree|floatformat:1 }}</small>
         </div>
         {% endfor %}

@@ -28,6 +28,15 @@ from .visualizations.comparative.tsne_plots import (
     generate_dbscan_tsne_plot_html
 )
 
+from .visualizations.trace.trace_plot import (
+    plot_trace_entities,
+    plot_trace_in_time
+)
+
+from .visualizations.metrics.global_metrics import (
+    plot_radar_chart
+)
+
 from .models import (ConfigModel, MetricsModel,
                       JourneyModel, StayPointModel,
                       VisitModel, ContactModel,
@@ -81,16 +90,35 @@ def dashboard_view(request):
         elif 'generate_graphs' in request.POST:
             (pca_metrics_plot_html, pca_explained_plot_html, pca_dbscan_metrics_plot_html,
              tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
-             pca_global_plot_html, tsne_global_plot_html) = _handle_generate_graphs(request)
-
+             pca_global_plot_html, tsne_global_plot_html) = _handle_generate_graphs(request)      
 
     last_config = ConfigModel.objects.last()
+
+    entity_id = request.GET.get('entity_id')
+    trace_in_time_html = None
+
     if last_config:
-        metrics = MetricsModel.objects.filter(file_name=last_config.file_name).order_by("entity_id")
-        staypoints = StayPointModel.objects.filter(file_name=last_config.file_name).order_by("stay_point_id")
+        file_name = last_config.file_name
+        metrics = MetricsModel.objects.filter(file_name=file_name).order_by("entity_id")
+        global_metrics = GlobalMetricsModel.objects.filter(file_name=file_name).first()
+        staypoints = StayPointModel.objects.filter(file_name=file_name).order_by("stay_point_id")
+        trace_plot_html = plot_trace_entities(file_name=file_name, max_points=5000)
+        radar_chart_html = plot_radar_chart(file_name=file_name)
+
+        if entity_id is not None:
+            try:
+                entity_id = int(entity_id)
+                trace_in_time_html = plot_trace_in_time(file_name=file_name, entity_id=entity_id)
+            except ValueError:
+                trace_in_time_html = plot_trace_in_time(file_name=file_name)
+        else:
+            plot_trace_in_time(file_name=file_name)
     else:
         metrics = None
+        global_metrics = None
         staypoints = None
+        trace_plot_html = None
+        radar_chart_html = None
 
     return render(request, 'dashboard.html', {
         'upload_form': upload_form,
@@ -101,7 +129,11 @@ def dashboard_view(request):
         # Pass HTML variables directly to the context
         'metrics': metrics,
         'staypoints': staypoints,
+        'global_metrics': global_metrics,
         'last_file_name': last_config.file_name if last_config else None,
+        'trace_plot_html': trace_plot_html,
+        'radar_chart_html': radar_chart_html,
+        'trace_in_time_html': trace_in_time_html,
         'pca_metrics_plot_html': pca_metrics_plot_html,
         'pca_explained_plot_html': pca_explained_plot_html,
         'pca_dbscan_metrics_plot_html': pca_dbscan_metrics_plot_html,
@@ -155,7 +187,8 @@ def _handle_delete(request):
             ConfigModel, MetricsModel,
             JourneyModel, StayPointModel,
             VisitModel, ContactModel,
-            QuadrantEntropyModel, GlobalMetricsModel
+            QuadrantEntropyModel, GlobalMetricsModel,
+            TraceModel
         ]
 
     if file_name:
