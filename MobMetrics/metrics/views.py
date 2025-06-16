@@ -18,7 +18,6 @@ from .process.DataAnalytcs.pca import PCA
 from .process.DataAnalytcs.tSNE import tSNE
 from .process.DataAnalytcs.clustering.DBscan import DBscan # Não será usado diretamente para plot, mas sim para dados
 
-# Importações das novas funções de plotagem em Python
 from .visualizations.comparative.pca_plots import (
     generate_pca_plot_html,
     generate_explained_variance_plot_html,
@@ -84,6 +83,15 @@ def dashboard_view(request):
              tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
              pca_global_plot_html, tsne_global_plot_html) = _handle_generate_graphs(request)
 
+
+    last_config = ConfigModel.objects.last()
+    if last_config:
+        metrics = MetricsModel.objects.filter(file_name=last_config.file_name).order_by("entity_id")
+        staypoints = StayPointModel.objects.filter(file_name=last_config.file_name).order_by("stay_point_id")
+    else:
+        metrics = None
+        staypoints = None
+
     return render(request, 'dashboard.html', {
         'upload_form': upload_form,
         'file_form': file_form,
@@ -91,6 +99,9 @@ def dashboard_view(request):
         'file_names': file_names,
 
         # Pass HTML variables directly to the context
+        'metrics': metrics,
+        'staypoints': staypoints,
+        'last_file_name': last_config.file_name if last_config else None,
         'pca_metrics_plot_html': pca_metrics_plot_html,
         'pca_explained_plot_html': pca_explained_plot_html,
         'pca_dbscan_metrics_plot_html': pca_dbscan_metrics_plot_html,

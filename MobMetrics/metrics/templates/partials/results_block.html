@@ -1,6 +1,174 @@
 <div class="content hidden" id="results">
+    <div class="analytics-section">
+        Trace Overview<span class="tooltip"
+        data-tooltip="This section is used to have an overview of the loaded traces, in a direct, objective manner and with adjustment possibilities.">
+        ?</span>
+    </div>
+
+    <div class="top-bar">
+        <div class="last-upload">
+            {% if last_file_name %}
+                <div class="last-upload">
+                    {{ last_file_name }} <span class="info">(last upload)</span>
+                </div>
+            {% else %}
+                <div class="last-upload">
+                    No file uploaded yet.
+                </div>
+            {% endif %}
+        </div>
+        <div class="actions">
+            <button class="action-button">Change Trace</button>
+            <button class="action-button">Configure Plots</button>
+            <label class="global-checkbox">
+            <input type="checkbox" /> Apply Changes Globally
+            </label>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+    <div class="new-graphs-row">
+        <div class="new-graph-container">
+        <div id="traceScatterPlot">
+            {{ trace_scatter_plot_html|safe }}
+        </div>
+        </div>
+        <div class="new-graph-container">
+        <div id="mobilityRadarPlot">
+            {{ radar_plot_html|safe }}
+        </div>
+        </div>
+    </div>
+
+    <div class="cards-column">
+        <div class="metric-card">
+        <div class="card-title">Total Number of Stay-points</div>
+        <div class="card-value">{{ total_staypoints }}</div>
+        </div>
+        <div class="metric-card">
+        <div class="card-title">Total Number of Contacts</div>
+        <div class="card-value">{{ total_contacts }}</div>
+        </div>
+        <div class="metric-card">
+        <div class="card-title">Average Travel Distance</div>
+        <div class="card-value">{{ avg_travel_distance }} km</div>
+        </div>
+    </div>
+    </div>
+
+    <div class="analytics-section">
+        Entities Analysis<span class="tooltip"
+        data-tooltip="This section is responsible for carrying out an analysis of entities present in the traces, both individually and comparatively between them.">
+        ?</span>
+    </div>
+
+    <div class="top-bar">
+        <div class="last-upload">
+            {% if selected_entity_id %}
+                <div class="last-upload">
+                    Entity Id = {{ selected_entity_id }}
+                </div>
+            {% else %}
+                <div class="last-upload">
+                    No selected entity.
+                </div>
+            {% endif %}
+        </div>
+        <div class="actions">
+            <button class="action-button">Change Trace</button>
+            <button class="action-button">Configure Plots</button>
+        </div>
+    </div>
+
+    <div class="entity-analysis-container">
+    <div class="entity-list">
+        <div class="entity-list-title">Entity List</div>
+        <div class="entity-scroll">
+        {% for entity in metrics_entities %}
+        <div class="entity-card {% if entity.entity_id == selected_entity_id %}active{% endif %}" onclick="selectEntity({{ entity.entity_id }})">
+            <strong>Entity {{ entity.entity_id }}</strong><br>
+            <small>Avg. Travel Distance: {{ entity.travel_distance|floatformat:2 }} km</small><br>
+            <small>Stay Points Visited: {{ entity.stay_points_visits }}</small><br>
+            <small>Average Travel Speed: {{ entity.travel_avg_speed|floatformat:1 }} m/s</small>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+
+    <div class="new-graph-container">
+        <div id="traceOverTime">
+        {{ trace_over_time_plot|safe }}
+        </div>
+    </div>
+
+    <div class="new-graph-container">
+        <div id="travelDistanceCompare">
+        {{ travel_distance_compare_plot|safe }}
+        </div>
+    </div>
+    </div>
+
+    <div class="analytics-section">
+        Stay-points Analysis<span class="tooltip"
+        data-tooltip="This section is responsible for carrying out an analysis of stay-points present in the traces, both individually and comparatively between them.">
+        ?</span>
+    </div>
+
+    <div class="top-bar">
+        <div class="last-upload">
+            {% if last_file_name %}
+                <div class="last-upload">
+                    {{ last_file_name }} <span class="info">(last upload)</span>
+                </div>
+            {% else %}
+                <div class="last-upload">
+                    No file uploaded yet.
+                </div>
+            {% endif %}
+        </div>
+        <div class="actions">
+            <button class="action-button">Change Trace</button>
+            <button class="action-button">Configure Plots</button>
+            </label>
+        </div>
+    </div>
+
+    <div class="entity-analysis-container">
+    <div class="entity-list">
+        <div class="entity-list-title">Stay-points List</div>
+        <div class="entity-scroll">
+        {% for staypoint in staypoints %}
+        <div class="entity-card {% if staypoint.stay_point_id == selected_staypoint_id %}active{% endif %}" onclick="selectEntity({{ staypoint.stay_point_id }})">
+            <strong>Stay-point {{ staypoint.stay_point_id }}</strong><br>
+            <small>Num. of Visits: {{ staypoint.num_visits|floatformat:2 }}</small><br>
+            <small>Tot. Visits Time: {{ staypoint.total_visits_time }} s</small><br>
+            <small>Importance Degree: {{ staypoint.importance_degree|floatformat:1 }}</small>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+
+    <div class="new-graph-container">
+        <div id="traceOverTime">
+        {{ trace_over_time_plot|safe }}
+        </div>
+    </div>
+
+    <div class="new-graph-container">
+        <div id="travelDistanceCompare">
+        {{ travel_distance_compare_plot|safe }}
+        </div>
+    </div>
+    </div>
+
+    <div class="analytics-section">
+        Comparative Analysis<span class="tooltip"
+        data-tooltip="This section is responsible for generating different comparative graphs between traces, using known algorithms for this purpose.">
+        ?</span>
+    </div>
+
     <div class="config-section">
-        <button type="button" class="button" onclick="toggleConfig()">Configuration</button>
+        <button type="button" class="button" onclick="toggleConfig()">Configure Comparative Plots</button>
         
         <div id="configForm" class="hidden" style="margin-top: 1rem;">
             <form method="post" action="{% url 'dashboard' %}">
@@ -49,60 +217,67 @@
                 </div>
                 <button class="button" type="submit" name="generate_graphs">Generate Graphs</button>
             </form>
+            <div class="ngraphs-wrapper">
+                <div class="comparative-container">
+                    <h3>PCA - MetricsModel</h3>
+                    <div id="pcaMetricsPlot">
+                        {{ pca_metrics_plot_html|safe }}
+                    </div>
+                </div>
+
+                <div class="comparative-container">
+                    <h3>PCA - Explained Variance</h3>
+                    <div id="pcaExplainedPlot">
+                        {{ pca_explained_plot_html|safe }}
+                    </div>
+                </div>
+
+                <div class="comparative-container">
+                    <h3>DBSCAN - PCA MetricsModel</h3>
+                    <div id="pcaDbscanMetricsPlot">
+                        {{ pca_dbscan_metrics_plot_html|safe }}
+                    </div>
+                </div>
+                
+                <div class="comparative-container">
+                    <h3>t-SNE - MetricsModel</h3>
+                    <div id="tsneMetricsPlot">
+                        {{ tsne_metrics_plot_html|safe }}
+                    </div>
+                </div>
+
+                <div class="comparative-container">
+                    <h3>DBSCAN - tSNE MetricsModel</h3>
+                    <div id="tsneDbscanMetricsPlot">
+                        {{ tsne_dbscan_metrics_plot_html|safe }}
+                    </div>
+                </div>
+                
+                <div class="comparative-container">
+                    <h3>t-SNE - GlobalMetricsModel</h3>
+                    <div id="tsneGlobalPlot">
+                        {{ tsne_global_plot_html|safe }}
+                    </div>
+                </div>
+
+                <div class="comparative-container">
+                    <h3>PCA - GlobalMetricsModel</h3>
+                    <div id="pcaGlobalPlot">
+                        {{ pca_global_plot_html|safe }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <h2>Results - Graphs</h2>
-    
-    <div class="graphs-wrapper">
-        <div class="graph-container">
-            <h3>PCA - MetricsModel</h3>
-            <div id="pcaMetricsPlot">
-                {{ pca_metrics_plot_html|safe }}
-            </div>
-        </div>
 
-        <div class="graph-container">
-            <h3>PCA - Explained Variance</h3>
-            <div id="pcaExplainedPlot">
-                {{ pca_explained_plot_html|safe }}
-            </div>
-        </div>
-
-        <div class="graph-container">
-            <h3>DBSCAN - PCA MetricsModel</h3>
-            <div id="pcaDbscanMetricsPlot">
-                {{ pca_dbscan_metrics_plot_html|safe }}
-            </div>
-        </div>
-        
-        <div class="graph-container">
-            <h3>t-SNE - MetricsModel</h3>
-            <div id="tsneMetricsPlot">
-                {{ tsne_metrics_plot_html|safe }}
-            </div>
-        </div>
-
-        <div class="graph-container">
-            <h3>DBSCAN - tSNE MetricsModel</h3>
-            <div id="tsneDbscanMetricsPlot">
-                {{ tsne_dbscan_metrics_plot_html|safe }}
-            </div>
-        </div>
-        
-        <div class="graph-container">
-            <h3>t-SNE - GlobalMetricsModel</h3>
-            <div id="tsneGlobalPlot">
-                {{ tsne_global_plot_html|safe }}
-            </div>
-        </div>
-
-        <div class="graph-container">
-            <h3>PCA - GlobalMetricsModel</h3>
-            <div id="pcaGlobalPlot">
-                {{ pca_global_plot_html|safe }}
-            </div>
-        </div>
-
+    <div class="analytics-section">
+        Spatial & Social Analysis<span class="tooltip"
+        data-tooltip="This section is responsible for generating different comparative graphs between traces, using known algorithms for this purpose..">
+        ?</span>
     </div>
+
+    <div class="config-section">
+        <button type="button" class="button" onclick="toggleConfig()">Show Contacts Distribution</button>
+        <button type="button" class="button" onclick="toggleConfig()">Show Stay-points Heatmap</button>
+
 </div>

@@ -12,6 +12,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
+    <div class="title">MobMetrics</div>
     <div class="tabs">
         <div class="tab active" onclick="switchTab('home')">Home</div>
         <div class="tab" onclick="switchTab('upload')">Upload & Process</div>
@@ -55,6 +56,10 @@
                 });
             });
         });
+
+        function selectEntity(entityId) {
+            window.location.href = `?entity_id=${entityId}`;
+        }
 
     </script>
 </body>
