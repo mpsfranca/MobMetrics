@@ -34,7 +34,8 @@ from .visualizations.trace.trace_plot import (
 )
 
 from .visualizations.metrics.global_metrics import (
-    plot_radar_chart
+    plot_radar_chart,
+    plot_travel_distance_comparison
 )
 
 from .models import (ConfigModel, MetricsModel,
@@ -109,10 +110,12 @@ def dashboard_view(request):
             try:
                 entity_id = int(entity_id)
                 trace_in_time_html = plot_trace_in_time(file_name=file_name, entity_id=entity_id)
+                travel_distance_compare_plot_html = plot_travel_distance_comparison(file_name=file_name, entity_id=entity_id)
             except ValueError:
                 trace_in_time_html = plot_trace_in_time(file_name=file_name)
         else:
-            plot_trace_in_time(file_name=file_name)
+            trace_in_time_html = plot_trace_in_time(file_name=file_name)
+            travel_distance_compare_plot_html = plot_travel_distance_comparison(file_name=file_name, entity_id=0)
     else:
         metrics = None
         global_metrics = None
@@ -134,6 +137,7 @@ def dashboard_view(request):
         'trace_plot_html': trace_plot_html,
         'radar_chart_html': radar_chart_html,
         'trace_in_time_html': trace_in_time_html,
+        'travel_distance_compare_plot': travel_distance_compare_plot_html,
         'pca_metrics_plot_html': pca_metrics_plot_html,
         'pca_explained_plot_html': pca_explained_plot_html,
         'pca_dbscan_metrics_plot_html': pca_dbscan_metrics_plot_html,
