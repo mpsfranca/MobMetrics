@@ -36,7 +36,9 @@ from .visualizations.trace.trace_plot import (
 
 from .visualizations.metrics.global_metrics import (
     plot_radar_chart,
-    plot_travel_distance_comparison
+    plot_travel_distance_comparison,
+    plot_metric_histogram,
+    plot_metric_boxplot
 )
 
 from .models import (ConfigModel, MetricsModel,
@@ -114,11 +116,15 @@ def dashboard_view(request):
                 entity_id = int(entity_id)
                 trace_in_time_html = plot_trace_in_time(file_name=file_name, entity_id=entity_id)
                 travel_distance_compare_plot_html = plot_travel_distance_comparison(file_name=file_name, entity_id=entity_id)
+                metric_histogram_html = plot_metric_histogram(file_name=file_name)
+                metric_boxplot_html = plot_metric_boxplot(file_name=file_name)
             except ValueError:
                 trace_in_time_html = plot_trace_in_time(file_name=file_name)
         else:
             trace_in_time_html = plot_trace_in_time(file_name=file_name)
             travel_distance_compare_plot_html = plot_travel_distance_comparison(file_name=file_name, entity_id=0)
+            metric_histogram_html = plot_metric_histogram(file_name=file_name)
+            metric_boxplot_html = plot_metric_boxplot(file_name=file_name)
         
         if stay_point_id is not None:
             try:
@@ -136,6 +142,8 @@ def dashboard_view(request):
         trace_plot_html = None
         radar_chart_html = None
         travel_distance_compare_plot_html = None
+        metric_histogram_html = None
+        metric_boxplot_html = None
         stay_points_html = None
 
     return render(request, 'dashboard.html', {
@@ -153,6 +161,8 @@ def dashboard_view(request):
         'radar_chart_html': radar_chart_html,
         'trace_in_time_html': trace_in_time_html,
         'travel_distance_compare_plot': travel_distance_compare_plot_html,
+        'metric_histogram': metric_histogram_html,
+        'metric_boxplot': metric_boxplot_html,
         'stay_point_scatter_plot': stay_points_html,
         'pca_metrics_plot_html': pca_metrics_plot_html,
         'pca_explained_plot_html': pca_explained_plot_html,

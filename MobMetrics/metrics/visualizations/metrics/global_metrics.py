@@ -144,16 +144,111 @@ def plot_correlation_heatmap(file_name):
 
     return fig.to_html(full_html=False)
 
-def plot_metric_histogram(file_name, metric='avg_travel_distance'):
-    queryset = GlobalMetricsModel.objects.filter(file_name=file_name).values(metric)
+def plot_metric_histogram(file_name, metric_name='avg_journey_distance'):
+    """
+    Gera um histograma de uma métrica específica para todas as entidades em um determinado arquivo.
+
+    Args:
+        file_name (str): Nome do arquivo para filtrar as entidades.
+        metric_name (str): Nome da métrica a ser plotada. Padrão: 'avg_journey_distance'.
+
+    Returns:
+        str: HTML do gráfico Plotly.
+    """
+    valid_metrics = [
+        'travel_time', 'travel_distance', 'travel_avg_speed',
+        'travel_avg_angle_dirct', 'radius_of_gyration', 'spatial_cover',
+        'total_contact_time', 'num_contacts', 'avg_contact_time',
+        'angle_variation_coefficient', 'stay_points_visits',
+        'avg_time_visit', 'visit_time_variation_coefficient',
+        'num_journeys', 'avg_journey_time', 'avg_journey_distance',
+        'avg_journey_avg_speed'
+    ]
+
+    if metric_name not in valid_metrics:
+        return f"<h3>Invalid metric: '{metric_name}'. Must be one of: {', '.join(valid_metrics)}</h3>"
+
+    queryset = MetricsModel.objects.filter(file_name=file_name).values('entity_id', metric_name)
 
     if not queryset.exists():
-        return f"<h3>No data available for {metric}</h3>"
+        return "<h3>No data available for this file</h3>"
 
     df = pd.DataFrame.from_records(queryset)
+    df = df.dropna()
 
-    fig = go.Figure(data=[go.Histogram(x=df[metric])])
-    fig.update_layout(title=f"Distribution of {metric} for {file_name}")
+    if df.empty:
+        return f"<h3>No valid data for metric '{metric_name}' in file '{file_name}'</h3>"
+
+    fig = px.histogram(
+        df,
+        x=metric_name,
+        nbins=20,
+        title=f'Histogram of the Metric: {metric_name.replace("_", " ").title()}',
+        labels={metric_name: metric_name.replace("_", " ").title()}
+    )
+
+    fig.update_layout(
+        template='plotly_white',
+        width=600,
+        height=500,
+        font=dict(color='black'),
+        bargap=0.1,
+        yaxis=dict(title_text='')
+    )
+
+    return fig.to_html(full_html=False)
+
+
+def plot_metric_boxplot(file_name, metric_name='avg_journey_distance'):
+    """
+    Gera um boxplot de uma métrica específica para todas as entidades de um arquivo.
+
+    Args:
+        file_name (str): Nome do arquivo para filtrar as entidades.
+        metric_name (str): Nome da métrica a ser plotada. Padrão: 'avg_journey_distance'.
+
+    Returns:
+        str: HTML do gráfico Plotly.
+    """
+    valid_metrics = [
+        'travel_time', 'travel_distance', 'travel_avg_speed',
+        'travel_avg_angle_dirct', 'radius_of_gyration', 'spatial_cover',
+        'total_contact_time', 'num_contacts', 'avg_contact_time',
+        'angle_variation_coefficient', 'stay_points_visits',
+        'avg_time_visit', 'visit_time_variation_coefficient',
+        'num_journeys', 'avg_journey_time', 'avg_journey_distance',
+        'avg_journey_avg_speed'
+    ]
+
+    if metric_name not in valid_metrics:
+        return f"<h3>Invalid metric: '{metric_name}'. Must be one of: {', '.join(valid_metrics)}</h3>"
+
+    queryset = MetricsModel.objects.filter(file_name=file_name).values('entity_id', metric_name)
+
+    if not queryset.exists():
+        return "<h3>No data available for this file</h3>"
+
+    df = pd.DataFrame.from_records(queryset)
+    df = df.dropna()
+
+    if df.empty:
+        return f"<h3>No valid data for metric '{metric_name}' in file '{file_name}'</h3>"
+
+    fig = px.box(
+        df,
+        y=metric_name,
+        points="all",
+        title=f'Boxplot of the Metric: {metric_name.replace("_", " ").title()}',
+        labels={metric_name: metric_name.replace("_", " ").title()}
+    )
+
+    fig.update_layout(
+        template='plotly_white',
+        width=600,
+        height=500,
+        font=dict(color='black'),
+        yaxis=dict(title_text='')
+    )
 
     return fig.to_html(full_html=False)
 
