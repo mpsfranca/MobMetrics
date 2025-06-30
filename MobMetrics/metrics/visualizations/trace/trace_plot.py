@@ -4,18 +4,7 @@ import pandas as pd
 
 from  ...models import TraceModel, StayPointModel
 
-
-def plot_trace_entities(file_name, max_points=5000):
-    """
-    Generates an interactive scatterplot of traces using Plotly (with colors differentiating the entities).
-
-    Args:
-        file_name (str): The file_name filter to retrieve traces.
-        max_points (int): Maximum number of points to plot.
-
-    Returns:
-        str: HTML string of the Plotly figure to embed in a webpage.
-    """
+def plot_trace_entities(file_name, max_points=5000, is_geographical=True):
     queryset = TraceModel.objects.filter(file_name=file_name).values(
         'entity_id', 'x', 'y', 'timestamp'
     )
@@ -28,89 +17,88 @@ def plot_trace_entities(file_name, max_points=5000):
     if len(df) > max_points:
         df = df.sample(n=max_points, random_state=42)
 
-    fig = px.scatter(
-        df,
-        x='x',
-        y='y',
-        color=df['entity_id'].astype(str),
-        hover_data=['entity_id', 'timestamp'],
-        title=f"Trace Scatter Plot - {file_name}",
-        labels={'x': 'X', 'y': 'Y', 'entity_id': 'Entity ID'}
-    )
+    if is_geographical:
+        fig = px.scatter_mapbox(
+            df,
+            lat="y",
+            lon="x",
+            color=df["entity_id"].astype(str),
+            hover_data=["entity_id", "timestamp"],
+            title=f"Geographical Trace Plot - {file_name}",
+            zoom=10,
+            height=480,
+            width=480
+        )
+        fig.update_layout(mapbox_style="open-street-map")
+    else:
+        fig = px.scatter(
+            df,
+            x="x",
+            y="y",
+            color=df["entity_id"].astype(str),
+            hover_data=["entity_id", "timestamp"],
+            title=f"Trace Scatter Plot - {file_name}",
+            labels={"x": "X", "y": "Y", "entity_id": "Entity ID"},
+            height=480,
+            width=480
+        )
 
-    fig.update_layout(
-        width=480,
-        height=480,
-        legend_title="Entity ID",
-        template="plotly_white"
-    )
+    fig.update_layout(template="plotly_white", legend_title="Entity ID")
 
-    html_str = fig.to_html(full_html=False, include_plotlyjs='cdn')
+    return fig.to_html(full_html=False, include_plotlyjs='cdn')
 
-    return html_str
 
-def plot_trace_in_time(file_name, entity_id=0):
-    """
-    Generates an interactive scatterplot for a single entity,
-    with color representing the timestamp (time progression).
-
-    Args:
-        file_name (str): The file_name to filter the trace data.
-        entity_id (int): The entity ID to plot.
-
-    Returns:
-        str: HTML string of the Plotly figure to embed in a webpage.
-    """
+def plot_trace_in_time(file_name, entity_id=0, is_geographical=True):
     queryset = TraceModel.objects.filter(
         file_name=file_name,
         entity_id=entity_id
-    ).values('x', 'y', 'timestamp')
+    ).values("x", "y", "timestamp")
 
     df = pd.DataFrame.from_records(queryset)
 
     if df.empty:
         return f"<p>No data available for entity {entity_id} in file {file_name}.</p>"
 
-    df = df.sort_values('timestamp')
+    df = df.sort_values("timestamp")
 
-    fig = px.scatter(
-        df,
-        x='x',
-        y='y',
-        color='timestamp',
-        color_continuous_scale='Viridis',
-        hover_data=['timestamp'],
-        title=f"Entity {entity_id} - Trace Over Time",
-        labels={'x': 'X', 'y': 'Y', 'timestamp': 'Time'}
-    )
-
-    fig.update_layout(
-        width=480,
-        height=480,
-        template="plotly_white",
-        coloraxis_colorbar=dict(
-            title="Timestamp",
-            tickformat=".0f"
+    if is_geographical:
+        fig = px.scatter_mapbox(
+            df,
+            lat="y",
+            lon="x",
+            color="timestamp",
+            color_continuous_scale="Viridis",
+            hover_data=["timestamp"],
+            title=f"Entity {entity_id} - Geo Trace Over Time",
+            zoom=10,
+            height=480,
+            width=480
         )
-    )
+        fig.update_layout(mapbox_style="open-street-map")
+    else:
+        fig = px.scatter(
+            df,
+            x="x",
+            y="y",
+            color="timestamp",
+            color_continuous_scale="Viridis",
+            hover_data=["timestamp"],
+            title=f"Entity {entity_id} - Trace Over Time",
+            labels={"x": "X", "y": "Y", "timestamp": "Time"},
+            height=480,
+            width=480
+        )
+        fig.update_layout(
+            coloraxis_colorbar=dict(title="Timestamp", tickformat=".0f")
+        )
 
-    html_str = fig.to_html(full_html=False, include_plotlyjs='cdn')
+    fig.update_layout(template="plotly_white")
 
-    return html_str
+    return fig.to_html(full_html=False, include_plotlyjs='cdn')
 
-def plot_stay_points(file_name, highlight_spId=1):
-    """
-    Generates a scatter plot of stay points, highlighting a selected spId.
-
-    Args:
-        df (pd.DataFrame): DataFrame with columns ['spId', 'x', 'y'].
-        highlight_spId (int): The spId to highlight.
-
-    Returns:
-        plotly.graph_objects.Figure: Scatter plot figure.
-    """
+def plot_stay_points(file_name, highlight_spId=1, is_geographical=True):
     queryset = StayPointModel.objects.filter(file_name=file_name).values(
-        'stay_point_id', 'x_center', 'y_center'
+        "stay_point_id", "x_center", "y_center"
     )
 
     df_plot = pd.DataFrame.from_records(queryset)
@@ -118,51 +106,72 @@ def plot_stay_points(file_name, highlight_spId=1):
     if df_plot.empty:
         raise ValueError("DataFrame is empty or does not contain enough points.")
 
-    # Separa os pontos destacados e não destacados
-    df_highlight = df_plot[df_plot['stay_point_id'] == highlight_spId]
-    df_others = df_plot[df_plot['stay_point_id'] != highlight_spId]
+    df_highlight = df_plot[df_plot["stay_point_id"] == highlight_spId]
+    df_others = df_plot[df_plot["stay_point_id"] != highlight_spId]
 
-    fig = go.Figure()
+    if is_geographical:
+        fig = go.Figure()
 
-    # Plot dos outros stay points (cinza)
-    fig.add_trace(go.Scatter(
-        x=df_others['x_center'],
-        y=df_others['y_center'],
-        mode='markers',
-        marker=dict(
-            color='lightgray',
-            size=10,
-            line=dict(width=0)
-        ),
-        hovertext=df_others['stay_point_id'],
-        hoverinfo='text',
-        name='Other Stay Points'
-    ))
+        fig.add_trace(go.Scattermapbox(
+            lat=df_others["y_center"],
+            lon=df_others["x_center"],
+            mode="markers",
+            marker=dict(size=9, color="lightgray"),
+            name="Other Stay Points",
+            text=df_others["stay_point_id"],
+            hoverinfo="text"
+        ))
 
-    # Plot do stay point destacado (vermelho)
-    fig.add_trace(go.Scatter(
-        x=df_highlight['x_center'],
-        y=df_highlight['y_center'],
-        mode='markers',
-        marker=dict(
-            color='red',
-            size=12,
-            line=dict(width=0)
-        ),
-        hovertext=df_highlight['stay_point_id'],
-        hoverinfo='text',
-        name=f'Stay Point {highlight_spId}'
-    ))
+        fig.add_trace(go.Scattermapbox(
+            lat=df_highlight["y_center"],
+            lon=df_highlight["x_center"],
+            mode="markers",
+            marker=dict(size=12, color="red"),
+            name=f"Stay Point {highlight_spId}",
+            text=df_highlight["stay_point_id"],
+            hoverinfo="text"
+        ))
 
-    fig.update_layout(
-        width=480,
-        height=480,
-        template="plotly_white",
-        title=f'Stay Points Scatter Plot - Highlight spId {highlight_spId}',
-        xaxis=dict(title='X'),
-        yaxis=dict(title='Y'),
-        showlegend=False,
-        font=dict(color='black')
-    )
+        fig.update_layout(
+            mapbox_style="open-street-map",
+            mapbox_zoom=10,
+            mapbox_center={"lat": df_plot["y_center"].mean(), "lon": df_plot["x_center"].mean()},
+            height=480,
+            width=480,
+            title=f"Stay Points - Highlight spId {highlight_spId}"
+        )
+    else:
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatter(
+            x=df_others["x_center"],
+            y=df_others["y_center"],
+            mode="markers",
+            marker=dict(color="lightgray", size=10),
+            hovertext=df_others["stay_point_id"],
+            hoverinfo="text",
+            name="Other Stay Points"
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=df_highlight["x_center"],
+            y=df_highlight["y_center"],
+            mode="markers",
+            marker=dict(color="red", size=12),
+            hovertext=df_highlight["stay_point_id"],
+            hoverinfo="text",
+            name=f"Stay Point {highlight_spId}"
+        ))
+
+        fig.update_layout(
+            width=480,
+            height=480,
+            template="plotly_white",
+            title=f"Stay Points Scatter Plot - Highlight spId {highlight_spId}",
+            xaxis=dict(title="X"),
+            yaxis=dict(title="Y"),
+            showlegend=False,
+            font=dict(color="black")
+        )
 
     return fig.to_html(full_html=False)
