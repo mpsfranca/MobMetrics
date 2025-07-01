@@ -4,7 +4,7 @@ import pandas as pd
 
 from  ...models import TraceModel, StayPointModel
 
-def plot_trace_entities(file_name, max_points=5000, is_geographical=True):
+def plot_trace_entities(file_name, max_points=5000, is_geographical=False):
     queryset = TraceModel.objects.filter(file_name=file_name).values(
         'entity_id', 'x', 'y', 'timestamp'
     )
@@ -48,7 +48,7 @@ def plot_trace_entities(file_name, max_points=5000, is_geographical=True):
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
 
 
-def plot_trace_in_time(file_name, entity_id=0, is_geographical=True):
+def plot_trace_in_time(file_name, entity_id=0, is_geographical=False):
     queryset = TraceModel.objects.filter(
         file_name=file_name,
         entity_id=entity_id
@@ -96,7 +96,7 @@ def plot_trace_in_time(file_name, entity_id=0, is_geographical=True):
 
     return fig.to_html(full_html=False, include_plotlyjs='cdn')
 
-def plot_stay_points(file_name, highlight_spId=1, is_geographical=True):
+def plot_stay_points(file_name, highlight_spId=1, is_geographical=False):
     queryset = StayPointModel.objects.filter(file_name=file_name).values(
         "stay_point_id", "x_center", "y_center"
     )
