@@ -77,8 +77,14 @@ class Factory:
         # Extracting additional global and social metrics
         Entropy(self.total_visits, self.parameters, self.trace_file).extract()
         StaypointImportanceDegree(self.parameters).extract()
-        DetectContact(self.parameters, self.trace_file).extract()        
+        
+        skip_contact_detection = self.parameters[-1]
+
+        if not skip_contact_detection:
+            DetectContact(self.parameters, self.trace_file).extract()
+
         compute_global_metrics(self.file_name)
+
         QuadrantEntropy(self.trace_file, self.parameters).extract()
         TrajectoryCorrelationDegree(self.trace_file, self.parameters).extract()
         VisitTimeVariationCoefficient(self.file_name).extract()

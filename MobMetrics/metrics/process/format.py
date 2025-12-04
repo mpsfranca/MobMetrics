@@ -35,7 +35,8 @@ class Format:
         """Transforms the 'date_time' column to relative time in seconds (float)."""
         self.trace = self.trace.sort_values(by=['date_time'])
         first_time = self.trace.iloc[0]['date_time']
-        self.trace['time'] = (self.trace['date_time'] - first_time).dt.total_seconds()
+        self.trace['date_time'] = pd.to_datetime(self.trace['date_time'], utc=True, errors='coerce')
+        self.trace['time'] = (pd.to_datetime(self.trace['date_time']) - first_time).dt.total_seconds()
         self.trace.loc[0, 'time'] = 0
 
     def _sort(self):

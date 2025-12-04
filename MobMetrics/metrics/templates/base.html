@@ -1,0 +1,66 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MobMetrics</title>
+
+    <link rel="stylesheet" href="{% static 'metrics/css/style.css' %}">
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="title">MobMetrics</div>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('home')">Home</div>
+        <div class="tab" onclick="switchTab('upload')">Upload & Process</div>
+        <div class="tab" onclick="switchTab('results')">Results</div>
+        <div class="tab" onclick="switchTab('manage')">Manage Files</div>
+    </div>
+
+    <div class="content" id="home">
+        <h2>MobMetrics</h2>
+    </div>
+
+    {% block content %}
+    {# Specific content for each page will be inserted here #}
+    {% endblock content %}
+
+    <script>
+        // Configure Tabs
+        function toggleConfig() {
+            const configDiv = document.getElementById('configForm');
+            configDiv.classList.toggle('hidden');
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
+            document.querySelector(`.tab[onclick="switchTab('${id}')"]`).classList.add('active');
+            document.getElementById(id).classList.remove('hidden');
+            localStorage.setItem('lastTab', id);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const lastTab = localStorage.getItem('lastTab') || 'home';
+            switchTab(lastTab);
+
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", () => {
+                    const visibleTab = document.querySelector(".content:not(.hidden)");
+                    if (visibleTab && visibleTab.id) {
+                        localStorage.setItem("lastTab", visibleTab.id);
+                    }
+                });
+            });
+        });
+
+        function selectEntity(entityId) {
+            window.location.href = `?entity_id=${entityId}`;
+        }
+
+    </script>
+</body>
+</html>
