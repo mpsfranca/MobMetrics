@@ -2,7 +2,7 @@
 from ...models import VisitModel, JourneyModel
 from ..spatial.journey_distance import JourneyDistance
 from ..temporal.journey_time import JourneyTime
-from ..kinematic.journay_avarage_speed import JourneyAverageSpeed
+from ..kinematic.journey_avarage_speed import JourneyAverageSpeed
 
 
 class Journey:

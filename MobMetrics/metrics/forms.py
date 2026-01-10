@@ -48,3 +48,32 @@ class DataAnalytcsParamsForm(forms.Form):
     dbscan_min_samples = forms.IntegerField(
         label='BDscan Min Samples', initial=5 
     )
+
+class BonnMotionForm(forms.Form):
+    "Form created to get all parameters required by a given mobility model in BonnMotion"
+
+    number_of_nodes = forms.IntegerField(
+        label="Number of Nodes"
+    )
+
+    duration = forms.IntegerField(
+        label="Duration in seconds"
+    )
+
+    skip = forms.IntegerField(
+        label="Seconds to skip at the start of the scenario"
+    )
+
+    width = forms.IntegerField(
+        label="Area Width"
+    )
+
+    height = forms.IntegerField(
+        label="Area Height"
+    )
+
+    name = forms.CharField(
+        label='Scenario Name',
+        max_length=255,
+        required=True
+    )    

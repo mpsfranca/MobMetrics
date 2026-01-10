@@ -16,6 +16,7 @@
     <div class="tabs">
         <div class="tab active" onclick="switchTab('home')">Home</div>
         <div class="tab" onclick="switchTab('upload')">Upload & Process</div>
+        <div class="tab" onclick="switchTab('bonnmotion')">Generate Data</div>
         <div class="tab" onclick="switchTab('results')">Results</div>
         <div class="tab" onclick="switchTab('manage')">Manage Files</div>
     </div>
@@ -29,12 +30,6 @@
     {% endblock content %}
 
     <script>
-        // Configure Tabs
-        function toggleConfig() {
-            const configDiv = document.getElementById('configForm');
-            configDiv.classList.toggle('hidden');
-        }
-
         function switchTab(id) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
@@ -56,11 +51,6 @@
                 });
             });
         });
-
-        function selectEntity(entityId) {
-            window.location.href = `?entity_id=${entityId}`;
-        }
-
     </script>
 </body>
 </html>
