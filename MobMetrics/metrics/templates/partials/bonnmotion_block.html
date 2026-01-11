@@ -2,28 +2,27 @@
     <h2>Create Mobility Data with BonnMotion</h2>
 
     <form>
-
         <div class="form-container">
             <div class="form-group">
                 <label for="model" class="form-label">Mobility Model</label>
-                <select name="model" id="model">
-                    <option value="">--Select a Mobility Model--</option>
+                <select name="model" id="model" onchange="showParams()">
+                    <option value="" disabled selected>-- Select a Mobility Model --</option>
                     <option value="Boundless">Boundless Simulation Area Model</option>
-                    <option value="ChainScenario">Chain Model</option>
+                    <!-- <option value="ChainScenario">Chain Model</option>
                     <option value="Column">Column Mobility Model</option>
                     <option value="DisasterArea">Disaster Area Model</option>
                     <option value="OriginalGaussMarkov">The Original Gauss-Markov Model</option>
                     <option value="GaussMarkov">The Gauss-Markov Model</option>
                     <option value="ManhattanGrid">The Manhattan Grid Model</option>
-                    <option value="RandomStreet">Random Stree Model</option>
+                    <option value="RandomStreet">Random Street Model</option>
                     <option value="MSLAW">Map-based Self-similar Least Action Walk</option>
                     <option value="Nomadic">Nomadic Community Mobility Model</option>
                     <option value="ProbRandomWalk">Probabilistic Random Walk Model</option>
                     <option value="Pursue">Pursue Mobility Model</option>
                     <option value="RandomDirection">Random Direction Model</option>
-                    <option value="RandomWalk">Random Walk Model</option>
+                    <option value="RandomWalk">Random Walk Model</option> -->
                     <option value="RandomWaypoint">The Random Waypoint Model</option>
-                    <option value="RPGM">The Reference Point Group Mobility Model</option>
+                    <!-- <option value="RPGM">The Reference Point Group Mobility Model</option>
                     <option value="SLAW">Self-similar Least Action Walk</option>
                     <option value="SMOOTH">SMOOTH Model</option>
                     <option value="Static">Static Scenarios</option>
@@ -31,38 +30,58 @@
                     <option value="SteadyStateRandomWaypoint">Steady-State Random Waypoint Model</option>
                     <option value="SWIM">Small World In Motion</option>
                     <option value="TIMM">Tactical Indoor Mobility Model</option>
-                    <option value="TLW">Truncated Lévy Walk</option>
+                    <option value="TLW">Truncated Lévy Walk</option> -->
                 </select>
             </div>
 
-            <div class="form-group">
+            <!-- Scenario Params -->
+            <div class="common param hidden">
                 <label for="name" class="form-label">Name of Scenario</label>
                 <input type="text" class="form-control" id="name" name="name" required>
             </div>
 
-            <div class="form-group">
-                <label for="nodes" class="form-label">Number of Nodes (-n)</label>
-                <input type="number" class="form-control" id="nodes" name="nodes" min="1" required>
+            <div class="common param hidden">
+                <label for="duration">Scenario Duration</label>
+                <input type="number" name="duration" id="duration">
             </div>
 
-            <div class="form-group">
-                <label for="duration" class="form-label">Duration in seconds (-d)</label>
-                <input type="number" class="form-control" id="duration" name="duration" min="1" required>
+            <div class="common param hidden">
+                <label for="skip-time">Number of Seconds to Skip</label>
+                <input type="number" name="skip-time" id="skip-time">
             </div>
 
-            <div class="form-group">
-                <label for="skip" class="form-label">Time to Skip in seconds (-?)</label>
-                <input type="number" class="form-control" id="skip" name="skip" min="0" value="3600">
+            <div class="common param hidden">
+                <label for="nodes">Number of Nodes</label>
+                <input type="number" name="nodes" id="nodes">
             </div>
 
-            <div class="form-group">
-                <label for="width" class="form-label">Area Width</label>
-                <input type="number" class="form-control" id="width" name="width" min="1" required>
+            <div class="common param hidden">
+                <label for="area-width">Width of Simulation Area</label>
+                <input type="number" name="area-width" id="area-width">
             </div>
 
-            <div class="form-group">
-                <label for="height" class="form-label">Area Height</label>
-                <input type="number" class="form-control" id="height" name="height" min="1" required>
+            <div class="common param hidden">
+                <label for="area-height">Height of Simulation Area</label>
+                <input type="number" name="area-height" id="area-height">
+            </div>
+
+            <div class="param hidden">
+                <label for="area-depth">Depth of Simulation Area</label>
+                <input type="number" name="area-depth" id="area-depth">
+            </div>
+
+            <div class="param hidden">
+                <label for="seed">Random Seed</label>
+                <input type="number" name="seed" id="seed">
+            </div>
+
+            <div class="param hidden">
+                <label for="dimension-output">Dimension of Movement Output</label>
+                <select name="dimension-output" id="dimension-output">
+                    <option value="" disabled selected>-- Select a Dimension --</option>
+                    <option value="2D">2D</option>
+                    <option value="3D">3D</option>
+                </select>
             </div>
 
         </div>

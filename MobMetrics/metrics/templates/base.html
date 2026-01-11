@@ -30,6 +30,31 @@
     {% endblock content %}
 
     <script>
+        function showParams() {
+            const model = document.getElementById('model').value;
+            document.querySelectorAll('.param').forEach(p => {
+                if (!p.classList.contains(`.${model}`)) {
+                    p.classList.remove('form-group')
+                    p.classList.add('hidden')
+                }
+            })
+
+            document.querySelectorAll('.common').forEach(p => {
+                p.classList.remove('hidden')
+                p.classList.add('form-group')
+            })
+
+            document.querySelectorAll(`.${model}`).forEach(p => {
+                p.classList.remove('hidden')
+                p.classList.add('form-group')
+            }) 
+        }
+
+        function toggleConfig() {
+                const configDiv = document.getElementById('configForm');
+                configDiv.classList.toggle('hidden');
+            }
+
         function switchTab(id) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
@@ -39,6 +64,9 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
+            const select = document.getElementById('model');
+            select.value = '';
+
             const lastTab = localStorage.getItem('lastTab') || 'home';
             switchTab(lastTab);
 
@@ -51,6 +79,10 @@
                 });
             });
         });
+
+        function selectEntity(entityId) {
+            window.location.href = `?entity_id=${entityId}`;
+        }
     </script>
 </body>
 </html>
