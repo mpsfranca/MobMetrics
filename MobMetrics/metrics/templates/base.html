@@ -32,17 +32,30 @@
     <script>
         function showParams() {
             const model = document.getElementById('model').value;
-            document.querySelectorAll('.param').forEach(p => {
-                p.classList.remove('form-group')
-                p.classList.add('hidden')
-            })
 
-            
+            // 1) Hide + disable everything in .param
+            document.querySelectorAll('.param').forEach(container => {
+                container.classList.remove('form-group');
+                container.classList.add('hidden');
+
+                // Disable all form controls inside (disabled controls aren't editable/focusable/submitted)
+                container.querySelectorAll('input, select, textarea, button').forEach(ctrl => {
+                    ctrl.disabled = true;
+                });
+            });
+
+            // 2) Show + enable only the relevant groups
             const selector = `.common, .${model}`;
+            document.querySelectorAll(selector).forEach(container => {
+                const shouldHide = container.classList.contains(`${model}-hide`);
 
-            document.querySelectorAll(selector).forEach(el => {
-                el.classList.toggle('hidden', el.classList.contains(`${model}-hide`));
-                el.classList.toggle('form-group', !el.classList.contains('parameter-group'));
+                container.classList.toggle('hidden', shouldHide);
+                container.classList.toggle('form-group', !container.classList.contains('parameter-group'));
+
+                // Re-enable controls if shown; keep disabled if hidden
+                container.querySelectorAll('input, select, textarea, button').forEach(ctrl => {
+                    ctrl.disabled = shouldHide;
+                });
             });
         }
 

@@ -17,6 +17,7 @@ from django.conf import settings
 # Local application/library specific imports.
 from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm
 from .utils.csv_converter import nodePopulate, csvWrite
+from .utils.model_params import functions
 from .process.factory import Factory
 from .process.format import Format
 from .process.DataAnalytcs.pca import PCA
@@ -480,6 +481,10 @@ def _handle_bonnmotion(request):
     seed = data.get('seed')
     depth = data.get('area_depth')
     dimension_output = data.get('dimension_output')
+    max_speed = data.get('max_speed')
+    min_speed = data.get('min_speed')
+    max_pause_time = data.get('max_pause_time')
+    # Scenario Params
     args = [
     "-f", data.get('name'),
     model,
@@ -496,8 +501,14 @@ def _handle_bonnmotion(request):
         args += ["-z", depth]
     if dimension_output:
         args += ["-J", dimension_output]
+    if max_speed:
+        args += ["-h",max_speed]
+    if min_speed:
+        args += ["-l",min_speed]
+    if max_pause_time:
+        args += ["-p",max_pause_time]
 
-    
+    args += functions[model](data)
 
     subprocess.run([settings.BONNMOTION_DIR,*args])
 
