@@ -33,25 +33,17 @@
         function showParams() {
             const model = document.getElementById('model').value;
             document.querySelectorAll('.param').forEach(p => {
-                if (!p.classList.contains(`.${model}`)) {
-                    p.classList.remove('form-group')
-                    p.classList.add('hidden')
-                }
+                p.classList.remove('form-group')
+                p.classList.add('hidden')
             })
 
-            document.querySelectorAll('.common').forEach(p => {
-                p.classList.remove('hidden')
-                if (!p.classList.contains('parameter-group')) {
-                    p.classList.add('form-group')
-                }
-            })
+            
+            const selector = `.common, .${model}`;
 
-            document.querySelectorAll(`.${model}`).forEach(p => {
-                p.classList.remove('hidden')
-                if (!p.classList.contains('parameter-group')) {
-                p.classList.add('form-group')
-                }
-            }) 
+            document.querySelectorAll(selector).forEach(el => {
+                el.classList.toggle('hidden', el.classList.contains(`${model}-hide`));
+                el.classList.toggle('form-group', !el.classList.contains('parameter-group'));
+            });
         }
 
         function toggleConfig() {
