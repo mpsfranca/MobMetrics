@@ -16,8 +16,8 @@
                     <option value="OriginalGaussMarkov">The Original Gauss-Markov Model</option>
                     <option value="GaussMarkov">The Gauss-Markov Model</option>
                     <option value="ManhattanGrid">The Manhattan Grid Model</option>
-                    <option value="RandomStreet">Random Street Model</option>
-                    <option value="MSLAW">Map-based Self-similar Least Action Walk</option>
+                    <!-- <option value="RandomStreet">Random Street Model</option>
+                    <option value="MSLAW">Map-based Self-similar Least Action Walk</option> -->
                     <option value="Nomadic">Nomadic Community Mobility Model</option>
                     <option value="ProbRandomWalk">Probabilistic Random Walk Model</option>
                     <option value="Pursue">Pursue Mobility Model</option>
@@ -144,8 +144,8 @@
                 </div>
 
                 <div class="param hidden Column">
-                    <label for="max_distance_group_center">Max. Distance to Group Center</label>
-                    <input type="number" name="max_distance_group_center" id="max_distance_group_center" value="2.5" required>
+                    <label for="max_distance_group_center_c">Max. Distance to Group Center</label>
+                    <input type="number" name="max_distance_group_center_c" id="max_distance_group_center_c" value="2.5" required>
                 </div>
             </div>
 
@@ -153,7 +153,7 @@
             <div class="param parameter-group hidden DisasterArea">
             <h3>DisasterArea Specific Params</h3>
             <div class="param hidden DisasterArea">
-                <label for="avg-nodes-group">Average Number of Nodes per Group</label>
+                <label for="avg-nodes-group-da">Average Number of Nodes per Group</label>
                 <input type="number" name="avg-nodes-group" id="avg-nodes-group" value="3.0" required>
             </div>
 
@@ -170,7 +170,7 @@
 
             <!-- OriginalGaussMarkov -->
             <div class="param parameter-group hidden OriginalGaussMarkov">
-            <h3>OriginalGaussMarkov Specific Params</h3>
+                <h3>OriginalGaussMarkov Specific Params</h3>
             </div>
 
             <!-- GaussMarkov -->
@@ -183,19 +183,29 @@
                 <h3>ManhattanGrid Specific Params</h3>
             </div>
             
-            <!-- RandomStreet -->
-            <div class="param parameter-group hidden RandomStreet">
-                <h3>RandomStreet Specific Params</h3>
-            </div>
-            
-            <!-- MSLAW -->
-            <div class="param parameter-group hidden MSLAW">
-                <h3>MSLAW Specific Params</h3>
-            </div>
-            
             <!-- Nomadic -->
             <div class="param parameter-group hidden Nomadic">
                 <h3>Nomadic Specific Params</h3>
+                <div class="param hidden Nomadic">
+                    <label for="avg_nodes_group_n">Average Number of Nodes per Group</label>
+                    <input type="number" name="avg_nodes_group_n" id="avg_nodes_group_n" value="3.0" required>
+                </div>
+
+                <div class="param hidden Nomadic">
+                    <label for="max_distance_group_center_n">Max. Distance to Group Center</label>
+                    <input type="number" name="max_distance_group_center_n" id="max_distance_group_center_n" value="2.5" required>
+                </div>
+
+                <div class="param hidden Nomadic">
+                    <label for="group_size_stdd">Group Size Standard Deviation</label>
+                    <input type="number" name="group_size_stdd" id="group_size_stdd" value="2.0" required>
+                </div>
+
+                <div class="param hidden Nomadic">
+                    <label for="ref_point_max_pause">Reference Point Max. Pause</label>
+                    <input type="number" name="ref_point_max_pause" id="ref_point_max_pause" value="60.0" required>
+                </div>
+
             </div>
             
             <!-- ProbRandomWalk -->
