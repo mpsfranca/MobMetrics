@@ -1,13 +1,15 @@
 <div class="content hidden" id="bonnmotion">
     <h2>Create Mobility Data with BonnMotion</h2>
 
-    <form>
+    <form method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
         <div class="form-container">
             <div class="form-group">
                 <label for="model" class="form-label">Mobility Model</label>
                 <select name="model" id="model" onchange="showParams()">
                     <option value="" disabled selected>-- Select a Mobility Model --</option>
-                    <option value="Boundless">Boundless Simulation Area Model</option>
+                    <!-- <option value="Boundless">Boundless Simulation Area Model</option> -->
                     <!-- <option value="ChainScenario">Chain Model</option>
                     <option value="Column">Column Mobility Model</option>
                     <option value="DisasterArea">Disaster Area Model</option>
@@ -42,12 +44,12 @@
 
             <div class="common param hidden">
                 <label for="duration">Scenario Duration</label>
-                <input type="number" name="duration" id="duration">
+                <input type="number" name="duration" id="duration" required>
             </div>
 
             <div class="common param hidden">
-                <label for="skip-time">Number of Seconds to Skip</label>
-                <input type="number" name="skip-time" id="skip-time">
+                <label for="skip_time">Number of Seconds to Skip</label>
+                <input type="number" name="skip_time" id="skip_time" required>
             </div>
 
             <div class="common param hidden">
@@ -56,18 +58,18 @@
             </div>
 
             <div class="common param hidden">
-                <label for="area-width">Width of Simulation Area</label>
-                <input type="number" name="area-width" id="area-width">
+                <label for="area_width">Width of Simulation Area</label>
+                <input type="number" name="area_width" id="area_width">
             </div>
 
             <div class="common param hidden">
-                <label for="area-height">Height of Simulation Area</label>
-                <input type="number" name="area-height" id="area-height">
+                <label for="area_height">Height of Simulation Area</label>
+                <input type="number" name="area_height" id="area_height">
             </div>
 
             <div class="param hidden">
-                <label for="area-depth">Depth of Simulation Area</label>
-                <input type="number" name="area-depth" id="area-depth">
+                <label for="area_depth">Depth of Simulation Area</label>
+                <input type="number" name="area_depth" id="area_depth">
             </div>
 
             <div class="param hidden">
@@ -76,8 +78,8 @@
             </div>
 
             <div class="param hidden">
-                <label for="dimension-output">Dimension of Movement Output</label>
-                <select name="dimension-output" id="dimension-output">
+                <label for="dimension_output">Dimension of Movement Output</label>
+                <select name="dimension_output" id="dimension_output">
                     <option value="" disabled selected>-- Select a Dimension --</option>
                     <option value="2D">2D</option>
                     <option value="3D">3D</option>
@@ -85,6 +87,8 @@
             </div>
 
         </div>
+        
+        <button class="button" type="submit" name="create">Create Data</button>
     </form>
 
 </div>

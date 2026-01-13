@@ -2,6 +2,8 @@
 db.sqlite3
 MobMetrics/db.sqlite3
 MobMetrics/metrics/migrations
+bonnmotion-3.0.1
+generated_scenarios
 venv/
 __pycache__/
 *.py[cod]

@@ -1,7 +1,10 @@
 # Standard library imports.
 from io import BytesIO
+import os
+import shutil
 import zipfile
 import json
+import subprocess
 
 # Related third party imports.
 import pandas as pd
@@ -9,9 +12,11 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.http import HttpResponse
 from django.db import transaction
+from django.conf import settings
 
 # Local application/library specific imports.
 from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm
+from .utils.csv_converter import nodePopulate, csvWrite
 from .process.factory import Factory
 from .process.format import Format
 from .process.DataAnalytcs.pca import PCA
@@ -94,7 +99,9 @@ def dashboard_view(request):
         elif 'generate_graphs' in request.POST:
             (pca_metrics_plot_html, pca_explained_plot_html, pca_dbscan_metrics_plot_html,
              tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
-             pca_global_plot_html, tsne_global_plot_html) = _handle_generate_graphs(request)      
+             pca_global_plot_html, tsne_global_plot_html) = _handle_generate_graphs(request)
+        elif 'create' in request.POST:
+            _handle_bonnmotion(request)
 
     last_config = ConfigModel.objects.last()
 
@@ -382,7 +389,6 @@ def _handle_generate_graphs(request):
             tsne_metrics_plot_html, tsne_dbscan_metrics_plot_html,
             pca_global_plot_html, tsne_global_plot_html)
 
-
 def _columns_analytics(metrics_df, global_metrics_df):
     """
     Function to define wich metrics will be analysed
@@ -466,3 +472,63 @@ def _create_trace_model(parameters, df):
 
     with transaction.atomic():
         TraceModel.objects.bulk_create(trace_objects, batch_size=1000)
+
+def _handle_bonnmotion(request):
+    data = request.POST
+    name = data.get('name')
+    model = data.get('model')
+    seed = data.get('seed')
+    depth = data.get('area_depth')
+    dimension_output = data.get('dimension_output')
+    args = [
+    "-f", data.get('name'),
+    model,
+    "-n", data.get('nodes'),
+    "-d", data.get('duration'),
+    "-x", data.get('area_width'),
+    "-y", data.get('area_height'),
+    "-i", data.get('skip_time'),
+]
+
+    if seed:
+        args += ["-R", seed]
+    if depth:
+        args += ["-z", depth]
+    if dimension_output:
+        args += ["-J", dimension_output]
+
+    
+
+    subprocess.run([settings.BONNMOTION_DIR,*args])
+
+    subprocess.run([settings.BONNMOTION_DIR,"CSVFile",'-f',name])
+    
+    nodePopulate(name)
+    csvWrite(name)
+
+    csvFile = open(f"{name}.csv",'r')
+
+    data_frame = pd.read_csv(csvFile)
+    data_frame = Format(data_frame).extract()
+
+    parameters = [
+        60,
+        20,
+        10,
+        10,
+        name,
+        name,
+        True,
+        10,
+        True
+    ]
+
+    _create_config_model(parameters)
+    _create_trace_model(parameters, data_frame)
+    
+    Factory(data_frame, parameters).extract()
+
+    output_path = f"{settings.AUX_PATH}/generated_scenarios/{model}/{name}"
+    os.makedirs(output_path, exist_ok=True)
+    [shutil.move(f, f"{output_path}/{f}") for f in [f"{name}.params", f"{name}.movements.gz", f"{name}.csv"]]
+
