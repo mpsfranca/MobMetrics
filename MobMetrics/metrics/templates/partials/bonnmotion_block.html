@@ -90,7 +90,7 @@
             </div>
 
             <!-- RandomSpeedBase -->
-            <div class="parameter-group hidden common ProbRandomWalk-hide Pursue-hide">
+            <div class="parameter-group hidden common ProbRandomWalk-hide Pursue-hide RandomDirection-hide">
                 <h3>RandomSpeedBase Params</h3>
                 <div class="common param hidden">
                     <label for="max_speed">Max. Speed (optional)</label>
@@ -243,6 +243,10 @@
             <!-- RandomDirection -->
             <div class="param parameter-group hidden RandomDirection">
                 <h3>Random Direction Model Specific Params</h3>
+                <div class="param hidden RandomDirection">
+                    <label for="min_pause_time">Min. Pause Time</label>
+                    <input type="number" name="min_pause_time" id="min_pause_time" value="0.0" required>
+                </div>
             </div>
             
             <!-- RandomWalk -->
