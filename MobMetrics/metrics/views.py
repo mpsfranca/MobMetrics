@@ -487,7 +487,7 @@ def _handle_bonnmotion(request):
     "-d", data.get('duration'),
     "-x", data.get('area_width'),
     "-y", data.get('area_height'),
-    "-i", data.get('skip_time'),
+    "-i", data.get('skip_time')
 ]
 
     if seed:

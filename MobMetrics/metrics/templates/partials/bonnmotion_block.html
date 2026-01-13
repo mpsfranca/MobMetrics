@@ -9,8 +9,8 @@
                 <label for="model" class="form-label">Mobility Model</label>
                 <select name="model" id="model" onchange="showParams()">
                     <option value="" disabled selected>-- Select a Mobility Model --</option>
-                    <!-- <option value="Boundless">Boundless Simulation Area Model</option> -->
-                    <!-- <option value="ChainScenario">Chain Model</option>
+                    <option value="Boundless">Boundless Simulation Area Model</option>
+                    <!-- <option value="ChainScenario">Chain Model</option> --> <!--TODO: this will be a bit difficult, i need to ask two models for this one. needs to be the last one-->
                     <option value="Column">Column Mobility Model</option>
                     <option value="DisasterArea">Disaster Area Model</option>
                     <option value="OriginalGaussMarkov">The Original Gauss-Markov Model</option>
@@ -22,9 +22,9 @@
                     <option value="ProbRandomWalk">Probabilistic Random Walk Model</option>
                     <option value="Pursue">Pursue Mobility Model</option>
                     <option value="RandomDirection">Random Direction Model</option>
-                    <option value="RandomWalk">Random Walk Model</option> -->
+                    <option value="RandomWalk">Random Walk Model</option>
                     <option value="RandomWaypoint">The Random Waypoint Model</option>
-                    <!-- <option value="RPGM">The Reference Point Group Mobility Model</option>
+                    <option value="RPGM">The Reference Point Group Mobility Model</option>
                     <option value="SLAW">Self-similar Least Action Walk</option>
                     <option value="SMOOTH">SMOOTH Model</option>
                     <option value="Static">Static Scenarios</option>
@@ -32,60 +32,241 @@
                     <option value="SteadyStateRandomWaypoint">Steady-State Random Waypoint Model</option>
                     <option value="SWIM">Small World In Motion</option>
                     <option value="TIMM">Tactical Indoor Mobility Model</option>
-                    <option value="TLW">Truncated Lévy Walk</option> -->
+                    <option value="TLW">Truncated Lévy Walk</option>
                 </select>
             </div>
 
             <!-- Scenario Params -->
-            <div class="common param hidden">
-                <label for="name" class="form-label">Name of Scenario</label>
-                <input type="text" class="form-control" id="name" name="name" required>
+            <div class="parameter-group hidden common">
+                <h3>Scenario Params</h3>
+                <div class="common param hidden">
+                    <label for="name" class="form-label">Name of Scenario</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="duration">Scenario Duration</label>
+                    <input type="number" name="duration" id="duration" required>
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="skip_time">Number of Seconds to Skip</label>
+                    <input type="number" name="skip_time" id="skip_time" required>
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="nodes">Number of Nodes</label>
+                    <input type="number" name="nodes" id="nodes">
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="area_width">Width of Simulation Area</label>
+                    <input type="number" name="area_width" id="area_width">
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="area_height">Height of Simulation Area</label>
+                    <input type="number" name="area_height" id="area_height">
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="area_depth">Depth of Simulation Area</label>
+                    <input type="number" name="area_depth" id="area_depth">
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="seed">Random Seed</label>
+                    <input type="number" name="seed" id="seed">
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="dimension_output">Dimension of Movement Output</label>
+                    <select name="dimension_output" id="dimension_output">
+                        <option value="" disabled selected>-- Select a Dimension --</option>
+                        <option value="2D">2D</option>
+                        <option value="3D">3D</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="common param hidden">
-                <label for="duration">Scenario Duration</label>
-                <input type="number" name="duration" id="duration" required>
+            <!-- RandomSpeedBase -->
+            <div class="parameter-group hidden common">
+                <h3>RandomSpeedBase Params</h3>
+                <div class="common param hidden">
+                    <label for="max_speed">Max. Speed (optional)</label>
+                    <input type="number" name="max_speed" id="max_speed">
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="min_speed">Min. Speed (optional)</label>
+                    <input type="number" name="min_speed" id="min_speed">
+                </div>
+                
+                <div class="common param hidden">
+                    <label for="max_pause_time">Max. Pause Time</label>
+                    <input type="number" name="max_pause_time" id="max_pause_time">
+                </div>
+            </div>
+            
+
+            <!-- Boundless -->
+            <div class="param parameter-group hidden Boundless">
+                <h3 class="hidden Boundless">Boundless Specific Parameters</h3>
+
+                <div class="param hidden Boundless">
+                    <label for="time_step">Time Step</label>
+                    <input type="number" name="time_step" id="time_step" value="0.1" required>
+                </div>
+                
+                <div class="param hidden Boundless">
+                    <label for="accel_max">Max. Acceleration Change</label>
+                    <input type="number" name="accel_max" value="1.5" id="accel_max" required>
+                </div>
+                
+                <div class="param hidden Boundless">
+                    <label for="alpha">Alpha: Max Angular Change</label>
+                    <input type="number" name="alpha" id="alpha" placeholder="If no alpha is given, the default value is Pi/2">
+                </div>
             </div>
 
-            <div class="common param hidden">
-                <label for="skip_time">Number of Seconds to Skip</label>
-                <input type="number" name="skip_time" id="skip_time" required>
+            <!-- Column -->
+            <div class="param parameter-group hidden Column">
+                <h3>Column Specific Parameters</h3>
+
+                <div class="param hidden Column">
+                    <label for="num_groups">Number of Groups</label>
+                    <input type="number" name="num_groups" id="num_groups" min="2" required>
+                </div>
+
+                <div class="param hidden Column">
+                    <label for="ref_pt_separation">Reference Point of Separation</label>
+                    <input type="number" name="ref_pt_separation" id="ref_pt_separation" value="10.0" required>
+                </div>
+
+                <div class="param hidden Column">
+                    <label for="max_distance_group_center">Max. Distance to Group Center</label>
+                    <input type="number" name="max_distance_group_center" id="max_distance_group_center" value="2.5" required>
+                </div>
             </div>
 
-            <div class="common param hidden">
-                <label for="nodes">Number of Nodes</label>
-                <input type="number" name="nodes" id="nodes">
+            <!-- DisasterArea -->
+            <div class="param parameter-group hidden DisasterArea">
+            <h3>DisasterArea Specific Params</h3>
+            <div class="param hidden DisasterArea">
+                <label for="avg-nodes-group">Average Number of Nodes per Group</label>
+                <input type="number" name="avg-nodes-group" id="avg-nodes-group" value="3.0" required>
             </div>
 
-            <div class="common param hidden">
-                <label for="area_width">Width of Simulation Area</label>
-                <input type="number" name="area_width" id="area_width">
+            <div class="param hidden DisasterArea"></div> <!-- TODO: the catastrophe area param (-b) -->
+            <div class="param hidden DisasterArea"></div>
+            <div class="param hidden DisasterArea"></div>
+            <div class="param hidden DisasterArea"></div>
+            <div class="param hidden DisasterArea"></div>
+            <div class="param hidden DisasterArea"></div>
+            <div class="param hidden DisasterArea"></div>
+            <div class="param hidden DisasterArea"></div>
+            <div class="param hidden DisasterArea"></div>
             </div>
 
-            <div class="common param hidden">
-                <label for="area_height">Height of Simulation Area</label>
-                <input type="number" name="area_height" id="area_height">
+            <!-- OriginalGaussMarkov -->
+            <div class="param parameter-group hidden OriginalGaussMarkov">
+            <h3>OriginalGaussMarkov Specific Params</h3>
             </div>
 
-            <div class="param hidden">
-                <label for="area_depth">Depth of Simulation Area</label>
-                <input type="number" name="area_depth" id="area_depth">
+            <!-- GaussMarkov -->
+            <div class="param parameter-group hidden GaussMarkov">
+                <h3>GaussMarkov Specific Params</h3>
             </div>
-
-            <div class="param hidden">
-                <label for="seed">Random Seed</label>
-                <input type="number" name="seed" id="seed">
+            
+            <!-- ManhattanGrid -->
+            <div class="param parameter-group hidden ManhattanGrid">
+                <h3>ManhattanGrid Specific Params</h3>
             </div>
-
-            <div class="param hidden">
-                <label for="dimension_output">Dimension of Movement Output</label>
-                <select name="dimension_output" id="dimension_output">
-                    <option value="" disabled selected>-- Select a Dimension --</option>
-                    <option value="2D">2D</option>
-                    <option value="3D">3D</option>
-                </select>
+            
+            <!-- RandomStreet -->
+            <div class="param parameter-group hidden RandomStreet">
+                <h3>RandomStreet Specific Params</h3>
             </div>
-
+            
+            <!-- MSLAW -->
+            <div class="param parameter-group hidden MSLAW">
+                <h3>MSLAW Specific Params</h3>
+            </div>
+            
+            <!-- Nomadic -->
+            <div class="param parameter-group hidden Nomadic">
+                <h3>Nomadic Specific Params</h3>
+            </div>
+            
+            <!-- ProbRandomWalk -->
+            <div class="param parameter-group hidden ProbRandomWalk">
+                <h3>Probabilistic Random Walk Model Specific Params</h3>
+            </div>
+            
+            <!-- Pursue -->
+            <div class="param parameter-group hidden Pursue">
+                <h3>Pursue Mobility Model Specific Params</h3>
+            </div>
+            
+            <!-- RandomDirection -->
+            <div class="param parameter-group hidden RandomDirection">
+                <h3>Random Direction Model Specific Params</h3>
+            </div>
+            
+            <!-- RandomWalk -->
+            <div class="param parameter-group hidden RandomWalk">
+                <h3>Random Walk Model Specific Params</h3>
+            </div>
+            
+            <!-- RandomWaypoint -->
+            <div class="param parameter-group hidden RandomWaypoint">
+                <h3>Random Waypoint Model Specific Params</h3>
+            </div>
+            
+            <!-- RPGM -->
+            <div class="param parameter-group hidden RPGM">
+                <h3>Reference Point Group Mobility Model Specific Params</h3>
+            </div>
+            
+            <!-- SLAW -->
+            <div class="param parameter-group hidden SLAW">
+                <h3>SLAW Specific Params</h3>
+            </div>
+            
+            <!-- SMOOTH -->
+            <div class="param parameter-group hidden SMOOTH">
+                <h3>SMOOTH Model Specific Params</h3>
+            </div>
+            
+            <!-- Static -->
+            <div class="param parameter-group hidden Static">
+                <h3>Static Scenarios Specific Params</h3>
+            </div>
+            
+            <!-- StaticDrift -->
+            <div class="param parameter-group hidden StaticDrift">
+                <h3>Static Scenarios With Drift Specific Params</h3>
+            </div>
+            
+            <!-- SteadyStateRandomWaypoint -->
+            <div class="param parameter-group hidden SteadyStateRandomWaypoint">
+                <h3>Steady-State Random Waypoint Model Specific Params</h3>
+            </div>
+            
+            <!-- SWIM -->
+            <div class="param parameter-group hidden SWIM">
+                <h3>Small World In Motion Specific Params</h3>
+            </div>
+            
+            <!-- TIMM -->
+            <div class="param parameter-group hidden TIMM">
+                <h3>Tactical Indoor Mobility Model Specific Params</h3>
+            </div>
+            
+            <!-- TLW -->
+            <div class="param parameter-group hidden TLW">
+                <h3>Truncated Lévy Walk Specific Params</h3>
+            </div>
         </div>
         
         <button class="button" type="submit" name="create">Create Data</button>

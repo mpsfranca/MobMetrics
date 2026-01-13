@@ -41,12 +41,16 @@
 
             document.querySelectorAll('.common').forEach(p => {
                 p.classList.remove('hidden')
-                p.classList.add('form-group')
+                if (!p.classList.contains('parameter-group')) {
+                    p.classList.add('form-group')
+                }
             })
 
             document.querySelectorAll(`.${model}`).forEach(p => {
                 p.classList.remove('hidden')
+                if (!p.classList.contains('parameter-group')) {
                 p.classList.add('form-group')
+                }
             }) 
         }
 
