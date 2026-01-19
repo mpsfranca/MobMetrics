@@ -16,7 +16,7 @@ from django.conf import settings
 
 # Local application/library specific imports.
 from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm
-from .utils.csv_converter import nodePopulate, csvWrite
+from .utils.csv_converter import convert
 from .utils.model_params import functions
 from .process.factory import Factory
 from .process.format import Format
@@ -480,10 +480,13 @@ def _handle_bonnmotion(request):
     model = data.get('model')
     seed = data.get('seed')
     depth = data.get('area_depth')
+    circular = data.get('circular')
+    attraction_points = data.get('attraction_points')
     dimension_output = data.get('dimension_output')
     max_speed = data.get('max_speed')
     min_speed = data.get('min_speed')
     max_pause_time = data.get('max_pause_time')
+
     # Scenario Params
     args = [
     "-f", data.get('name'),
@@ -494,7 +497,10 @@ def _handle_bonnmotion(request):
     "-y", data.get('area_height'),
     "-i", data.get('skip_time')
 ]
-
+    if attraction_points:
+        args += ["-a", attraction_points]
+    if circular:
+        args += ["-c"]
     if seed:
         args += ["-R", seed]
     if depth:
@@ -514,32 +520,37 @@ def _handle_bonnmotion(request):
 
     subprocess.run([settings.BONNMOTION_DIR,"CSVFile",'-f',name])
     
-    nodePopulate(name)
-    csvWrite(name)
+    convert(name)
 
     csvFile = open(f"{name}.csv",'r')
 
     data_frame = pd.read_csv(csvFile)
     data_frame = Format(data_frame).extract()
 
+    output_path = f"{settings.AUX_PATH}/generated_scenarios/{model}/{name}"
+    os.makedirs(output_path, exist_ok=True)
+    [shutil.move(f, f"{output_path}/{f}") for f in [f"{name}.params", f"{name}.movements.gz", f"{name}.csv"]]
+
+    distance_threshold = data.get('distance_threshold')
+    time_threshold = data.get('time_threshold')
+    radius_threshold = data.get('radius_threshold')
+    quadrant_parts = data.get('quadrant_parts')
+    contact_time_threshold = data.get('contact_time_threshold')
+
     parameters = [
-        60,
-        20,
-        10,
-        10,
+        float(distance_threshold) if distance_threshold else "",
+        float(time_threshold) if time_threshold else "",
+        float(radius_threshold) if radius_threshold else "",
+        float(quadrant_parts) if quadrant_parts else "",
         name,
-        name,
-        True,
-        10,
-        True
+        f"{name}-{model}",
+        True if data.get('is_geographical_coordinates') else False,
+        float(contact_time_threshold) if contact_time_threshold else "",
+        True if data.get('skip_contact_detection') else False
     ]
 
     _create_config_model(parameters)
     _create_trace_model(parameters, data_frame)
     
     Factory(data_frame, parameters).extract()
-
-    output_path = f"{settings.AUX_PATH}/generated_scenarios/{model}/{name}"
-    os.makedirs(output_path, exist_ok=True)
-    [shutil.move(f, f"{output_path}/{f}") for f in [f"{name}.params", f"{name}.movements.gz", f"{name}.csv"]]
 

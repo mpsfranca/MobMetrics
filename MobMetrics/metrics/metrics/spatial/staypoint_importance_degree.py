@@ -59,6 +59,9 @@ class StaypointImportanceDegree(AbsMetric):
         visit_time_list = [sp.total_visits_time for sp in stay_points]
         entropy_list = [sp.entropy for sp in stay_points]
 
+        if not visits_list:
+            return
+
         min_visits, max_visits = min(visits_list), max(visits_list)
         min_time, max_time = min(visit_time_list), max(visit_time_list)
         min_entropy, max_entropy = min(entropy_list), max(entropy_list)

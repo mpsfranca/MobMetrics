@@ -14,26 +14,95 @@
                     <option value="Column">Column Mobility Model</option>
                     <option value="DisasterArea">Disaster Area Model</option>
                     <option value="OriginalGaussMarkov">The Original Gauss-Markov Model</option>
-                    <option value="GaussMarkov">The Gauss-Markov Model</option>
-                    <option value="ManhattanGrid">The Manhattan Grid Model</option>
+                    <!-- <option value="GaussMarkov">The Gauss-Markov Model</option> -->
+                    <!-- <option value="ManhattanGrid">The Manhattan Grid Model</option> -->
                     <!-- <option value="RandomStreet">Random Street Model</option>
-                    <option value="MSLAW">Map-based Self-similar Least Action Walk</option> -->
+                    <option value="MSLAW">Map-based Self-similar Least Action Walk</option> --> <!-- TODO: these two models require additional work to fully function; they are not fully native to bonnmotion -->
                     <option value="Nomadic">Nomadic Community Mobility Model</option>
                     <option value="ProbRandomWalk">Probabilistic Random Walk Model</option>
                     <option value="Pursue">Pursue Mobility Model</option>
                     <option value="RandomDirection">Random Direction Model</option>
-                    <option value="RandomWalk">Random Walk Model</option>
+                    <!-- <option value="RandomWalk">Random Walk Model</option> -->
                     <option value="RandomWaypoint">The Random Waypoint Model</option>
-                    <option value="RPGM">The Reference Point Group Mobility Model</option>
-                    <option value="SLAW">Self-similar Least Action Walk</option>
-                    <option value="SMOOTH">SMOOTH Model</option>
+                    <!-- <option value="RPGM">The Reference Point Group Mobility Model</option> -->
+                    <!-- <option value="SLAW">Self-similar Least Action Walk</option> -->
+                    <!-- <option value="SMOOTH">SMOOTH Model</option> -->
                     <option value="Static">Static Scenarios</option>
-                    <option value="StaticDrift">Static Scenarios With Drift</option>
+                    <!-- <option value="StaticDrift">Static Scenarios With Drift</option>
                     <option value="SteadyStateRandomWaypoint">Steady-State Random Waypoint Model</option>
                     <option value="SWIM">Small World In Motion</option>
                     <option value="TIMM">Tactical Indoor Mobility Model</option>
-                    <option value="TLW">Truncated Lévy Walk</option>
+                    <option value="TLW">Truncated Lévy Walk</option> -->
                 </select>
+            </div>
+           
+            <div class="parameter-group hidden common">
+                <div class="form-group">
+                    <label for="geo-coord">Geographical Coordinates:</label>
+                    <input type="checkbox" name="geo-coord" id="geo-coord">
+                </div>
+            </div>
+            
+        
+            <div class="parameter-group hidden common">
+                <h3>Stay Point Parameters</h3>
+        
+                <div class="form-group">
+                    <label for="distance_threshold">Distance Threshold:</label>
+                    <input type="number" name="distance_threshold" id="distance_threshold">
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Maximum distance between points to be classified as Stay Point</span>
+                    </span>
+                </div>
+        
+                <div class="form-group">
+                    <label for="time_threshold">Time Threshold:</label>
+                    <input type="number" name="time_threshold" id="time_threshold">
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Minimum time to be classified as Stay Point</span>
+                    </span>
+                </div>
+            </div>
+        
+            <div class="parameter-group hidden common">
+                <h3>Contact Parameters</h3>
+        
+                <div class="form-group">
+                    <label for="skip-contact-detection">Don't detect contacts for this trace</label>
+                    <input type="checkbox" name="skip_contact_detection" id="skip_contact_detection">
+                    <span class="tooltip">?
+                        <span class="tooltiptext">If checked, the contact detection step will be skipped</span>
+                    </span>
+                </div>
+        
+                <div class="form-group">
+                    <label for="radius_threshold">Radius Threshold:</label>
+                    <input type="number" name="radius_threshold" id="radius_threshold">
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Maximum radius to classify a contact</span>
+                    </span>
+                </div>
+        
+                <div class="form-group">
+                    <label for="contact_time_threshold">Contact Time Threshold:</label>
+                    <input type="number" name="contact_time_threshold" id="contact_time_threshold">
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Minimum Time between two contacts to it be continuos</span>
+                    </span>
+                </div>
+        
+            </div>
+        
+            <div class="parameter-group hidden common">
+                <h3>Entropy Parameters</h3>
+                <div class="form-group">
+                    <label for="quadrant">Quadrant Divisions:</label>
+                    <input type="number" name="quadrant_parts" id="quadrant_parts">
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Number of quadrant divisions, the total quadrants will be
+                            Quradrant_Divisions^2</span>
+                    </span>
+                </div>
             </div>
 
             <!-- Scenario Params -->
@@ -42,6 +111,18 @@
                 <div class="common param hidden">
                     <label for="name" class="form-label">Name of Scenario</label>
                     <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+
+                <div class="common param hidden">
+                    <label for="attraction_points">Attraction Points</label>
+                    <input type="text" name="attraction_points" id="attraction_points">
+                    <span class="tooltip">?
+                        <span class="tooltiptext">An Attraction Point is defined as follows: &lt;X&gt;,&lt;Y&gt;,&lt;intensity&gt;,&lt;stddevX;&gt;,&lt;stddevY&gt;</span>
+                    </span>
+                </div>
+
+                <div class="common param hidden">
+                    <label for="circular">Use Circular Shape?</label><input type="checkbox" name="circular" id="circular">
                 </div>
                 
                 <div class="common param hidden">
@@ -84,7 +165,7 @@
                     <select name="dimension_output" id="dimension_output">
                         <option value="" disabled selected>-- Select a Dimension --</option>
                         <option value="2D">2D</option>
-                        <option value="3D">3D</option>
+                        <!-- <option value="3D">3D</option> -->
                     </select>
                 </div>
             </div>
@@ -144,33 +225,65 @@
                 </div>
 
                 <div class="param hidden Column">
-                    <label for="max_distance_group_center_c">Max. Distance to Group Center</label>
-                    <input type="number" name="max_distance_group_center_c" id="max_distance_group_center_c" value="2.5" required>
+                    <label for="max_distance_group_center">Max. Distance to Group Center</label>
+                    <input type="number" name="max_distance_group_center" id="max_distance_group_center" value="2.5" required>
                 </div>
             </div>
 
             <!-- DisasterArea -->
             <div class="param parameter-group hidden DisasterArea">
-            <h3>DisasterArea Specific Params</h3>
-            <div class="param hidden DisasterArea">
-                <label for="avg-nodes-group-da">Average Number of Nodes per Group</label>
-                <input type="number" name="avg-nodes-group" id="avg-nodes-group" value="3.0" required>
-            </div>
+                <h3>DisasterArea Specific Params</h3>
+                <div class="param hidden DisasterArea">
+                    <label for="avg_nodes_group">Average Number of Nodes per Group</label>
+                    <input type="number" name="avg_nodes_group" id="avg_nodes_group" value="3.0" required>
+                </div>
 
-            <div class="param hidden DisasterArea"></div> <!-- TODO: the catastrophe area param (-b) -->
-            <div class="param hidden DisasterArea"></div>
-            <div class="param hidden DisasterArea"></div>
-            <div class="param hidden DisasterArea"></div>
-            <div class="param hidden DisasterArea"></div>
-            <div class="param hidden DisasterArea"></div>
-            <div class="param hidden DisasterArea"></div>
-            <div class="param hidden DisasterArea"></div>
-            <div class="param hidden DisasterArea"></div>
+                <div class="param hidden DisasterArea">
+                    <label for="catastrophe_area">Catastrophe Area</label>
+                    <input type="text" name="catastrophe_area" id="catastrophe_area">
+                </div>
+                
+                <div class="param hidden DisasterArea">
+                    <label for="group_change_prob">Group Change Probability</label>
+                    <input type="number" name="group_change_prob" id="group_change_prob" value="0.0" required>
+                </div>
+
+                <div class="param hidden DisasterArea">
+                    <label for="max_catastrophe_areas">Max. Catastrophe Areas</label>
+                    <input type="number" name="max_catastrophe_areas" id="max_catastrophe_areas" value="4" required>
+                </div>
+
+                <div class="param hidden DisasterArea">
+                    <label for="max_distance_group_center">Max. Distance to Group Center</label>
+                    <input type="number" name="max_distance_group_center" id="max_distance_group_center" value="2.5" required>
+                </div>
+
+                <div class="param hidden DisasterArea">
+                    <label for="group_size_stdd">Group Size Standard Deviation</label>
+                    <input type="number" name="group_size_stdd" id="group_size_stdd">
+                </div>
+
+                <!-- <div class="param hidden DisasterArea"> -->
+                    <!-- TODO: check usage of -O parameter -->
+                <!-- </div> -->
+
+                <!-- <div class="param hidden DisasterArea"> -->
+                    <!-- TODO: check usage of -w parameter -->
+                <!-- </div> -->
+
+                <!-- <div class="param hidden DisasterArea"> -->
+                    <!-- TODO: check usage of -v parameter -->
+                <!-- </div> -->
+
+                <!-- <div class="param hidden DisasterArea"> -->
+                    <!-- TODO: check usage of -K parameter -->
+                <!-- </div> -->
             </div>
 
             <!-- OriginalGaussMarkov -->
             <div class="param parameter-group hidden OriginalGaussMarkov">
                 <h3>OriginalGaussMarkov Specific Params</h3>
+                <textarea name="original_gauss_markov" id="original_gauss_markov"></textarea>
             </div>
 
             <!-- GaussMarkov -->
@@ -187,8 +300,8 @@
             <div class="param parameter-group hidden Nomadic">
                 <h3>Nomadic Specific Params</h3>
                 <div class="param hidden Nomadic">
-                    <label for="avg_nodes_group_n">Average Number of Nodes per Group</label>
-                    <input type="number" name="avg_nodes_group_n" id="avg_nodes_group_n" value="3.0" required>
+                    <label for="avg_nodes_group">Average Number of Nodes per Group</label>
+                    <input type="number" name="avg_nodes_group" id="avg_nodes_group" value="3.0" required>
                 </div>
 
                 <div class="param hidden Nomadic">

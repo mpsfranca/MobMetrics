@@ -11,17 +11,17 @@ def boundless_params(data):
 def column_params(data):
     num_groups = data.get('num_groups')
     ref_pt_separation = data.get('ref_pt_separation')
-    max_distance_group_center_c = data.get('max_distance_group_center_c')
+    max_distance_group_center = data.get('max_distance_group_center')
 
-    return ["-a",num_groups,"-r",ref_pt_separation,"-s",max_distance_group_center_c]
+    return ["-a",num_groups,"-r",ref_pt_separation,"-s",max_distance_group_center]
 
 def nomadic_params(data):
-    avg_nodes_group_n = data.get('avg_nodes_group_n') 
-    max_distance_group_center_n = data.get('max_distance_group_center_n')
+    avg_nodes_group = data.get('avg_nodes_group') 
+    max_distance_group_center = data.get('max_distance_group_center_n')
     group_size_stdd = data.get('group_size_stdd')
     ref_point_max_pause = data.get('ref_point_max_pause')
 
-    return ["-a",avg_nodes_group_n,"-r",max_distance_group_center_n,"-s",group_size_stdd,"-c",ref_point_max_pause]
+    return ["-a",avg_nodes_group,"-r",max_distance_group_center,"-s",group_size_stdd,"-c",ref_point_max_pause]
 
 def probrandomwalk_params(data):
     time_interval_to_advance = data.get('time_interval_to_advance')
@@ -50,9 +50,25 @@ def static_params(data):
 
     return ["-l",number_density_levels]
 
+def disasterarea_params(data):
+    avg_nodes_group = data.get('avg_nodes_group')
+    catastrophe_area= data.get('catastrophe_area')
+    if catastrophe_area:
+        catastrophe_area_return = [
+            x
+            for ca in catastrophe_area.split()
+            for x in ("-b", ca)
+        ]
+        
+    return ["-a",avg_nodes_group,*catastrophe_area_return]
+
+def model_params(data):
+    return [data]
+
 functions  = {
     "Boundless":boundless_params,
     "Column":column_params,
+    "DisasterArea":disasterarea_params,
     "Nomadic":nomadic_params,
     "ProbRandomWalk":probrandomwalk_params,
     "Pursue":pursue_params,

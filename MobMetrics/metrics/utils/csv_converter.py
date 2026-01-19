@@ -54,3 +54,7 @@ def csvWrite(name):
             positions = nodes[key].getPositions()
             for position in positions:
                 fcsv.write(f"{position._time},{position._x},{position._y},{nodes[key]._id}\n")
+
+def convert(name):
+    nodePopulate(name)
+    csvWrite(name)
