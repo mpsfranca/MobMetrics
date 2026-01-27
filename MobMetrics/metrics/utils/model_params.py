@@ -51,25 +51,77 @@ def static_params(data):
     return ["-l",number_density_levels]
 
 def disasterarea_params(data):
-    avg_nodes_group = data.get('avg_nodes_group')
-    catastrophe_area= data.get('catastrophe_area')
-    if catastrophe_area:
-        catastrophe_area_return = [
-            x
-            for ca in catastrophe_area.split()
-            for x in ("-b", ca)
-        ]
-        
-    return ["-a",avg_nodes_group,*catastrophe_area_return]
+    return data.get('parameters').split(' ')
 
-functions  = {
-    "Boundless":boundless_params,
-    "Column":column_params,
-    "DisasterArea":disasterarea_params,
-    "Nomadic":nomadic_params,
-    "ProbRandomWalk":probrandomwalk_params,
-    "Pursue":pursue_params,
-    "RandomDirection":randomdirection_params,
-    "RandomWaypoint":randomwaypoint_params,
-    "Static":static_params
+def chainscenario_params(data):
+    return data.get('parameters').split(' ')
+
+def originalgaussmarkov_params(data):
+    return data.get('parameters').split(' ')
+
+def gaussmarkov_params(data):
+    return data.get('parameters').split(' ')
+
+def manhattangrid_params(data):
+    return data.get('parameters').split(' ')
+
+def randomstreet_params(data):
+    return data.get('parameters').split(' ')
+
+def mslaw_params(data):
+    return data.get('parameters').split(' ')
+
+def randomwalk_params(data):
+    return data.get('parameters').split(' ')
+
+def rpgm_params(data):
+    return data.get('parameters').split(' ')
+
+def slaw_params(data):
+    return data.get('parameters').split(' ')
+
+def smooth_params(data):
+    return data.get('parameters').split(' ')
+
+def staticdrift_params(data):
+    return data.get('parameters').split(' ')
+
+def steadystaterandomwaypoint_params(data):
+    return data.get('parameters').split(' ')
+
+def swim_params(data):
+    return data.get('parameters').split(' ')
+
+def timm_params(data):
+    return data.get('parameters').split(' ')
+
+def tlw_params(data):
+    return data.get('parameters').split(' ')
+
+
+functions = {
+    "Boundless": boundless_params,
+    "ChainScenario": chainscenario_params,
+    "Column": column_params,
+    "DisasterArea": disasterarea_params,
+    "OriginalGaussMarkov": originalgaussmarkov_params,
+    "GaussMarkov": gaussmarkov_params,
+    "ManhattanGrid": manhattangrid_params,
+    "RandomStreet": randomstreet_params,
+    "MSLAW": mslaw_params,
+    "Nomadic": nomadic_params,
+    "ProbRandomWalk": probrandomwalk_params,
+    "Pursue": pursue_params,
+    "RandomDirection": randomdirection_params,
+    "RandomWalk": randomwalk_params,
+    "RandomWaypoint": randomwaypoint_params,
+    "RPGM": rpgm_params,
+    "SLAW": slaw_params,
+    "SMOOTH": smooth_params,
+    "Static": static_params,
+    "StaticDrift": staticdrift_params,
+    "SteadyStateRandomWaypoint": steadystaterandomwaypoint_params,
+    "SWIM": swim_params,
+    "TIMM": timm_params,
+    "TLW": tlw_params,
 }

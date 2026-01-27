@@ -533,37 +533,37 @@ def _create_trace_model(parameters, df):
 
 def _handle_bonnmotion(request):
     data = request.POST
-    name = data.get('name')
+    scenario_name = data.get('scenario_name')
     model = data.get('model')
-    seed = data.get('seed')
-    depth = data.get('area_depth')
-    circular = data.get('circular')
+    random_seed = data.get('random_seed')
+    area_depth = data.get('area_depth')
+    use_circular_shape = data.get('use_circular_shape') #TODO Check why it isn't being sent
     attraction_points = data.get('attraction_points')
-    dimension_output = data.get('dimension_output')
+    dimension_select = data.get('dimension_select')
     max_speed = data.get('max_speed')
     min_speed = data.get('min_speed')
     max_pause_time = data.get('max_pause_time')
 
     # Scenario Params
     args = [
-    "-f", data.get('name'),
+    "-f", scenario_name,
     model,
     "-n", data.get('nodes'),
-    "-d", data.get('duration'),
+    "-d", data.get('scenario_duration'),
     "-x", data.get('area_width'),
     "-y", data.get('area_height'),
     "-i", data.get('skip_time')
 ]
     if attraction_points:
         args += ["-a", attraction_points]
-    if circular:
+    if use_circular_shape:
         args += ["-c"]
-    if seed:
-        args += ["-R", seed]
-    if depth:
-        args += ["-z", depth]
-    if dimension_output:
-        args += ["-J", dimension_output]
+    if random_seed:
+        args += ["-R", random_seed]
+    if area_depth:
+        args += ["-z", area_depth]
+    if dimension_select:
+        args += ["-J", dimension_select]
     if max_speed:
         args += ["-h",max_speed]
     if min_speed:
@@ -575,33 +575,33 @@ def _handle_bonnmotion(request):
 
     subprocess.run([settings.BONNMOTION_DIR,*args])
 
-    subprocess.run([settings.BONNMOTION_DIR,"CSVFile",'-f',name])
+    subprocess.run([settings.BONNMOTION_DIR,"CSVFile",'-f',scenario_name])
     
-    convert(name)
+    convert(scenario_name)
 
-    csvFile = open(f"{name}.csv",'r')
+    csvFile = open(f"{scenario_name}.csv",'r')
 
     data_frame = pd.read_csv(csvFile)
     data_frame = Format(data_frame).extract()
 
-    output_path = f"{settings.AUX_PATH}/generated_scenarios/{model}/{name}"
+    output_path = f"{settings.AUX_PATH}/generated_scenarios/{model}/{scenario_name}"
     os.makedirs(output_path, exist_ok=True)
-    [shutil.move(f, f"{output_path}/{f}") for f in [f"{name}.params", f"{name}.movements.gz", f"{name}.csv"]]
+    [shutil.move(f, f"{output_path}/{f}") for f in [f"{scenario_name}.params", f"{scenario_name}.movements.gz", f"{scenario_name}.csv"]]
 
     distance_threshold = data.get('distance_threshold')
     time_threshold = data.get('time_threshold')
     radius_threshold = data.get('radius_threshold')
-    quadrant_parts = data.get('quadrant_parts')
+    quadrant_divisions = data.get('quadrant_divisions')
     contact_time_threshold = data.get('contact_time_threshold')
 
     parameters = [
         float(distance_threshold) if distance_threshold else "",
         float(time_threshold) if time_threshold else "",
         float(radius_threshold) if radius_threshold else "",
-        float(quadrant_parts) if quadrant_parts else "",
-        name,
-        f"{name}-{model}",
-        True if data.get('is_geographical_coordinates') else False,
+        float(quadrant_divisions) if quadrant_divisions else "",
+        scenario_name,
+        f"{scenario_name}-{model}",
+        True if data.get('geo_coord') else False,
         float(contact_time_threshold) if contact_time_threshold else "",
         True if data.get('skip_contact_detection') else False
     ]

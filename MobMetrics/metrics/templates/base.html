@@ -13,14 +13,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="bg-light min-vh-100">
-    {% include 'partials/header_block.html' %}
+    {% include 'partials/header.html' %}
 
     <div class="container-fluid mt-5 pt-4">
-        {% include 'partials/home_block.html' %}
-        {% include 'partials/upload/upload_block.html' %}
+        {% include 'partials/home.html' %}
+        {% include 'partials/upload/upload_main.html' %}
         {% include 'partials/bonnmotion/bm_main.html' %}
-        {% include 'partials/manage_block.html' %}
-        {% include 'partials/results_block.html' %}
+        {% include 'partials/manage_files.html' %}
+        {% include 'partials/results/results_main.html' %}
     </div>
 
     <script>
@@ -28,11 +28,13 @@
 
         function showParams(model) {
             document.querySelectorAll('.model').forEach(m => {
+                m.disabled = true
                 m.classList.remove('d-block')
                 m.classList.add('d-none')
             })
             
             let e = document.getElementById(model)
+            e.disabled = false
             e.classList.add('d-block')
             e.classList.remove('d-none')
         }
@@ -61,6 +63,15 @@
                 }
             });
         }
+
+        document.querySelector('form').addEventListener('submit', (e) => {
+            const model = document.getElementById('model').value; // your select id
+
+            document.querySelectorAll('fieldset.model').forEach(fs => fs.disabled = true);
+
+            const active = document.getElementById(model);
+            if (active) active.disabled = false;
+        });
 
         document.addEventListener("DOMContentLoaded", () => {
             const savedTab = sessionStorage.getItem(ACTIVE_TAB_KEY); // [web:31]

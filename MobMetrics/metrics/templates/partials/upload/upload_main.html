@@ -1,0 +1,16 @@
+<div class="content d-none" id="upload">
+    <div class="container py-4">
+
+        {% include 'partials/upload/upload_header.html' %}
+
+        <form method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data" class="needs-validation"
+            novalidate>
+            {% csrf_token %}
+
+            {% include 'partials/upload/upload_file_upload.html' %}
+            {% include 'partials/upload/upload_parameters.html' %}
+            {% include 'partials/upload/upload_run.html' %}
+
+        </form>
+    </div>
+</div>

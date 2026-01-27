@@ -46,22 +46,96 @@ RANDOMWAYPOINT_DIMENSIONS = [
 class UploadForm(forms.Form):
     """ Form to upload parameters and file to executes """
     # File data
-    trace = forms.FileField(label='Trace')
-    name = forms.CharField(label='Name')
-    label = forms.CharField(label='Trace Label')
-    is_geographical_coordinates = forms.BooleanField(label='Is Geographical Coordinates?', required=False)
+    trace = forms.FileField(
+        required=True,
+        label="Trace file",
+        widget=forms.ClearableFileInput(attrs={
+            "class": "form-control input-border",
+        })
+    )
+
+    name = forms.CharField(
+        required=True,
+        label="Name",
+        widget=forms.TextInput(attrs={
+            'class':'form-control input-border',
+            'placeholder':'e.g., Anglova Tanks'
+        })
+    )
+    label = forms.CharField(
+        required=True,
+        label="Label",
+        widget=forms.TextInput(attrs={
+            'class':'form-control input-border',
+            'placeholder':'e.g., Tanks'
+        })
+    )
+    is_geographical_coordinates = forms.BooleanField(
+        required=False,
+        initial=True,
+        label='Is Geographical Coordinates?',
+        widget=forms.CheckboxInput(attrs={
+            'class':'form-check-input input-border'
+        })
+    )
 
     # Stay Point parameters
-    distance_threshold = forms.FloatField(label='Distance Threshold')
-    time_threshold = forms.FloatField(label='Time Threshold')
+    distance_threshold = forms.FloatField(
+    label="Distance Threshold",
+    required=True,
+    widget=forms.NumberInput(attrs={
+        "class": "form-control input-border",
+        "step": "0.1",
+        "value": "60",
+    })
+)
+
+    time_threshold = forms.FloatField(
+        label="Time Threshold",
+        required=True,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control input-border",
+            "value": "20",
+        })
+    )
 
     # Contact parameters
-    radius_threshold = forms.FloatField(label='Radius Threshold')
-    contact_time_threshold = forms.FloatField(label='Contact Time Threshold')
-    skip_contact_detection = forms.BooleanField(required=False, label="Don't detect contacts")
+    radius_threshold = forms.FloatField(
+        label="Radius Threshold",
+        required=True,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control input-border",
+            "step": "0.1",
+            "value": "10",
+        })
+    )
 
-    #Quadrant Entropy Parameters
-    quadrant_parts = forms.FloatField(label='Quadrant Parts')
+    contact_time_threshold = forms.FloatField(
+        label="Contact Time Threshold",
+        required=True,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control input-border",
+            'value':'20'
+        })
+    )
+
+    skip_contact_detection = forms.BooleanField(
+        required=False,
+        label="Don't detect contacts",
+        widget=forms.CheckboxInput(attrs={
+            "class": "form-check-input input-border"
+        })
+    )
+
+    # Quadrant Entropy Parameters
+    quadrant_parts = forms.FloatField(
+        label="Quadrant Parts",
+        required=True,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control input-border",
+            'value':'10'
+        })
+    )
     
 class FileNameForm(forms.Form):
     """ Form to upload file name to delete or download """
@@ -113,6 +187,7 @@ class ModelSelectForm(forms.Form):
 class BonnmotionMobmetricsForm(forms.Form):
     geo_coord = forms.BooleanField(
         required=False,
+        initial=True,
         widget=forms.CheckboxInput(attrs={
             'class':'form-check-input input-border'
         })
@@ -122,14 +197,16 @@ class BonnmotionMobmetricsForm(forms.Form):
         required=True,
         widget=forms.NumberInput(attrs={
             'class':'form-control input-border',
-            'step':'0.1'
+            'step':'0.1',
+            'value':'60'
         })
     )
 
     time_threshold = forms.FloatField(
         required=True,
         widget=forms.NumberInput(attrs={
-            'class':'form-control input-border'
+            'class':'form-control input-border',
+            'value':'20'
         })
     )
 
@@ -144,21 +221,24 @@ class BonnmotionMobmetricsForm(forms.Form):
         required=True,
         widget=forms.NumberInput(attrs={
             'class':'form-control input-border',
-            'step':'0.1'
+            'step':'0.1',
+            'value':'10'
         })
     )
 
     contact_time_threshold = forms.FloatField(
         required=True,
         widget=forms.NumberInput(attrs={
-            'class':'form-control input-border'
+            'class':'form-control input-border',
+            'value':'20'
         })
     )
 
     quadrant_divisions = forms.FloatField(
         required=True,
         widget=forms.NumberInput(attrs={
-            'class':'form-control input-border'
+            'class':'form-control input-border',
+            'value':'10'
         })
     )
 
@@ -511,7 +591,7 @@ class RandomWalkForm(forms.Form):
 class RandomWaypointForm(forms.Form):
     dimension = forms.ChoiceField(
         choices=RANDOMWAYPOINT_DIMENSIONS,
-        required=True,
+        required=False,
         widget=SelectWithDisabledEmpty(attrs={
             'class':'form-select input-border'
         })

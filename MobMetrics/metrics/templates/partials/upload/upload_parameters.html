@@ -1,0 +1,170 @@
+<!-- Accordion: Parameters -->
+<section class="mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+        <div>
+            <h5 class="fw-bold mb-0">Parameters</h5>
+        </div>
+    </div>
+
+    <div class="accordion rounded-4 overflow-hidden border" id="uploadParamsAccordion">
+        <!-- Stay Points -->
+        <div class="accordion-item border-0">
+            <h2 class="accordion-header" id="spHead">
+                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#spCollapse" aria-expanded="false" aria-controls="spCollapse">
+                    <i class="fas fa-map-marker-alt text-info me-2"></i>
+                    Stay Points (Preprocessing)
+                    <span class="badge text-bg-info ms-2">SP</span>
+                </button>
+            </h2>
+
+            <div id="spCollapse" class="accordion-collapse collapse" aria-labelledby="spHead"
+                data-bs-parent="#uploadParamsAccordion">
+                <div class="accordion-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold"
+                                for="{{ upload_form.distance_threshold.id_for_label }}">
+                                Distance threshold (Dths)
+                                <a href="#" class="ms-1 text-muted" role="button" data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Max distance between points for a Stay Point cluster (meters).">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </a>
+                            </label>
+                            <div class="input-group">
+                                {{ upload_form.distance_threshold }}
+                                <span class="input-group-text input-border">meters</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold"
+                                for="{{ upload_form.time_threshold.id_for_label }}">
+                                Time threshold (Tths)
+                                <a href="#" class="ms-1 text-muted" role="button" data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Min dwell time to be classified as Stay Point (seconds).">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </a>
+                            </label>
+                            <div class="input-group">
+                                {{ upload_form.time_threshold }}
+                                <span class="input-group-text input-border">seconds</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light border mt-3 mb-0 small text-muted">
+                        Dths + Tths affect segmentation and metrics that depend on stay points.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacts -->
+        <div class="accordion-item border-0 border-top">
+            <h2 class="accordion-header" id="cttHead">
+                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#cttCollapse" aria-expanded="false" aria-controls="cttCollapse">
+                    <i class="fas fa-users text-warning me-2"></i>
+                    Contacts (Social)
+                    <span class="badge text-bg-warning ms-2">Ctt</span>
+                </button>
+            </h2>
+
+            <div id="cttCollapse" class="accordion-collapse collapse" aria-labelledby="cttHead"
+                data-bs-parent="#uploadParamsAccordion">
+                <div class="accordion-body">
+
+                    <div class="form-check mb-3">
+                        {{ upload_form.skip_contact_detection }}
+                        
+                        <label class="form-check-label fw-semibold"
+                        for="{{ upload_form.skip_contact_detection.id_for_label }}">
+                        Skip contact detection
+                            <a href="#" class="ms-1 text-muted" role="button" data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Skip the social contact detection step for faster runs.">
+                            <i class="fas fa-circle-info text-primary"></i>
+                            </a>
+                        </label>
+                        <hr class="my-4">
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold"
+                                for="{{ upload_form.radius_threshold.id_for_label }}">
+                                Radius threshold (CRths)
+                                <a href="#" class="ms-1 text-muted" role="button" data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Distance threshold to count a contact at the same timestamp (meters).">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </a>
+                            </label>
+                            <div class="input-group">
+                                {{ upload_form.radius_threshold }}
+                                <span class="input-group-text input-border">meters</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold"
+                                for="{{ upload_form.contact_time_threshold.id_for_label }}">
+                                Contact time threshold
+                                <a href="#" class="ms-1 text-muted" role="button" data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Max gap between contacts to merge into a continuous event (seconds).">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </a>
+                            </label>
+                            <div class="input-group">
+                                {{ upload_form.contact_time_threshold }}
+                                <span class="input-group-text input-border">seconds</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light border mt-3 mb-0 small text-muted">
+                        Contacts are computed by timestamp and grouped into events using the time threshold.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entropy -->
+        <div class="accordion-item border-0 border-top">
+            <h2 class="accordion-header" id="entropyHead">
+                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#entropyCollapse" aria-expanded="false" aria-controls="entropyCollapse">
+                    <i class="fas fa-border-all text-primary me-2"></i>
+                    Quadrants / Entropy (Spatial)
+                    <span class="badge text-bg-primary ms-2">QEtp</span>
+                </button>
+            </h2>
+
+            <div id="entropyCollapse" class="accordion-collapse collapse" aria-labelledby="entropyHead"
+                data-bs-parent="#uploadParamsAccordion">
+                <div class="accordion-body">
+                    <label class="form-label fw-semibold" for="{{ upload_form.quadrant_parts.id_for_label }}">
+                        Quadrant divisions (Qdiv)
+                        <a href="#" class="ms-1 text-muted" role="button" data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Divides each axis into Q parts; total quadrants = Q^2 (2D).">
+                            <i class="fas fa-circle-info text-primary"></i>
+                        </a>
+                    </label>
+
+                    <div class="input-group">
+                        {{ upload_form.quadrant_parts }}
+                        <span class="input-group-text input-border">Quadrants</span>
+                    </div>
+
+                    <div class="form-text">Used by Spatial Cover and Quadrant Entropy.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
