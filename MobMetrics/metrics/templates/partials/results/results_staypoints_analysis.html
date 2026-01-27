@@ -1,6 +1,6 @@
 <!-- SECTION: Stay-points Analysis -->
 <div class="d-flex align-items-center gap-2 mb-3">
-    <h3 class="h5 fw-bold mb-0" style="color:#1e293b;">Stay-points Analysis</h3>
+    <h5 class="fw-bold mb-0">Stay-points Analysis</h5>
     <a href="#" class="text-muted" role="button" data-bs-toggle="tooltip" data-bs-placement="top"
         title="Analyze stay-points individually and compare visit patterns and importance.">
         <i class="fas fa-circle-info"></i>
@@ -15,7 +15,7 @@
     <div class="col-lg-3">
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-3">
-                <div class="fw-semibold px-2 pt-2 pb-3" style="color:#1e293b;">Stay-points list</div>
+                <div class="fw-semibold px-2 pt-2 pb-3">Stay-points list</div>
 
                 <div class="list-group list-group-flush" style="max-height: 480px; overflow:auto;">
                     {% for staypoint in staypoints %}
@@ -40,14 +40,14 @@
     <div class="col-lg-9">
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-body p-3 p-md-4">
-                <div class="fw-semibold mb-2" style="color:#1e293b;">Stay-point scatter</div>
+                <div class="fw-semibold mb-2">Stay-point scatter</div>
                 <div id="stayPointScatterPlot">{{ stay_point_scatter_plot|safe }}</div>
             </div>
         </div>
 
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-3 p-md-4">
-                <div class="fw-semibold mb-2" style="color:#1e293b;">Metric histograms</div>
+                <div class="fw-semibold mb-2">Metric histograms</div>
                 <div id="metricHistograms">{{ metric_histogram|safe }}</div>
             </div>
         </div>

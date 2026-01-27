@@ -172,7 +172,7 @@ class SelectWithDisabledEmpty(forms.Select):
             )
             if value == "":
                 option["attrs"]["disabled"] = "disabled"
-            return option    
+            return option
 
 class ModelSelectForm(forms.Form):
     model = forms.ChoiceField(
