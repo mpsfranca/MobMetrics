@@ -1,26 +1,75 @@
-<div class="content hidden" id="manage">
-    <h2>Manage Files</h2>
-    {% if file_names %}
-        {% for name in file_names %}
-            <div class="file-item">
-                <div>{{ name }}</div>
-            
-                <div style="display: flex; gap: 10px;">
-                    <form method="post" action="{% url 'dashboard' %}" class="inline-form">
-                        {% csrf_token %}
-                        <input name="fileName" value="{{ name }}">
-                        <button class="button danger" type="submit" name="delete">Delete</button>
-                    </form>
-                
-                    <form method="post" action="{% url 'dashboard' %}" class="inline-form">
-                        {% csrf_token %}
-                        <input name="fileName" value="{{ name }}">
-                        <button class="button success" type="submit" name="download">Download</button>
-                    </form>
-                </div>
+<div class="content d-none" id="manage">
+    <div class="container py-4">
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <h2 class="h3 fw-bold mb-1" style="color:#1e293b;">
+                    <i class="fas fa-folder-open text-primary me-2"></i>Manage Files
+                </h2>
+                <div class="text-muted">Delete or download previously uploaded traces.</div>
             </div>
-        {% endfor %}
-    {% else %}
-        <p style="text-align: center; color: #888;">No files found.</p>
-    {% endif %}
+
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-secondary" onclick="switchTab('upload')" role="button">
+                    <i class="fas fa-upload me-2"></i>Go to Upload
+                </a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-0">
+                {% if file_names %}
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">File</th>
+                                <th class="text-end pe-4" style="width: 240px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in file_names %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-semibold" style="color:#1e293b;">{{ name }}</div>
+                                    <div class="text-muted small">Stored trace in database / media folder</div>
+                                </td>
+                                <td class="pe-4">
+                                    <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                        <!-- Download -->
+                                        <form method="post" action="{% url 'dashboard' %}" class="m-0">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="fileName" value="{{ name }}">
+                                            <button class="btn btn-outline-primary btn-sm" type="submit"
+                                                name="download">
+                                                <i class="fas fa-download me-1"></i>Download
+                                            </button>
+                                        </form>
+
+                                        <!-- Delete (com confirmação simples) -->
+                                        <form method="post" action="{% url 'dashboard' %}" class="m-0"
+                                            onsubmit="return confirm('Delete {{ name }}? This cannot be undone.');">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="fileName" value="{{ name }}">
+                                            <button class="btn btn-outline-danger btn-sm" type="submit" name="delete">
+                                                <i class="fas fa-trash me-1"></i>Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <div class="text-muted">No files found.</div>
+                    <button class="btn btn-primary mt-3" onclick="switchTab('upload')" type="button">
+                        <i class="fas fa-upload me-2"></i>Upload a trace
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>

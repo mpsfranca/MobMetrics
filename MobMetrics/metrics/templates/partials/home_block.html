@@ -1,3 +1,113 @@
-<div class="content" id="home">
-    <h2>MobMetrics</h2>
+{% load static %}
+<div id="home" class="content active">
+
+    <!-- Simple header -->
+    <div class="container py-4 border-bottom">
+        <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+            <div>
+                <h1 class="h3 fw-bold mb-1" style="color:#1e293b;">
+                    <i class="fas fa-layer-group text-primary me-2"></i>MobMetrics
+                </h1>
+                <div class="text-muted">
+                    A modular architecture for computing and visualizing mobility metrics.
+                </div>
+            </div>
+
+            <a href="{% static 'paper/mobmetrics.pdf' %}" class="btn btn-outline-primary btn-sm"
+                download="MobMetrics.pdf">
+                <i class="fas fa-file-pdf me-1"></i>Paper PDF
+            </a>
+        </div>
+    </div>
+
+    <!-- 5-stage pipeline (simpler) -->
+    <div class="container py-4">
+        <h2 class="h5 fw-bold mb-3" style="color:#1e293b;">5-stage pipeline</h2>
+
+        <ul class="list-group list-group-horizontal-md flex-wrap">
+            <li class="list-group-item d-flex align-items-center gap-2 flex-fill">
+                <span class="badge text-bg-primary">1</span>
+                <span class="fw-semibold">Upload</span>
+                <span class="text-muted small ms-auto">CSV/GeoJSON</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center gap-2 flex-fill">
+                <span class="badge text-bg-success">2</span>
+                <span class="fw-semibold">Preprocessing</span>
+                <span class="text-muted small ms-auto">Stay points</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center gap-2 flex-fill">
+                <span class="badge text-bg-info">3</span>
+                <span class="fw-semibold">Metrics</span>
+                <span class="text-muted small ms-auto">STKS</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center gap-2 flex-fill">
+                <span class="badge text-bg-warning text-dark">4</span>
+                <span class="fw-semibold">Storage</span>
+                <span class="text-muted small ms-auto">Django models</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center gap-2 flex-fill">
+                <span class="badge text-bg-secondary">5</span>
+                <span class="fw-semibold">Visualizations</span>
+                <span class="text-muted small ms-auto">t-SNE & graphs</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Metrics categories (simpler) -->
+    <div class="container pb-4">
+        <h2 class="h5 fw-bold mb-3" style="color:#1e293b;">Metrics categories</h2>
+
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-3">
+                <div class="border rounded-4 p-3 h-100">
+                    <div class="fw-bold mb-2"><i class="fas fa-globe text-primary me-2"></i>Spatial</div>
+                    <div class="text-muted small">RG, SC, SP, TD, QEtp</div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="border rounded-4 p-3 h-100">
+                    <div class="fw-bold mb-2"><i class="fas fa-clock text-success me-2"></i>Temporal</div>
+                    <div class="text-muted small">JT, TT, VTVC, SPI, Etp</div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="border rounded-4 p-3 h-100">
+                    <div class="fw-bold mb-2"><i class="fas fa-tachometer-alt text-info me-2"></i>Kinematic</div>
+                    <div class="text-muted small">JAS, SVC, AVC, TAS, TADA</div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="border rounded-4 p-3 h-100">
+                    <div class="fw-bold mb-2"><i class="fas fa-users text-warning me-2"></i>Social</div>
+                    <div class="text-muted small">Ctt, TC, encounters</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stay points (short) + CTA -->
+    <div class="container pb-5">
+        <div class="border rounded-4 p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="fw-bold mb-1" style="color:#1e293b;">
+                        Stay points detection
+                    </div>
+                    <div class="text-muted">
+                        Typical thresholds: Dth=20m, Tth=160s.
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="#" onclick="switchTab('upload')" class="btn btn-primary">
+                        <i class="fas fa-file-upload me-2"></i>Upload
+                    </a>
+                    <a href="#" onclick="switchTab('bonnmotion')" class="btn btn-outline-primary">
+                        <i class="fas fa-magic me-2"></i>BonnMotion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

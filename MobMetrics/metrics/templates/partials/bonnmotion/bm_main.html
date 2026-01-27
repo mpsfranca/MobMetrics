@@ -1,0 +1,17 @@
+<div class="content d-none" id="bonnmotion">
+    <div class="container py-4">
+        {% include 'partials/bonnmotion/bm_header.html' %}
+
+        <form method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% include 'partials/bonnmotion/bm_model_selector.html' %}
+            {% include 'partials/bonnmotion/bm_accordion.html' %}
+            <div class="d-grid">
+                <button class="btn btn-primary btn-lg" type="submit" name="create">
+                    <i class="fas fa-wand-magic-sparkles me-2"></i>Create data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

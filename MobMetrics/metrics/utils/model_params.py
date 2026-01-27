@@ -62,9 +62,6 @@ def disasterarea_params(data):
         
     return ["-a",avg_nodes_group,*catastrophe_area_return]
 
-def model_params(data):
-    return [data]
-
 functions  = {
     "Boundless":boundless_params,
     "Column":column_params,

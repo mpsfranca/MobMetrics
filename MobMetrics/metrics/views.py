@@ -15,7 +15,7 @@ from django.db import transaction
 from django.conf import settings
 
 # Local application/library specific imports.
-from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm
+from .forms import UploadForm, FileNameForm, DataAnalytcsParamsForm,ModelSelectForm,BonnmotionMobmetricsForm,BonnmotionScenarioForm,BonnmotionRandomSpeedBase,BoundlessForm,ColumnForm,DisasterAreaForm,OriginalGaussMarkovForm,GaussMarkovForm,ManhattanGridForm,RandomStreetForm,MSLAWForm,NomadicForm,ProbRandomWalkForm,PursueForm,RandomDirectionForm,RandomWalkForm,RandomWaypointForm,RPGMForm,SLAWForm,SMOOTHForm,StaticForm,StaticDriftForm,SteadyStateRandomWaypointForm,SWIMForm,TIMMForm,TLWForm
 from .utils.csv_converter import convert
 from .utils.model_params import functions
 from .process.factory import Factory
@@ -87,6 +87,35 @@ def dashboard_view(request):
     # Get forms.
     upload_form = UploadForm()
     file_form = FileNameForm()
+    select_form = ModelSelectForm()
+    bm_mobmetrics_form = BonnmotionMobmetricsForm()
+    bm_scenario_form = BonnmotionScenarioForm()
+    bm_randomspeedbase_form = BonnmotionRandomSpeedBase()
+    boundless_form = BoundlessForm()
+    column_form = ColumnForm()
+    disasterarea_form = DisasterAreaForm()
+    originalgaussmarkov_form = OriginalGaussMarkovForm()
+    gaussmarkov_form = GaussMarkovForm()
+    manhattangrid_form = ManhattanGridForm()
+    randomstreet_form = RandomStreetForm()
+    mslaw_form = MSLAWForm()
+    nomadic_form = NomadicForm()
+    probrandomwalk_form = ProbRandomWalkForm()
+    pursue_form = PursueForm()
+    randomdirection_form = RandomDirectionForm()
+    randomwalk_form = RandomWalkForm()
+    randomwaypoint_form = RandomWaypointForm()
+    rpgm_form = RPGMForm()
+    slaw_form = SLAWForm()
+    smooth_form = SMOOTHForm()
+    static_form = StaticForm()
+    staticdrift_form = StaticDriftForm()
+    steadystaterandomwaypoint_form = SteadyStateRandomWaypointForm()
+    swim_form = SWIMForm()
+    timm_form = TIMMForm()
+    tlw_form = TLWForm()
+
+
     analytcs_form = DataAnalytcsParamsForm()
 
     # Identify wich POST method was requested
@@ -154,9 +183,37 @@ def dashboard_view(request):
         metric_boxplot_html = None
         stay_points_html = None
 
-    return render(request, 'dashboard.html', {
+    return render(request, 'base.html', {
         'upload_form': upload_form,
         'file_form': file_form,
+        'select_form': select_form,
+        'bm_mobmetrics_form': bm_mobmetrics_form,
+        'bm_scenario_form': bm_scenario_form,
+        'bm_randomspeedbase_form': bm_randomspeedbase_form,
+        'boundless_form':boundless_form,
+        'column_form':column_form,
+        'disasterarea_form':disasterarea_form,
+        'originalgaussmarkov_form': originalgaussmarkov_form,
+        'gaussmarkov_form': gaussmarkov_form,
+        'manhattangrid_form': manhattangrid_form,
+        'randomstreet_form': randomstreet_form,
+        'mslaw_form': mslaw_form,
+        'nomadic_form': nomadic_form,
+        'probrandomwalk_form': probrandomwalk_form,
+        'pursue_form': pursue_form,
+        'randomdirection_form': randomdirection_form,
+        'randomwalk_form': randomwalk_form,
+        'randomwaypoint_form': randomwaypoint_form,
+        'rpgm_form': rpgm_form,
+        'slaw_form': slaw_form,
+        'smooth_form': smooth_form,
+        'static_form': static_form,
+        'staticdrift_form': staticdrift_form,
+        'steadystaterandomwaypoint_form': steadystaterandomwaypoint_form,
+        'swim_form': swim_form,
+        'timm_form': timm_form,
+        'tlw_form': tlw_form,
+
         'analytcs_form': analytcs_form,
         'file_names': file_names,
 

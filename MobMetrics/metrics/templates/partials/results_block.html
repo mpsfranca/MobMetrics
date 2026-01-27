@@ -1,277 +1,338 @@
-<div class="content hidden" id="results">
-    <div class="analytics-section">
-        Trace Overview<span class="tooltip"
-        data-tooltip="This section is used to have an overview of the loaded traces, in a direct, objective manner and with adjustment possibilities.">
-        ?</span>
-    </div>
+<div class="content d-none" id="results">
+    <div class="container py-4">
 
-    <div class="top-bar">
-        <div class="last-upload">
-            {% if last_file_name %}
-                <div class="last-upload">
-                    {{ last_file_name }} <span class="info">(last upload)</span>
+        <!-- SECTION: Trace Overview -->
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="h4 fw-bold mb-0" style="color:#1e293b;">Trace Overview</h2>
+                <a href="#" class="text-muted" role="button" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Overview of loaded traces with quick metrics and plots.">
+                    <i class="fas fa-circle-info"></i>
+                </a>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge text-bg-light">
+                    {% if last_file_name %}{{ last_file_name }} <span class="text-muted">(last upload)</span>{% else
+                    %}No file uploaded{% endif %}
+                </span>
+
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-random me-1"></i>Change Trace
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-sliders me-1"></i>Configure Plots
+                </button>
+
+                <div class="form-check ms-2">
+                    <input class="form-check-input" type="checkbox" id="applyGlobal">
+                    <label class="form-check-label small text-muted" for="applyGlobal">Apply globally</label>
                 </div>
-            {% else %}
-                <div class="last-upload">
-                    No file uploaded yet.
-                </div>
-            {% endif %}
-        </div>
-        <div class="actions">
-            <button class="action-button">Change Trace</button>
-            <button class="action-button">Configure Plots</button>
-            <label class="global-checkbox">
-            <input type="checkbox" /> Apply Changes Globally
-            </label>
-        </div>
-    </div>
-
-    <div class="dashboard-container">
-    <div class="new-graphs-row">
-        <div class="new-graph-container">
-        <div id="traceScatterPlot">
-            {{ trace_plot_html|safe }}
-        </div>
-        </div>
-        <div class="new-graph-container">
-        <div id="mobilityRadarPlot">
-            {{ radar_chart_html|safe }}
-        </div>
-        </div>
-    </div>
-
-    <div class="cards-column">
-        <div class="metric-card">
-        <div class="card-title">Total Number of Stay-points</div>
-        <div class="card-value">{{ global_metrics.num_stay_points }}</div>
-        </div>
-        <div class="metric-card">
-        <div class="card-title">Total Number of Contacts</div>
-        <div class="card-value">{{ global_metrics.num_contacts }}</div>
-        </div>
-        <div class="metric-card">
-        <div class="card-title">Average Journey Distance</div>
-        <div class="card-value">{{ global_metrics.total_avg_journey_distance|floatformat:2 }} m</div>
-        </div>
-    </div>
-    </div>
-
-    <div class="analytics-section">
-        Entities Analysis<span class="tooltip"
-        data-tooltip="This section is responsible for carrying out an analysis of entities present in the traces, both individually and comparatively between them.">
-        ?</span>
-    </div>
-
-    <div class="top-bar">
-        <div class="last-upload">
-            <div class="last-upload">
-                Entity Id = {{ entity.entity_id }}
             </div>
         </div>
-        <div class="actions">
-            <button class="action-button">Change Trace</button>
-            <button class="action-button">Configure Plots</button>
-        </div>
-    </div>
 
-    <div class="entity-analysis-container">
-    <div class="entity-list">
-        <div class="entity-list-title">Entity List</div>
-        <div class="entity-scroll">
-        {% for entity in metrics %}
-        <div class="entity-card {% if entity.entity_id == selected_entity_id %}active{% endif %}" onclick="selectEntity({{ entity.entity_id }})">
-            <strong>Entity {{ entity.entity_id }}</strong><br>
-            <small>Avg. Jou. Distance: {{ entity.travel_distance|floatformat:2 }} m</small><br>
-            <small>Stay Points Visited: {{ entity.stay_points_visits }}</small><br>
-            <small>Avg. Journey Speed: {{ entity.travel_avg_speed|floatformat:1 }} m/s</small>
-        </div>
-        {% endfor %}
-        </div>
-    </div>
-
-    <div class="new-graph-container">
-        <div id="traceOverTime">
-        {{ trace_in_time_html|safe }}
-        </div>
-    </div>
-
-    <div class="new-graph-container">
-        <div id="travelDistanceCompare">
-        {{ travel_distance_compare_plot|safe }}
-        </div>
-    </div>
-    </div>
-
-    <div class="analytics-section">
-        Stay-points Analysis<span class="tooltip"
-        data-tooltip="This section is responsible for carrying out an analysis of stay-points present in the traces, both individually and comparatively between them.">
-        ?</span>
-    </div>
-
-    <div class="top-bar">
-        <div class="last-upload">
-            {% if last_file_name %}
-                <div class="last-upload">
-                    {{ last_file_name }} <span class="info">(last upload)</span>
-                </div>
-            {% else %}
-                <div class="last-upload">
-                    No file uploaded yet.
-                </div>
-            {% endif %}
-        </div>
-        <div class="actions">
-            <button class="action-button">Change Trace</button>
-            <button class="action-button">Configure Plots</button>
-            </label>
-        </div>
-    </div>
-
-    <div class="entity-analysis-container">
-    <div class="entity-list">
-        <div class="entity-list-title">Stay-points List</div>
-        <div class="entity-scroll">
-        {% for staypoint in staypoints %}
-        <div class="entity-card {% if staypoint.stay_point_id == selected_staypoint_id %}active{% endif %}" onclick="selectEntity({{ staypoint.stay_point_id }})">
-            <strong>Stay-point {{ staypoint.stay_point_id }}</strong><br>
-            <small>Num. of Visits: {{ staypoint.num_visits|floatformat:2 }}</small><br>
-            <small>Tot. Visits Time: {{ staypoint.total_visits_time|floatformat:2 }} s</small><br>
-            <small>Importance Degree: {{ staypoint.importance_degree|floatformat:1 }}</small>
-        </div>
-        {% endfor %}
-        </div>
-    </div>
-
-    <div class="new-graph-container">
-        <div id="traceOverTime">
-        {{ stay_point_scatter_plot|safe }}
-        </div>
-    </div>
-
-    <div class="new-graph-container">
-        <div id="metricHistograms">
-        {{ metric_histogram|safe }}
-        </div>
-    </div>
-    </div>
-
-    <div class="analytics-section">
-        Comparative Analysis<span class="tooltip"
-        data-tooltip="This section is responsible for generating different comparative graphs between traces, using known algorithms for this purpose.">
-        ?</span>
-    </div>
-
-    <div class="config-section">
-        <button type="button" class="button" onclick="toggleConfig()">Configure Comparative Plots</button>
-        
-        <div id="configForm" class="hidden" style="margin-top: 1rem;">
-            <form method="post" action="{% url 'dashboard' %}">
-                {% csrf_token %}
-                
-                <div class="form-container">
-                    <div class="form-group">
-                        <label for="id_PCA_n_components">PCA N Components:</label>
-                        {{ analytcs_form.PCA_n_components }}
-                        <span class="tooltip">?
-                            <span class="tooltiptext">Number of components for PCA</span>
-                        </span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="id_tSNE_n_components">t-SNE N Components:</label>
-                        {{ analytcs_form.tSNE_n_components }}
-                        <span class="tooltip">?
-                            <span class="tooltiptext">Number of components for t-SNE</span>
-                        </span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="id_tSNE_perplexity">t-SNE Perplexity:</label>
-                        {{ analytcs_form.tSNE_perplexity }}
-                        <span class="tooltip">?
-                            <span class="tooltiptext">The perplexity is related to the number of nearest neighbors that is used in other manifold learning algorithms. Larger datasets usually require a larger perplexity. Consider selecting a value between 5 and 50. Different values can result in significantly different results. The perplexity must be less than the number of samples.</span>
-                        </span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="id_DBSCAN_eps">DBSCAN Eps:</label>
-                        {{ analytcs_form.dbscan_eps }}
-                        <span class="tooltip">?
-                            <span class="tooltiptext">Maximum distance between two samples for one to be considered as in the neighborhood of the other.</span>
-                        </span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="id_DBSCAN_min_samples">DBSCAN Min Samples:</label>
-                        {{ analytcs_form.dbscan_min_samples }}
-                        <span class="tooltip">?
-                            <span class="tooltiptext">The number of samples in a neighborhood for a point to be considered as a core point.</span>
-                        </span>
-                    </div>
-                </div>
-                <button class="button" type="submit" name="generate_graphs">Generate Graphs</button>
-            </form>
-            <div class="ngraphs-wrapper">
-                <div class="comparative-container">
-                    <h3>PCA - MetricsModel</h3>
-                    <div id="pcaMetricsPlot">
-                        {{ pca_metrics_plot_html|safe }}
+        <div class="row g-4">
+            <!-- Plots -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="fw-semibold mb-2" style="color:#1e293b;">Trace scatter</div>
+                        <div id="traceScatterPlot">{{ trace_plot_html|safe }}</div>
                     </div>
                 </div>
 
-                <div class="comparative-container">
-                    <h3>PCA - Explained Variance</h3>
-                    <div id="pcaExplainedPlot">
-                        {{ pca_explained_plot_html|safe }}
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="fw-semibold mb-2" style="color:#1e293b;">Mobility profile (radar)</div>
+                        <div id="mobilityRadarPlot">{{ radar_chart_html|safe }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metric cards -->
+            <div class="col-lg-4">
+                <div class="row row-cols-1 g-3">
+                    <div class="col">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4">
+                                <div class="text-muted small">Total stay-points</div>
+                                <div class="display-6 fw-bold" style="color:#1e293b;">{{ global_metrics.num_stay_points
+                                    }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4">
+                                <div class="text-muted small">Total contacts</div>
+                                <div class="display-6 fw-bold" style="color:#1e293b;">{{ global_metrics.num_contacts }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4">
+                                <div class="text-muted small">Avg journey distance</div>
+                                <div class="display-6 fw-bold" style="color:#1e293b;">
+                                    {{ global_metrics.total_avg_journey_distance|floatformat:2 }} <span
+                                        class="fs-6 text-muted">m</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <!-- SECTION: Entities Analysis -->
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <h3 class="h5 fw-bold mb-0" style="color:#1e293b;">Entities Analysis</h3>
+            <a href="#" class="text-muted" role="button" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Analyze entities individually and compare behaviors across the trace.">
+                <i class="fas fa-circle-info"></i>
+            </a>
+            <span class="badge text-bg-light ms-auto">Selected: Entity {{ entity.entity_id }}</span>
+        </div>
+
+        <div class="row g-4">
+            <!-- Entity list -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-3">
+                        <div class="fw-semibold px-2 pt-2 pb-3" style="color:#1e293b;">Entity list</div>
+
+                        <div class="list-group list-group-flush" style="max-height: 480px; overflow:auto;">
+                            {% for entity in metrics %}
+                            <button type="button"
+                                class="list-group-item list-group-item-action {% if entity.entity_id == selected_entity_id %}active{% endif %}"
+                                onclick="selectEntity({{ entity.entity_id }})">
+                                <div class="fw-semibold">Entity {{ entity.entity_id }}</div>
+                                <div class="small">
+                                    Avg. Jou. Distance: {{ entity.travel_distance|floatformat:2 }} m<br>
+                                    Stay Points Visited: {{ entity.stay_points_visits }}<br>
+                                    Avg. Journey Speed: {{ entity.travel_avg_speed|floatformat:1 }} m/s
+                                </div>
+                            </button>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entity plots -->
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="fw-semibold mb-2" style="color:#1e293b;">Trace over time</div>
+                        <div id="traceOverTimeEntity">{{ trace_in_time_html|safe }}</div>
                     </div>
                 </div>
 
-                <div class="comparative-container">
-                    <h3>DBSCAN - PCA MetricsModel</h3>
-                    <div id="pcaDbscanMetricsPlot">
-                        {{ pca_dbscan_metrics_plot_html|safe }}
-                    </div>
-                </div>
-                
-                <div class="comparative-container">
-                    <h3>t-SNE - MetricsModel</h3>
-                    <div id="tsneMetricsPlot">
-                        {{ tsne_metrics_plot_html|safe }}
-                    </div>
-                </div>
-
-                <div class="comparative-container">
-                    <h3>DBSCAN - tSNE MetricsModel</h3>
-                    <div id="tsneDbscanMetricsPlot">
-                        {{ tsne_dbscan_metrics_plot_html|safe }}
-                    </div>
-                </div>
-                
-                <div class="comparative-container">
-                    <h3>t-SNE - GlobalMetricsModel</h3>
-                    <div id="tsneGlobalPlot">
-                        {{ tsne_global_plot_html|safe }}
-                    </div>
-                </div>
-
-                <div class="comparative-container">
-                    <h3>PCA - GlobalMetricsModel</h3>
-                    <div id="pcaGlobalPlot">
-                        {{ pca_global_plot_html|safe }}
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="fw-semibold mb-2" style="color:#1e293b;">Travel distance comparison</div>
+                        <div id="travelDistanceCompare">{{ travel_distance_compare_plot|safe }}</div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <hr class="my-5">
+
+        <!-- SECTION: Stay-points Analysis -->
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <h3 class="h5 fw-bold mb-0" style="color:#1e293b;">Stay-points Analysis</h3>
+            <a href="#" class="text-muted" role="button" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Analyze stay-points individually and compare visit patterns and importance.">
+                <i class="fas fa-circle-info"></i>
+            </a>
+            <span class="badge text-bg-light ms-auto">
+                {% if last_file_name %}{{ last_file_name }}{% else %}No file uploaded{% endif %}
+            </span>
+        </div>
+
+        <div class="row g-4">
+            <!-- Stay-point list -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-3">
+                        <div class="fw-semibold px-2 pt-2 pb-3" style="color:#1e293b;">Stay-points list</div>
+
+                        <div class="list-group list-group-flush" style="max-height: 480px; overflow:auto;">
+                            {% for staypoint in staypoints %}
+                            <button type="button"
+                                class="list-group-item list-group-item-action {% if staypoint.stay_point_id == selected_staypoint_id %}active{% endif %}"
+                                onclick="selectStaypoint({{ staypoint.stay_point_id }})">
+                                <div class="fw-semibold">Stay-point {{ staypoint.stay_point_id }}</div>
+                                <div class="small">
+                                    Num. Visits: {{ staypoint.num_visits|floatformat:0 }}<br>
+                                    Total Visits Time: {{ staypoint.total_visits_time|floatformat:2 }} s<br>
+                                    Importance Degree: {{ staypoint.importance_degree|floatformat:2 }}
+                                </div>
+                            </button>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stay-point plots -->
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="fw-semibold mb-2" style="color:#1e293b;">Stay-point scatter</div>
+                        <div id="stayPointScatterPlot">{{ stay_point_scatter_plot|safe }}</div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="fw-semibold mb-2" style="color:#1e293b;">Metric histograms</div>
+                        <div id="metricHistograms">{{ metric_histogram|safe }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <!-- SECTION: Comparative Analysis -->
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <h3 class="h5 fw-bold mb-0" style="color:#1e293b;">Comparative Analysis</h3>
+                <a href="#" class="text-muted" role="button" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Generate comparative projections (PCA/t-SNE) and clustering (DBSCAN).">
+                    <i class="fas fa-circle-info"></i>
+                </a>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-sm" onclick="toggleConfig()">
+                <i class="fas fa-sliders me-2"></i>Configure & generate
+            </button>
+        </div>
+
+        <div id="configForm" class="d-none">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <form method="post" action="{% url 'dashboard' %}">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">PCA n_components</label>
+                                {{ analytcs_form.PCA_n_components }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">t-SNE n_components</label>
+                                {{ analytcs_form.tSNE_n_components }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    t-SNE perplexity
+                                    <a href="#" class="ms-1 text-muted" role="button" data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Typical range: 5–50; must be less than number of samples.">
+                                        <i class="fas fa-circle-info"></i>
+                                    </a>
+                                </label>
+                                {{ analytcs_form.tSNE_perplexity }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">DBSCAN eps</label>
+                                {{ analytcs_form.dbscan_eps }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">DBSCAN min_samples</label>
+                                {{ analytcs_form.dbscan_min_samples }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid d-md-flex justify-content-md-end mt-4">
+                            <button class="btn btn-primary" type="submit" name="generate_graphs">
+                                <i class="fas fa-gears me-2"></i>Generate graphs
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="fw-semibold mb-2">PCA - MetricsModel</div>
+                            <div id="pcaMetricsPlot">{{ pca_metrics_plot_html|safe }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="fw-semibold mb-2">PCA - Explained Variance</div>
+                            <div id="pcaExplainedPlot">{{ pca_explained_plot_html|safe }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="fw-semibold mb-2">DBSCAN - PCA MetricsModel</div>
+                            <div id="pcaDbscanMetricsPlot">{{ pca_dbscan_metrics_plot_html|safe }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="fw-semibold mb-2">t-SNE - MetricsModel</div>
+                            <div id="tsneMetricsPlot">{{ tsne_metrics_plot_html|safe }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="fw-semibold mb-2">DBSCAN - t-SNE MetricsModel</div>
+                            <div id="tsneDbscanMetricsPlot">{{ tsne_dbscan_metrics_plot_html|safe }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="fw-semibold mb-2">t-SNE - GlobalMetricsModel</div>
+                            <div id="tsneGlobalPlot">{{ tsne_global_plot_html|safe }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="fw-semibold mb-2">PCA - GlobalMetricsModel</div>
+                            <div id="pcaGlobalPlot">{{ pca_global_plot_html|safe }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-
-    <div class="analytics-section">
-        Spatial & Social Analysis<span class="tooltip"
-        data-tooltip="This section is responsible for generating different comparative graphs between traces, using known algorithms for this purpose..">
-        ?</span>
-    </div>
-
-    <div class="config-section">
-        <button type="button" class="button" onclick="toggleConfig()">Show Contacts Distribution</button>
-        <button type="button" class="button" onclick="toggleConfig()">Show Stay-points Heatmap</button>
-
 </div>

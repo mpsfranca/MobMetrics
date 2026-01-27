@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if ! command -v conda &> /dev/null; then
-    echo "Conda não encontrado. Instalando Miniconda..."
+    echo "Conda not found. Installing Miniconda..."
     MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
     MINICONDA_PATH="$HOME/.miniconda3"
 
@@ -13,7 +13,7 @@ if ! command -v conda &> /dev/null; then
     "$MINICONDA_PATH/bin/conda" init bash
 
     . ~/.bashrc
-    echo "Miniconda instalado em $MINICONDA_PATH"
+    echo "Miniconda installed at $MINICONDA_PATH"
 fi
 
 eval "$(conda shell.bash hook 2> /dev/null)"
@@ -21,38 +21,38 @@ eval "$(conda shell.bash hook 2> /dev/null)"
 conda env create -f environment.yml
 conda activate MobMetrics
 
-# Verifica e instala JDK no ambiente ativo
+# Check and install JDK in the active environment
 if ! command -v java &> /dev/null; then
-    echo "JDK não encontrado. Instalando OpenJDK mais recente no ambiente MobMetrics..."
+    echo "JDK not found. Installing the latest OpenJDK in the MobMetrics environment..."
     conda install -y -c conda-forge openjdk
-    echo "JDK instalado e disponível em $(command -v java)"
+    echo "JDK installed and available at $(command -v java)"
 else
-    echo "JDK já disponível: $(java -version 2>&1 | head -n1)"
+    echo "JDK already available: $(java -version 2>&1 | head -n1)"
 fi
 
-# NOVA SEÇÃO: Baixa e instala BonnMotion no diretório atual
-echo "Baixando BonnMotion v3.0.1..."
+# Download and install BonnMotion in the current directory
+echo "Downloading BonnMotion v3.0.1..."
 BONNMOTION_URL="https://bonnmotion.sys.cs.uos.de/src/bonnmotion-3.0.1.zip"
 BONNMOTION_DIR="bonnmotion-3.0.1"
 
 wget "$BONNMOTION_URL" -O bonnmotion.zip
-unzip -o bonnmotion.zip  # -o sobrescreve se existir
+unzip -o bonnmotion.zip  # -o overwrites if it already exists
 rm bonnmotion.zip
 
 if [ -d "$BONNMOTION_DIR" ]; then
     cd "$BONNMOTION_DIR"
-    echo "Instalando BonnMotion..."
-    ./install  # Requer JDK; compila ferramentas de mobilidade
-    echo "BonnMotion instalado em ./$BONNMOTION_DIR. Use ./bin/bm para rodar."
+    echo "Installing BonnMotion..."
+    ./install  # Requires JDK; compiles mobility tools
+    echo "BonnMotion installed in ./$BONNMOTION_DIR. Use ./bin/bm to run."
     cd ..
 else
-    echo "Erro: Diretório $BONNMOTION_DIR não encontrado após extração."
+    echo "Error: Directory $BONNMOTION_DIR not found after extraction."
     exit 1
 fi
 
-echo "Executando makemigrations e migrate..."
+echo "Running makemigrations and migrate..."
 python MobMetrics/manage.py makemigrations metrics
 python MobMetrics/manage.py migrate
 
-echo "Instalação concluída! Ative o ambiente com: conda activate MobMetrics."
-echo "BonnMotion pronto em ./bonnmotion-3.0.1/bin/bm."
+echo "Installation complete! Activate the environment with: conda activate MobMetrics."
+echo "BonnMotion ready at ./bonnmotion-3.0.1/bin/bm."

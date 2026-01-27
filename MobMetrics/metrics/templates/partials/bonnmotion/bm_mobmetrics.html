@@ -1,0 +1,136 @@
+<!-- Pipeline common parameters (Card + Collapse) -->
+<div class="accordion-item">
+    <div class="accordion-header" id="bm_mobmetrics">
+        <button class="accordion-button collapsed fw-semibold" type="button"
+            data-bs-toggle="collapse" data-bs-target="#pipelineCommonCollapse" aria-expanded="false"
+            aria-controls="pipelineCommonCollapse">
+            <div class="fw-semibold">
+                MobMetrics Parameters
+            </div>
+        </button>
+    </div>
+
+    <div id="pipelineCommonCollapse" class="collapse">
+        <div class="card-body p-3 p-md-4">
+
+            <!-- Geo coord -->
+            <div class="parameter-group hidden common mb-3">
+                <div class="form-check">
+                    {{ bm_mobmetrics_form.geo_coord }}
+                    <label class="form-check-label fw-semibold" for="{{ bm_mobmetrics_form.geo_coord.id_for_label }}">
+                        Use geographical coordinates
+                    </label>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Stay Point Parameters -->
+            <div class="mb-4">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-map-marker-alt text-info me-2"></i>Stay Point Parameters
+                </h6>
+
+                <div class="row g-3">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label fw-semibold" for="{{ bm_mobmetrics_form.distance_threshold.id_for_label }}">
+                            Distance threshold (Dths)
+                            <a href="#" class="ms-1" role="button" data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Maximum distance between points to be classified as Stay Point.">
+                                <i class="fas fa-circle-info text-primary"></i>
+                            </a>
+                        </label>
+                        <div class="input-group">
+                            {{ bm_mobmetrics_form.distance_threshold }}
+                            <span class="input-group-text input-border">meters</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label class="form-label fw-semibold" for="{{ bm_mobmetrics_form.time_threshold.id_for_label }}">
+                            Time threshold (Tths)
+                            <a href="#" class="ms-1" role="button" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Minimum time to be classified as Stay Point.">
+                                <i class="fas fa-circle-info text-primary"></i>
+                            </a>
+                        </label>
+                        <div class="input-group">
+                            {{ bm_mobmetrics_form.time_threshold }}
+                            <span class="input-group-text input-border">seconds</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Parameters -->
+            <div class="parameter-group hidden common mb-4">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-users text-warning me-2"></i>Contact Parameters
+                </h6>
+
+                <div class="form-check mb-3">
+                    {{ bm_mobmetrics_form.skip_contact_detection }}
+                    <label class="form-check-label fw-semibold" for="{{ bm_mobmetrics_form.skip_contact_detection.id_for_label }}">
+                        Skip contact detection
+                    </label>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ bm_mobmetrics_form.radius_threshold.id_for_label }}">
+                            Radius threshold (CRths)
+                            <a href="#" class="ms-1" role="button" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Maximum radius to classify a contact.">
+                                <i class="fas fa-circle-info text-primary"></i>
+                            </a>
+                        </label>
+                        <div class="input-group">
+                            {{ bm_mobmetrics_form.radius_threshold }}
+                            <span class="input-group-text input-border">meters</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ bm_mobmetrics_form.contact_time_threshold.id_for_label }}">
+                            Contact time threshold
+                            <a href="#" class="ms-1" role="button" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Maximum gap between contacts to merge into one event.">
+                                <i class="fas fa-circle-info text-primary"></i>
+                            </a>
+                        </label>
+                        <div class="input-group">
+                            {{ bm_mobmetrics_form.contact_time_threshold }}
+                            <span class="input-group-text input-border">seconds</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entropy Parameters -->
+            <div class="parameter-group hidden common">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-border-all text-primary me-2"></i>Entropy Parameters
+                </h6>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ bm_mobmetrics_form.quadrant_divisions.id_for_label }}">
+                            Quadrant divisions (Qdiv)
+                            <a href="#" class="ms-1" role="button" data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Total quadrants = Q^2 (2D). Used by Spatial Cover / Quadrant Entropy.">
+                                <i class="fas fa-circle-info text-primary"></i>
+                            </a>
+                        </label>
+                        <div class="input-group">
+                            {{ bm_mobmetrics_form.quadrant_divisions }}
+                            <span class="input-group-text input-border">Quadrants</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

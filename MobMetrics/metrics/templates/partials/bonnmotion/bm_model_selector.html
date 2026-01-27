@@ -1,0 +1,21 @@
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-8">
+                <label for="{{ select_form.model.id_for_label }}" class="form-label fw-semibold">
+                    Mobility model
+                    <a href="#" class="ms-1" role="button" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Select a BonnMotion model. The available parameters below will update automatically.">
+                        <i class="fas fa-circle-info text-primary"></i>
+                    </a>
+                </label>
+
+                {{ select_form.model }}
+
+                <div class="form-text">
+                    Tip: after selecting a model, open the accordion sections below and fill the fields.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
